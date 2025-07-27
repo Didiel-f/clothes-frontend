@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import IndexPageView from "pages-sections/landing/page-view";
+import FashionTwoPageView from "pages-sections/fashion-2/page-view";
 
 export const metadata: Metadata = {
   title: "Bazaar - Next.js E-commerce Template",
@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
   keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
 };
-
 export default function IndexPage() {
-  return <IndexPageView />;
+return <FashionTwoPageView />;
 }
