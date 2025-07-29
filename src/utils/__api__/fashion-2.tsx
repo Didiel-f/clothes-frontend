@@ -4,8 +4,8 @@ import Blog from "models/Blog.model";
 import Brand from "models/Brand.model";
 import Product from "models/Product.model";
 import Service from "models/Service.model";
-import Category from "models/Category.model";
 import MainCarouselItem from "models/Market-1.model";
+import { ICategory } from "models/Category.model";
 
 const getProducts = cache(async (): Promise<Product[]> => {
   const response = await axios.get("/api/fashion-shop-2/products");
@@ -47,7 +47,7 @@ const getServices = cache(async (): Promise<Service[]> => {
   return response.data;
 });
 
-export const getCategories = cache(async (): Promise<any> => {
+export const getCategories = cache(async (): Promise<ICategory[]> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?populate=*`
 
   const response = await fetch(url, {
