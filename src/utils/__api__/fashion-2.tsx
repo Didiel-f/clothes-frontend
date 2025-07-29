@@ -1,4 +1,4 @@
-import { cache } from "react";
+import { cache, useEffect, useState } from "react";
 import axios from "utils/axiosInstance";
 import Blog from "models/Blog.model";
 import Brand from "models/Brand.model";
@@ -47,9 +47,16 @@ const getServices = cache(async (): Promise<Service[]> => {
   return response.data;
 });
 
-const getCategories = cache(async (): Promise<Category[]> => {
-  const response = await axios.get("/api/fashion-shop-2/category");
-  return response.data;
+export const getCategories = cache(async (): Promise<any> => {
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?populate=*`
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+    } 
+  })
+  const json = await response.json()
+  return json.data;
 });
 
 const getMainCarouselData = cache(async (): Promise<MainCarouselItem[]> => {
@@ -67,7 +74,6 @@ export default {
   getBrands,
   getProducts,
   getServices,
-  getCategories,
   getSaleProducts,
   getLatestProducts,
   getPopularProducts,
