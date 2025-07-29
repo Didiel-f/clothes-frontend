@@ -77,7 +77,7 @@ const getServices = cache(async (): Promise<Service[]> => {
 
 export const getCategories = cache(async (): Promise<ICategory[]> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?populate=*`
-
+console.log('url', url)
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,

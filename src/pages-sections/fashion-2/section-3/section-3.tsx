@@ -7,7 +7,9 @@ import { getCategories } from "utils/__api__/fashion-2";
 // API FUNCTIONS
 
 export default async function Section3() {
+  console.log('Section3')
   const categories = await getCategories();
+  console.log('Section3, categories', categories)
 
   return (
     <Container className="mt-4">
