@@ -5,7 +5,35 @@ import Brand from "models/Brand.model";
 import Product from "models/Product.model";
 import Service from "models/Service.model";
 import MainCarouselItem from "models/Market-1.model";
-import { ICategory } from "models/Category.model";
+
+export interface ICategory {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  documentId: string;
+  image: {
+    id: number;
+    documentId: string;
+    name: string;
+    alternativeText: string | null;
+    caption: string | null;
+    url: string;
+    width?: number;
+    height?: number;
+    formats?: any;
+    mime?: string;
+    size?: number;
+    createdAt?: string;
+    updatedAt?: string;
+  };
+  parent: ICategory[];       // Puede ser [] o una lista si soportas multijerarquía
+  children: ICategory[] | null;
+  products: any[];          // Puedes tipar esto como Product[] si tienes ese modelo
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
 
 const getProducts = cache(async (): Promise<Product[]> => {
   const response = await axios.get("/api/fashion-shop-2/products");
