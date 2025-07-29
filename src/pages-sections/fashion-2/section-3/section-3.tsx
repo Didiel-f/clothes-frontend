@@ -16,7 +16,7 @@ export default async function Section3() {
       </Typography>
 
       <Grid container spacing={3}>
-        {categories.map((item) => (
+        {categories?.map((item) => (
           <Grid size={{ md: 3, sm: 6, xs: 12 }} key={item.id}>
             <CategoryCard1 image={item?.image?.url!} title={item.name} />
           </Grid>
