@@ -83,7 +83,9 @@ export const getCategories = cache(async (): Promise<ICategory[]> => {
       Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
     } 
   })
+  console.log('response getCategories', response)
   const json = await response.json()
+  console.log('jsooon', json)
   return json.data;
 });
 
