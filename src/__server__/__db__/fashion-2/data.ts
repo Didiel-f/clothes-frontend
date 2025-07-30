@@ -95,8 +95,8 @@ export const serviceList = [
   {
     id: "f2ad1b40-0aeb-4fb0-af34-1f2b475f89ed",
     icon: "Payment",
-    title: "Payment",
-    description: "Secure system"
+    title: "Pago",
+    description: "Sistema seguro"
   }
 ];
 

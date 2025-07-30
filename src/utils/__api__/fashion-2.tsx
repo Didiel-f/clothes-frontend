@@ -4,7 +4,7 @@ import Blog from "models/Blog.model";
 import Brand from "models/Brand.model";
 import Product from "models/Product.model";
 import Service from "models/Service.model";
-import MainCarouselItem from "models/Market-1.model";
+import MainCarouselItem, { IMainCarousel } from "models/Market-1.model";
 
 export interface ICategory {
   id: number;
@@ -75,18 +75,43 @@ const getServices = cache(async (): Promise<Service[]> => {
   return response.data;
 });
 
-export const getCategories = cache(async (): Promise<ICategory[]> => {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?populate=*`
-console.log('url', url)
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
-    } 
-  })
-  console.log('response getCategories', response)
-  const json = await response.json()
-  console.log('jsooon', json)
-  return json.data;
+export const getCategories = async (): Promise<ICategory[]> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?populate=*`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+      },
+      next: { revalidate: 3600 }, // opcional: cachear 1 hora
+    });
+
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+
+    const json = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error("❌ Error al obtener categorías:", error);
+    return [];
+  }
+};
+
+
+export const getCarouselData = cache(async (): Promise<IMainCarousel[]> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/main-carousels?populate=*`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+      },
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+
+    const json = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error("❌ Error al obtener categorías:", error);
+    return [];
+  }
 });
 
 const getMainCarouselData = cache(async (): Promise<MainCarouselItem[]> => {
