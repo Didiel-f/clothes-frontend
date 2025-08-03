@@ -15,7 +15,7 @@ export default function CartPageView() {
       {/* CART PRODUCT LIST */}
       <Grid size={{ md: 8, xs: 12 }}>
         {state.cart.map((item) => (
-          <CartItem key={item.id} item={item} />
+          <CartItem key={item.variant.documentId} item={item} />
         ))}
       </Grid>
 

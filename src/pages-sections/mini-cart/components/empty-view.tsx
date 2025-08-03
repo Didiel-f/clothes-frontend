@@ -20,7 +20,7 @@ export default function EmptyCartView() {
           color: "grey.600",
           textAlign: "center"
         }}>
-        Your shopping bag is empty. Start shopping
+        Tu carrito está vacío. añade productos
       </Typography>
     </FlexBox>
   );

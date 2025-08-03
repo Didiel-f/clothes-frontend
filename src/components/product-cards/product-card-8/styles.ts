@@ -41,7 +41,7 @@ export const CardContent = styled("div")(({ theme }) => ({
   }
 }));
 
-export const AddToCartButton = styled(IconButton)(({ theme }) => ({
+export const FavoriteButton = styled(IconButton)(({ theme }) => ({
   top: 15,
   right: -40,
   position: "absolute",
@@ -51,7 +51,7 @@ export const AddToCartButton = styled(IconButton)(({ theme }) => ({
   ".icon": { fontSize: 16 }
 }));
 
-export const FavoriteButton = styled(IconButton)(({ theme }) => ({
+export const AddToCartButton = styled(IconButton)(({ theme }) => ({
   top: 55,
   right: -40,
   position: "absolute",

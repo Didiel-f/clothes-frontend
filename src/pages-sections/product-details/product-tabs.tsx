@@ -33,7 +33,7 @@ export default function ProductTabs({ reviews, description }: Props) {
         value={selectedOption}
         indicatorColor="primary"
         onChange={handleChangeTab}>
-        <Tab className="inner-tab" label="Description" />
+        <Tab className="inner-tab" label="Descripción" />
         <Tab className="inner-tab" label="Review (3)" />
       </StyledTabs>
 

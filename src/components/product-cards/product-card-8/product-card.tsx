@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Rating from "@mui/material/Rating";
 // GLOBAL CUSTOM COMPONENTS
 import LazyImage from "components/LazyImage";
 // LOCAL CUSTOM COMPONENTS
@@ -8,24 +7,24 @@ import HoverActions from "./hover-actions";
 import { currency } from "lib";
 // STYLED COMPONENTS
 import { Card, CardMedia, CardContent } from "./styles";
+import { IProduct } from "models/Product.model";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
 
 // ==============================================================
-type Props = { product: Product };
+type Props = { product: IProduct };
 // ==============================================================
 
 export default function ProductCard8({ product }: Props) {
-  const { slug, title, price, thumbnail, categories, reviews, rating } = product;
+  const { slug, name, price, images, category } = product;
 
   return (
     <Card>
       <CardMedia>
         <Link href={`/products/${slug}`}>
           <LazyImage
-            width={300}
-            height={300}
-            src={thumbnail}
+            width={150}
+            height={150}
+            src={images[0]?.url ?? "/assets/images/faces/7.png"}
             alt="category"
             className="product-img"
           />
@@ -36,19 +35,13 @@ export default function ProductCard8({ product }: Props) {
 
       <CardContent>
         {/* PRODUCT CATEGORY */}
-        {categories.length > 0 ? <p className="category">{categories[0]}</p> : null}
+        <p className="category">{category?.name}</p>
 
         {/* PRODUCT TITLE / NAME */}
-        <p className="title">{title}</p>
+        <p className="title">{name}</p>
 
         {/* PRODUCT PRICE */}
         <h4 className="price">{currency(price)}</h4>
-
-        {/* PRODUCT RATING / REVIEW */}
-        <div className="ratings">
-          <Rating readOnly value={rating} sx={{ fontSize: 16 }} />
-          <p className="total">({reviews?.length || 0} Reviews)</p>
-        </div>
       </CardContent>
     </Card>
   );

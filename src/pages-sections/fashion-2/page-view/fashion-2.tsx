@@ -12,45 +12,48 @@ import Section7 from "../section-7";
 import Section8 from "../section-8";
 import Section9 from "../section-9";
 import Section10 from "../section-10";
+import Layout1 from "app/fashion-2/layout";
 
 export default function FashionTwoPageView() {
   return (
-    <div className="bg-white">
-      {/* HERO SECTION CAROUSEL */}
-      <Section1 />
+    <Layout1>
+      <div className="bg-white">
+        {/* HERO SECTION CAROUSEL */}
+        <Section1 />
 
-      {/* SERVICE CARDS */}
-      <Section2 />
+        {/* SERVICE CARDS */}
+        <Section2 />
 
-      {/* BEST SELLING CATEGORIES */}
-      <Section3 />
+        {/* BEST SELLING CATEGORIES */}
+        <Section3 />
 
-      {/* BEST SELLING PRODUCTS */}
-      <Section4 />
+        {/* BEST SELLING PRODUCTS */}
+        <Section4 />
 
-      {/* OFFER BANNERS */}
-      <Section5 />
+        {/* OFFER BANNERS */}
+        <Section5 />
 
-      {/* FEATURED PRODUCTS */}
-      <Section6 />
+        {/* FEATURED PRODUCTS */}
+        <Section6 />
 
-      {/* SUMMER SALE OFFER AREA */}
-      <Section7 />
+        {/* SUMMER SALE OFFER AREA */}
+        <Section7 />
 
-      {/* BLOG LIST AREA */}
-      <Section8 />
+        {/* BLOG LIST AREA */}
+        <Section8 />
 
-      {/* BRAND LIST CAROUSEL AREA */}
-      <Section9 />
+        {/* BRAND LIST CAROUSEL AREA */}
+        <Section9 />
 
-      {/* PRODUCT LIST COLUMN */}
-      <Section10 />
+        {/* PRODUCT LIST COLUMN */}
+        <Section10 />
 
-      {/* POPUP NEWSLETTER FORM */}
-      <Newsletter />
+        {/* POPUP NEWSLETTER FORM */}
+        <Newsletter />
 
-      {/* SETTINGS IS USED ONLY FOR DEMO, YOU CAN REMOVE THIS */}
-      <Setting />
-    </div>
+        {/* SETTINGS IS USED ONLY FOR DEMO, YOU CAN REMOVE THIS */}
+        <Setting />
+      </div>
+    </Layout1>
   );
 }

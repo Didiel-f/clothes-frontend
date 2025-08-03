@@ -29,8 +29,8 @@ export const LayoutEndpoints = (Mock: MockAdapter) => {
             logo: "/assets/images/bazaar-black-sm.svg"
           },
           topbar: {
-            label: "HOT",
-            title: "Free Express Shipping",
+            label: "GRATIS",
+            title: "Envío Express",
             socials: db.topbarSocialLinks,
             languageOptions: db.languageOptions
           },

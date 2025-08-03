@@ -1,52 +1,39 @@
 "use client";
-
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
-// DUMMY DATA
-import productVariants from "data/product-variants";
+import { IVariant } from "models/Product.model";
 
-export default function ProductVariantSelector() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+type Props = {
+  variants: IVariant[],
+  selectedVariant: IVariant | undefined,
+  setSelectedVariant: (variant: IVariant | undefined) => void
+};
 
-  return productVariants.map((variant) => (
-    <div className="mb-1" key={variant.id}>
+export default function ProductVariantSelector({ variants, selectedVariant, setSelectedVariant }: Props) {
+  return (
+    <div className="mb-1">
       <Typography variant="h6" sx={{ mb: 1 }}>
-        {variant.title}
+        Tamaño
       </Typography>
-
       <div className="variant-group">
-        {variant.values.map(({ id, value }) => {
-          const variantNameLowerCase = variant.title.toLowerCase();
-
-          // Base variant params on current params so we can preserve any other param state in the url.
-          const optionSearchParams = new URLSearchParams(searchParams);
-
-          // Update the variant params using the current variant to reflect how the url *would* change,
-          // if the variant was clicked.
-          optionSearchParams.set(variantNameLowerCase, value);
-
-          const optionUrl = () => {
-            router.push(`${pathname}?${optionSearchParams}`, { scroll: false });
-          };
-
-          // The variant is active if it's in the url params.
-          const isActive = searchParams.get(variantNameLowerCase) === value;
+        {variants.map((variant) => {
+          const { documentId, shoesSize, clotheSize, isShoe } = variant
+          const variantNameLowerCase = isShoe ? shoesSize?.toUpperCase() : clotheSize?.toUpperCase();
+          const isActive = selectedVariant?.documentId === documentId
 
           return (
             <Chip
-              key={id}
-              label={value}
+              key={documentId}
+              label={variantNameLowerCase}
               size="small"
               variant="outlined"
-              onClick={optionUrl}
+              onClick={() => setSelectedVariant(variant)}
+              disabled={variant.stock < 1}
               color={isActive ? "primary" : "default"}
             />
           );
         })}
       </div>
     </div>
-  ));
+  );
 }

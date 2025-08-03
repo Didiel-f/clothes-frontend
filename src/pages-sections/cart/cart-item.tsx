@@ -23,7 +23,11 @@ type Props = { item: CartModel };
 // =========================================================
 
 export default function CartItem({ item }: Props) {
-  const { id, title, price, thumbnail, slug, qty } = item;
+  const { product, variant, qty } = item;
+  const { name, images, slug, price } = product
+  const { isShoe, shoesSize, clotheSize } = variant
+  const productSize = isShoe ? shoesSize : clotheSize
+  // const { id, title, price, thumbnail, slug, qty } = item;
 
   const { dispatch } = useCart();
 
@@ -31,13 +35,13 @@ export default function CartItem({ item }: Props) {
   const handleCartAmountChange = (amount: number) => () => {
     dispatch({
       type: "CHANGE_CART_AMOUNT",
-      payload: { id, title, price, thumbnail, slug, qty: amount }
+      payload: { product, variant, qty: amount }
     });
   };
 
   return (
     <Wrapper>
-      <Image alt={title} width={150} height={150} src={thumbnail} />
+      <Image alt={name} width={150} height={150} src={images[0]?.url} />
 
       {/* DELETE BUTTON */}
       <IconButton
@@ -50,14 +54,14 @@ export default function CartItem({ item }: Props) {
       <FlexBox p={2} rowGap={2} width="100%" flexDirection="column">
         <Link href={`/products/${slug}`}>
           <Typography noWrap component="h3" sx={{ fontSize: 18 }}>
-            {title}
+            {name} - {productSize}
           </Typography>
         </Link>
 
         {/* PRODUCT PRICE SECTION */}
         <FlexBox gap={1} flexWrap="wrap" alignItems="center">
           <Typography variant="body1" sx={{ color: "grey.600" }}>
-            {currency(price)} x {qty}
+            {price} x {qty}
           </Typography>
 
           <Typography variant="h6" color="primary">

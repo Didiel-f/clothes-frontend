@@ -5,22 +5,19 @@ import { useRouter } from "next/navigation";
 // MUI ICON COMPONENTS
 import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
-import AddShoppingCart from "@mui/icons-material/AddShoppingCart";
 // GLOBAL CUSTOM HOOKS
 import useCart from "hooks/useCart";
 // CUSTOM COMPONENTS
 import { FavoriteButton, AddToCartButton, QuickViewButton } from "./styles";
+import { IProduct } from "models/Product.model";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
 
 // ==============================================================
-type Props = { product: Product };
+type Props = { product: IProduct };
 // ==============================================================
 
 export default function HoverActions({ product }: Props) {
-  const { slug, id, title, price, thumbnail } = product;
-
-  const { dispatch } = useCart();
+  const { slug, documentId, name, price, images } = product;
 
   const router = useRouter();
   const [isFavorite, setFavorite] = useState(false);
@@ -29,22 +26,23 @@ export default function HoverActions({ product }: Props) {
     setFavorite((state) => !state);
   };
 
+  /*
   const handleAddToCart = () => {
     dispatch({
       type: "CHANGE_CART_AMOUNT",
-      payload: { id, slug, price, title, thumbnail, qty: 1 }
+      payload: { product, variant: selectedVariant!, qty: 1 }
     });
 
     router.push("/mini-cart", { scroll: false });
-  };
+  };*/
 
   return (
     <Fragment>
-      {/* ADD TO CART BUTTON */}
+      {/* ADD TO CART BUTTON 
       <AddToCartButton className="product-actions" onClick={handleAddToCart}>
         <AddShoppingCart className="icon" fontSize="small" />
       </AddToCartButton>
-
+*/}
       {/* PRODUCT FAVORITE BUTTON */}
       <FavoriteButton className="product-actions" onClick={handleFavorite}>
         {isFavorite ? (

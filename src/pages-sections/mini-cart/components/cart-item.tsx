@@ -25,28 +25,34 @@ interface Props {
 // ==============================================================
 
 export default function MiniCartItem({ item, handleCartAmountChange }: Props) {
+
+  const { product, variant, qty } = item;
+  const { name, images, slug, price } = product
+  const { isShoe, shoesSize, clotheSize, documentId } = variant
+  const productSize = isShoe ? shoesSize : clotheSize
+
   return (
     <FlexBox
       py={2}
       px={2.5}
-      key={item.id}
+      key={documentId}
       alignItems="center"
       borderBottom="1px dashed"
       borderColor="divider"
       gap={2}>
-      <Link href={`/products/${item.slug}`}>
+      <Link href={`/products/${slug}`}>
         <Avatar variant="rounded" sx={{ width: 75, height: 75, borderRadius: 3 }}>
-          <Image alt={item.title} src={item.thumbnail} fill sizes="(75px, 75px)" />
+          <Image alt={name} src={images[0]?.url} fill sizes="(75px, 75px)" />
         </Avatar>
       </Link>
 
       <Box flex="1" textOverflow="ellipsis" whiteSpace="nowrap" overflow="hidden">
         <Typography noWrap variant="h6" className="title">
-          {item.title}
+          {name} - {productSize}
         </Typography>
 
         <Typography variant="body1" sx={{ fontSize: 12, color: "grey.600", mb: 1 }}>
-          {currency(item.price)} x {item.qty}
+          {currency(price)} x {item.qty}
         </Typography>
 
         <FlexBox alignItems="center" gap={1}>

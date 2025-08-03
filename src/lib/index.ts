@@ -49,10 +49,10 @@ export function calculateDiscount(price: number, discount: number) {
  * @returns - RETURN PRICE WITH CURRENCY
  */
 
-export function currency(price: number, fraction: number = 2) {
-  return Intl.NumberFormat("en-US", {
-    currency: "USD",
+export function currency(price: number, fraction: number = 0) {
+  return Intl.NumberFormat("es-CL", {
     style: "currency",
+    currency: "CLP",
     maximumFractionDigits: fraction
   }).format(price);
 }

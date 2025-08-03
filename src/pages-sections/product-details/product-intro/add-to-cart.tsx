@@ -6,30 +6,25 @@ import Button from "@mui/material/Button";
 // GLOBAL CUSTOM HOOK
 import useCart from "hooks/useCart";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
+import { IProduct, IVariant } from "models/Product.model";
 
 // ================================================================
-type Props = { product: Product };
+type Props = { hasStock: boolean, product: IProduct, selectedVariant: IVariant | undefined; };
 // ================================================================
 
-export default function AddToCart({ product }: Props) {
-  const { id, price, title, slug, thumbnail } = product;
-
+export default function AddToCart({ hasStock, product, selectedVariant }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(false);
   const { dispatch } = useCart();
-
   const handleAddToCart = () => {
     setLoading(true);
-    setTimeout(() => {
-      dispatch({
-        type: "CHANGE_CART_AMOUNT",
-        payload: { id, slug, price, title, thumbnail, qty: 1 }
-      });
+    dispatch({
+      type: "CHANGE_CART_AMOUNT",
+      payload: { product, variant: selectedVariant!, qty: 1 }
+    });
 
-      router.push("/mini-cart", { scroll: false });
-      setLoading(false);
-    }, 500);
+    router.push("/mini-cart", { scroll: false });
+    setLoading(false);
   };
 
   return (
@@ -38,8 +33,9 @@ export default function AddToCart({ product }: Props) {
       variant="contained"
       loading={isLoading}
       onClick={handleAddToCart}
+      disabled={!hasStock || !selectedVariant}
       sx={{ mb: 4.5, px: "1.75rem", height: 40 }}>
-      Add to Cart
+      Añadir al carrito
     </Button>
   );
 }

@@ -3,11 +3,11 @@ import Container from "@mui/material/Container";
 // GLOBAL CUSTOM COMPONENTS
 import { Carousel } from "components/carousel";
 import ProductCard8 from "components/product-cards/product-card-8";
+import { getFeatureProductsData } from "utils/__api__/fashion-2";
 // API FUNCTIONS
-import api from "utils/__api__/fashion-2";
 
 export default async function Section6() {
-  const products = await api.getFeatureProducts();
+  const products = await getFeatureProductsData();
 
   const responsive = [
     { breakpoint: 1200, settings: { slidesToShow: 4 } },
@@ -19,15 +19,15 @@ export default async function Section6() {
   return (
     <Container className="mt-4">
       <Typography variant="h2" sx={{ textAlign: "center", mb: "2rem" }}>
-        Featured Products
+        Productos destacados
       </Typography>
 
       <Carousel
         slidesToShow={5}
         responsive={responsive}
         arrowStyles={{ backgroundColor: "dark.main", top: "34%" }}>
-        {products.map((product) => (
-          <ProductCard8 key={product.id} product={product} />
+        {products && products?.map((product) => (
+          <ProductCard8 key={product.documentId} product={product} />
         ))}
       </Carousel>
     </Container>

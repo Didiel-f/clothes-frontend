@@ -35,7 +35,7 @@ export default function MiniCart() {
   };
 
   const getTotalPrice = () => {
-    return state.cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+    return state.cart.reduce((acc, item) => acc + item.product.price * item.qty, 0);
   };
 
   return (
@@ -44,7 +44,7 @@ export default function MiniCart() {
       <FlexBetween ml={3} mr={2} height={74}>
         <FlexBox gap={1} alignItems="center" color="secondary.main">
           <CartBag color="inherit" />
-          <Typography variant="h6">{CART_LENGTH} item</Typography>
+          <Typography variant="h6">{CART_LENGTH} productos</Typography>
         </FlexBox>
 
         <IconButton onClick={router.back}>
@@ -61,7 +61,7 @@ export default function MiniCart() {
             {state.cart.map((item) => (
               <MiniCartItem
                 item={item}
-                key={item.id}
+                key={item.variant.documentId}
                 handleCartAmountChange={handleCartAmountChange}
               />
             ))}
@@ -81,7 +81,7 @@ export default function MiniCart() {
             sx={{ mb: "0.75rem", height: 40 }}
             LinkComponent={Link}
             href="/checkout-alternative">
-            Checkout Now ({currency(getTotalPrice())})
+            Comprar ahora ({currency(getTotalPrice())})
           </Button>
 
           <Button
@@ -91,7 +91,7 @@ export default function MiniCart() {
             sx={{ height: 40 }}
             LinkComponent={Link}
             href="/cart">
-            View Cart
+            Ver carrito
           </Button>
         </Box>
       ) : null}

@@ -1,7 +1,6 @@
-import Link from "next/link";
+"use client"
 // MUI
 import Grid from "@mui/material/Grid";
-import Rating from "@mui/material/Rating";
 import Typography from "@mui/material/Typography";
 // LOCAL CUSTOM COMPONENTS
 import AddToCart from "./add-to-cart";
@@ -12,44 +11,40 @@ import { currency } from "lib";
 // STYLED COMPONENTS
 import { StyledRoot } from "./styles";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
+import { IProduct, IVariant } from "models/Product.model";
+import { useState } from "react";
 
 // ================================================================
-type Props = { product: Product };
+type Props = { product: IProduct };
 // ================================================================
 
 export default function ProductIntro({ product }: Props) {
+  const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
+  const hasStock = product.variants.some(variant => variant.stock > 0);
   return (
     <StyledRoot>
       <Grid container spacing={3} justifyContent="space-around">
         {/* IMAGE GALLERY AREA */}
-        <Grid size={{ lg: 5, md: 7, xs: 12 }}>
+        { product.images && (<Grid size={{ lg: 5, md: 7, xs: 12 }}>
           <ProductGallery images={product.images!} />
-        </Grid>
+        </Grid>)}
 
         {/* PRODUCT INFO AREA */}
         <Grid size={{ lg: 6, md: 5, xs: 12 }}>
           {/* PRODUCT NAME */}
           <Typography variant="h1" sx={{ mb: 1 }}>
-            {product.title}
+            {product.name}
           </Typography>
 
           {/* PRODUCT BRAND */}
           {product.brand && (
             <p className="brand">
-              Brand: <strong>{product.brand}</strong>
+              Marca: <strong>{product.brand.name}</strong>
             </p>
           )}
 
-          {/* PRODUCT RATING */}
-          <div className="rating">
-            <span>Rated:</span>
-            <Rating readOnly color="warn" size="small" value={product.rating} />
-            <Typography variant="h6">({product.reviews?.length || 0})</Typography>
-          </div>
-
           {/* PRODUCT VARIANTS */}
-          <ProductVariantSelector />
+          <ProductVariantSelector selectedVariant={selectedVariant} setSelectedVariant={setSelectedVariant} variants={product.variants} />
 
           {/* PRICE & STOCK */}
           <div className="price">
@@ -57,21 +52,15 @@ export default function ProductIntro({ product }: Props) {
               {currency(product.price)}
             </Typography>
 
-            <p>Stock Available</p>
+            { hasStock
+              ? (<p>Stock Disponible</p>)
+              : (<p>Agotado</p>)
+            }
           </div>
 
           {/* ADD TO CART BUTTON */}
-          <AddToCart product={product} />
+          <AddToCart hasStock={hasStock} product={product} selectedVariant={selectedVariant} />
 
-          {/* SHOP NAME */}
-          {product.shop && (
-            <p className="shop">
-              Sold By:
-              <Link href={`/shops/${product.shop.slug}`}>
-                <strong>{product.shop.name}</strong>
-              </Link>
-            </p>
-          )}
         </Grid>
       </Grid>
     </StyledRoot>

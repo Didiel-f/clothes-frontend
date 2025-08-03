@@ -60,7 +60,8 @@ export default function ShopLayout1({ children, data }: Props) {
       {/* TOP BAR SECTION */}
       <Topbar label={topbar.label} title={topbar.title}>
         <Topbar.Right>
-          <TopbarLanguageSelector languages={topbar.languageOptions} />
+          { //<TopbarLanguageSelector languages={topbar.languageOptions} />
+          }
           <TopbarSocialLinks links={topbar.socials} />
         </Topbar.Right>
       </Topbar>
