@@ -4,10 +4,10 @@ import Typography from "@mui/material/Typography";
 import { Carousel } from "components/carousel";
 import ProductCard8 from "components/product-cards/product-card-8";
 // API FUNCTIONS
-import api from "utils/__api__/fashion-2";
+import { getFeatureProductsData } from "utils/__api__/fashion-2";
 
 export default async function Section4() {
-  const products = await api.getProducts();
+  const products = await getFeatureProductsData();
 
   const responsive = [
     { breakpoint: 1024, settings: { slidesToShow: 3 } },

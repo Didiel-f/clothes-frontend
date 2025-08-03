@@ -16,32 +16,27 @@ import Close from "@mui/icons-material/Close";
 // GLOBAL CUSTOM COMPONENTS
 import { Carousel } from "components/carousel";
 import FlexBox from "components/flex-box/flex-box";
-// LOCAL CUSTOM HOOKS
-import useCart from "hooks/useCart";
 // CUSTOM UTILS LIBRARY FUNCTION
 import { currency } from "lib";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
+import { IProduct } from "models/Product.model";
 
 // =====================================================
-type Props = { product: Product };
+type Props = { product: IProduct };
 // =====================================================
 
 export default function ProductQuickView({ product }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(false);
 
-  const { dispatch } = useCart();
+  //const { dispatch } = useCart();
 
   const handleAddToCart = () => {
     setLoading(true);
-
-    setTimeout(() => {
-      dispatch({ type: "CHANGE_CART_AMOUNT", payload: { ...product, qty: 1 } });
+      //dispatch({ type: "CHANGE_CART_AMOUNT", payload: { ...product, qty: 1 } });
       setLoading(false);
-    }, 500);
   };
-
+console.log('product.images', product.images)
   return (
     <Dialog open maxWidth={false} onClose={router.back} sx={{ zIndex: 1501, boxShadow: 5 }}>
       <DialogContent sx={{ maxWidth: 900, width: "100%" }}>
@@ -50,15 +45,16 @@ export default function ProductQuickView({ product }: Props) {
             <Grid size={{ md: 6, xs: 12 }}>
               <Carousel
                 slidesToShow={1}
+                infinite={false}
                 arrowStyles={{
                   boxShadow: 0,
                   color: "primary.main",
                   backgroundColor: "transparent"
                 }}>
-                {product.images!.map((item: string, index: number) => (
+                {product.images.map((item) => (
                   <Box
-                    key={index}
-                    src={item}
+                    key={item.documentId}
+                    src={item.url}
                     component="img"
                     alt="product"
                     sx={{
@@ -76,27 +72,19 @@ export default function ProductQuickView({ product }: Props) {
               <Typography
                 variant="body1"
                 sx={{ color: "grey.500", textTransform: "uppercase", textDecoration: "underline" }}>
-                {product.categories[0] || "Cosmetic"}
+                {product?.category?.name || ""}
               </Typography>
 
               <Typography variant="h2" sx={{ pt: 1, pb: 2, lineHeight: 1 }}>
-                {product.title}
+                {product?.name}
               </Typography>
 
               <Typography variant="h1" color="primary">
-                {currency(product.price)}
+                {currency(product?.price)}
               </Typography>
 
-              <FlexBox alignItems="center" gap={1} mt={2}>
-                <Rating size="small" color="warn" value={4} readOnly />
-                <Typography variant="h6" lineHeight="1">
-                  (50)
-                </Typography>
-              </FlexBox>
-
               <Typography variant="body1" sx={{ my: 2 }}>
-                {product?.description ||
-                  "Sed egestas, ante et vulputate volutpat, eros pede semper est, vitae luctus metus libero eu augue. Morbi purus liberpuro ate vol faucibus adipiscing."}
+                {product?.shortDescription || ""}
               </Typography>
 
               <Divider sx={{ mb: 2 }} />
@@ -107,7 +95,7 @@ export default function ProductQuickView({ product }: Props) {
                 variant="contained"
                 loading={isLoading}
                 onClick={handleAddToCart}>
-                Add to Cart
+                Añadir al carrito
               </Button>
             </Grid>
           </Grid>
