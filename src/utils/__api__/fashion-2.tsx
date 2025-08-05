@@ -1,11 +1,9 @@
-import { cache, useEffect, useState } from "react";
-import axios from "utils/axiosInstance";
+import { cache } from "react";
 import Blog from "models/Blog.model";
-import Brand from "models/Brand.model";
-import Product, { IProduct } from "models/Product.model";
+import { IProduct } from "models/Product.model";
 import Service from "models/Service.model";
-import MainCarouselItem, { IMainCarousel } from "models/Market-1.model";
-import { serviceList } from "__server__/__db__/fashion-2/data";
+import { IMainCarousel } from "models/Market-1.model";
+import { articles, serviceList, products, mainCarouselData, brandList } from "__server__/__db__/fashion-2/data";
 
 export interface ICategory {
   id: number;
@@ -93,54 +91,44 @@ export const getFeatureProductsData = cache(async (): Promise<IProduct[]> => {
   }
 });
 
-const getFeatureProducts = cache(async (): Promise<Product[]> => {
-  const response = await axios.get("/api/fashion-shop-2/products?tag=feature");
-  return response.data;
+const getFeatureProducts = cache(async (): Promise<any[]> => {
+  return products.filter((item) => item.for.type === "featured-products");
 });
 
-const getProducts = cache(async (): Promise<Product[]> => {
-  const response = await axios.get("/api/fashion-shop-2/products");
-  return response.data;
+const getProducts = cache(async (): Promise<any[]> => {
+  return products.filter((item) => item.for.type === "best-selling-product");
 });
 
-const getSaleProducts = cache(async (): Promise<Product[]> => {
-  const response = await axios.get("/api/fashion-shop-2/products?tag=sale");
-  return response.data;
+const getSaleProducts = cache(async (): Promise<any[]> => {
+  return products.filter((item) => item.for.type === "sale-products");
 });
 
-const getPopularProducts = cache(async (): Promise<Product[]> => {
-  const response = await axios.get("/api/fashion-shop-2/products?tag=popular");
-  return response.data;
+const getPopularProducts = cache(async (): Promise<any[]> => {
+  return products.filter((item) => item.for.type === "popular-products");
 });
 
-const getLatestProducts = cache(async (): Promise<Product[]> => {
-  const response = await axios.get("/api/fashion-shop-2/products?tag=latest");
-  return response.data;
+const getLatestProducts = cache(async (): Promise<any[]> => {
+  return products.filter((item) => item.for.type === "latest-products");
 });
 
-const getBestWeekProducts = cache(async (): Promise<Product[]> => {
-  const response = await axios.get("/api/fashion-shop-2/products?tag=best-week");
-  return response.data;
+const getBestWeekProducts = cache(async (): Promise<any[]> => {
+  return products.filter((item) => item.for.type === "best-week-products");
 });
 
 const getBlogs = cache(async (): Promise<Blog[]> => {
-  const response = await axios.get("/api/fashion-shop-2/blogs");
-  return response.data;
+  return articles;
 });
 
 const getServices = cache(async (): Promise<Service[]> => {
   return serviceList;
 });
 
-
-const getMainCarouselData = cache(async (): Promise<MainCarouselItem[]> => {
-  const response = await axios.get("/api/fashion-shop-2/main-carousel");
-  return response.data;
+const getMainCarouselData = cache(async (): Promise<any[]> => {
+  return mainCarouselData;
 });
 
-const getBrands = cache(async (): Promise<Brand[]> => {
-  const response = await axios.get("/api/fashion-shop-2/brands");
-  return response.data;
+const getBrands = cache(async (): Promise<any[]> => {
+  return brandList;
 });
 
 export default {
