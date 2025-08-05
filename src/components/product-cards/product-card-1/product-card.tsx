@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Rating from "@mui/material/Rating";
 import IconButton from "@mui/material/IconButton";
 import RemoveRedEye from "@mui/icons-material/RemoveRedEye";
 // GLOBAL CUSTOM COMPONENTS
@@ -12,25 +11,28 @@ import DiscountChip from "../discount-chip";
 import FavoriteButton from "./favorite-button";
 // STYLED COMPONENTS
 import { ImageWrapper, ContentWrapper, StyledCard, HoverIconWrapper } from "./styles";
+import { IProduct, IVariant } from "models/Product.model";
+import { useState } from "react";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
 
 // ========================================================
 interface Props {
-  product: Product;
+  product: IProduct;
   showRating?: boolean;
   showProductSize?: boolean;
 }
 // ========================================================
 
 export default function ProductCard1({ product, showProductSize, showRating = true }: Props) {
-  const { slug, title, price, thumbnail, rating, discount } = product;
+  const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
+  const { slug, name, price, images, category } = product;
+  const hasStock = product.variants.some(variant => variant.stock > 0);
 
   return (
     <StyledCard elevation={6}>
       <ImageWrapper>
         {/* DISCOUNT PERCENT CHIP IF AVAILABLE */}
-        <DiscountChip discount={discount} />
+        <DiscountChip discount={50} />
 
         {/* HOVER ACTION ICONS */}
         <HoverIconWrapper className="hover-box">
@@ -47,10 +49,10 @@ export default function ProductCard1({ product, showProductSize, showRating = tr
         <Link href={`/products/${slug}`}>
           <LazyImage
             priority
-            alt={title}
+            alt={name}
             width={500}
             height={500}
-            src={thumbnail}
+            src={images[0]?.url ?? "/assets/images/faces/7.png"}
             className="thumbnail"
           />
         </Link>
@@ -59,20 +61,17 @@ export default function ProductCard1({ product, showProductSize, showRating = tr
       <ContentWrapper>
         <div className="content">
           {/* PRODUCT NAME / TITLE */}
-          <ProductTitle title={title} slug={slug} />
-
-          {/* PRODUCT RATINGS IF AVAILABLE */}
-          {showRating && <Rating size="small" value={rating} color="warn" readOnly />}
+          <ProductTitle title={name} slug={slug} />
 
           {/* PRODUCT SIZE IF AVAILABLE */}
           {showProductSize ? <p className="size">Liter</p> : null}
 
           {/* PRODUCT PRICE WITH DISCOUNT */}
-          <ProductPrice discount={discount} price={price} />
+          <ProductPrice discount={50} price={price} />
         </div>
 
         {/* ADD TO CART BUTTON */}
-        <AddToCart product={product} />
+        <AddToCart hasStock={hasStock} product={product} selectedVariant={selectedVariant} />
       </ContentWrapper>
     </StyledCard>
   );

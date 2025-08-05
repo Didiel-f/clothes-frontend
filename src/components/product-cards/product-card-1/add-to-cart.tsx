@@ -6,31 +6,27 @@ import Button from "@mui/material/Button";
 import Add from "@mui/icons-material/Add";
 // GLOBAL CUSTOM HOOKS
 import useCart from "hooks/useCart";
+import { IProduct, IVariant } from "models/Product.model";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
 
 // ==============================================================
-type Props = { product: Product };
+type Props = { hasStock: boolean, product: IProduct, selectedVariant: IVariant | undefined; };
 // ==============================================================
 
-export default function AddToCart({ product }: Props) {
-  const { id, slug, title, price, thumbnail } = product;
-
+export default function AddToCart({ hasStock, product, selectedVariant }: Props) {
   const { dispatch } = useCart();
   const router = useRouter();
   const [isLoading, setLoading] = useState(false);
 
   const handleAddToCart = () => {
     setLoading(true);
-    setTimeout(() => {
-      dispatch({
-        type: "CHANGE_CART_AMOUNT",
-        payload: { id, slug, price, title, thumbnail, qty: 1 }
-      });
+    dispatch({
+      type: "CHANGE_CART_AMOUNT",
+      payload: { product, variant: selectedVariant!, qty: 1 }
+    });
 
-      router.push("/mini-cart", { scroll: false });
-      setLoading(false);
-    }, 500);
+    router.push("/mini-cart", { scroll: false });
+    setLoading(false);
   };
 
   return (
@@ -39,6 +35,7 @@ export default function AddToCart({ product }: Props) {
       variant="outlined"
       loading={isLoading}
       onClick={handleAddToCart}
+      disabled={!hasStock || !selectedVariant}
       sx={{ padding: "3px", alignSelf: "self-end" }}>
       <Add fontSize="small" />
     </Button>

@@ -9,17 +9,20 @@ import ProductPrice from "../product-price";
 import ProductTags from "./components/tags";
 import AddToCartButton from "./components/add-to-cart";
 import FavoriteButton from "./components/favorite-button";
-// CUSTOM DATA MODEL
-import Product from "models/Product.model";
 // STYLED COMPONENT
 import { ContentWrapper, Wrapper } from "./styles";
+import { IProduct, IVariant } from "models/Product.model";
+import { title } from "process";
+import { useState } from "react";
+import AddToCart from "../product-card-1/add-to-cart";
 
 // ===========================================================
-type Props = { product: Product };
+type Props = { product: IProduct };
 // ===========================================================
 
 export default function ProductCard9({ product }: Props) {
-  const { thumbnail, title, price, discount, rating, slug } = product;
+  const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
+  const hasStock = product.variants.some(variant => variant.stock > 0);
 
   return (
     <Wrapper>
@@ -29,10 +32,10 @@ export default function ProductCard9({ product }: Props) {
       <ContentWrapper>
         <div className="img-wrapper">
           {/* DISCOUNT PERCENT CHIP IF AVAILABLE */}
-          <DiscountChip discount={discount} />
+          <DiscountChip discount={20} />
 
           {/* PRODUCT IMAGE / THUMBNAIL */}
-          <LazyImage src={thumbnail} alt={title} width={500} height={500} />
+          <LazyImage src={product.images[0].url} alt={title} width={500} height={500} />
         </div>
 
         <div className="content">
@@ -41,21 +44,18 @@ export default function ProductCard9({ product }: Props) {
             <ProductTags tags={["Bike", "Motor", "Ducati"]} />
 
             {/* PRODUCT TITLE / NAME */}
-            <Link href={`/products/${slug}`}>
+            <Link href={`/products/${product.slug}`}>
               <Typography variant="h5" sx={{ mt: 1, mb: 2 }}>
                 {title}
               </Typography>
             </Link>
 
-            {/* PRODUCT RATING / REVIEW  */}
-            <Rating size="small" value={rating} color="warn" readOnly />
-
             {/* PRODUCT PRICE */}
-            <ProductPrice price={price} discount={discount} />
+            <ProductPrice price={product.price} discount={20} />
           </div>
 
           {/* PRODUCT ADD TO CART BUTTON */}
-          <AddToCartButton product={product} />
+          <AddToCart hasStock={hasStock} product={product} selectedVariant={selectedVariant} />
         </div>
       </ContentWrapper>
     </Wrapper>

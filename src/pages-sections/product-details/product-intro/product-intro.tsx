@@ -21,6 +21,7 @@ type Props = { product: IProduct };
 export default function ProductIntro({ product }: Props) {
   const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
   const hasStock = product.variants.some(variant => variant.stock > 0);
+  
   return (
     <StyledRoot>
       <Grid container spacing={3} justifyContent="space-around">

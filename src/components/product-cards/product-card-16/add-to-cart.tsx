@@ -7,15 +7,13 @@ import Add from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 // GLOBAL CUSTOM HOOKS
 import useCart from "hooks/useCart";
-// CUSTOM DATA MODEL
-import Product from "models/Product.model";
+import { IProduct, IVariant } from "models/Product.model";
 
 // ==============================================================
-type Props = { product: Product };
+type Props = { hasStock: boolean, product: IProduct, selectedVariant: IVariant | undefined; };
 // ==============================================================
 
-export default function AddToCart({ product }: Props) {
-  const { slug, title, thumbnail, price, id } = product;
+export default function AddToCart({ hasStock, product, selectedVariant }: Props) {
 
   const { dispatch } = useCart();
   const router = useRouter();
@@ -27,7 +25,7 @@ export default function AddToCart({ product }: Props) {
     setTimeout(() => {
       dispatch({
         type: "CHANGE_CART_AMOUNT",
-        payload: { id, slug, price, title, thumbnail, qty: 1 }
+      payload: { product, variant: selectedVariant!, qty: 1 }
       });
 
       router.push("/mini-cart", { scroll: false });
