@@ -16,12 +16,11 @@ import { IProduct } from "models/Product.model";
 // ========================================================
 interface Props {
   product: IProduct;
-  showRating?: boolean;
   showProductSize?: boolean;
 }
 // ========================================================
 
-export default function ProductCard1({ product, showProductSize, showRating = true }: Props) {
+export default function ProductCard1({ product, showProductSize }: Props) {
   const { slug, name, price, images } = product;
 
   return (

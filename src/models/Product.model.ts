@@ -1,5 +1,5 @@
-import Shop from "./Shop.model";
 import Review from "./Review.model";
+import Shop from "./Shop.model";
 
 export default interface Product {
   unit?: any;
@@ -34,6 +34,7 @@ export interface IProduct {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
+  discount?: number;
   brand: IBrand;
   category: ICategory;
   images: IImage[];
@@ -60,6 +61,7 @@ export interface ICategory {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
+  discount?: number;
 }
 
 export interface IImage {
