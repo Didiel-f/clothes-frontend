@@ -14,17 +14,16 @@ export default function CheckoutSummary() {
   const { state } = useCart();
 
   if (!state || !state.cart.length) return null;
-
   return (
     <div>
       <Typography variant="h6" sx={{ mb: 2, color: "secondary.900" }}>
         Your order
       </Typography>
 
-      {state.cart.map(({ title, qty, price, id }) => (
-        <FlexBetween mb={1.5} key={id}>
+      {state.cart.map(({ product: { name, price, documentId }, qty }) => (
+        <FlexBetween mb={1.5} key={documentId}>
           <p>
-            {qty} x {title}
+            {qty} x {name}
           </p>
 
           <p>{currency(price)}</p>

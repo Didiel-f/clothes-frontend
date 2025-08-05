@@ -5,10 +5,8 @@ import { useRouter } from "next/navigation";
 // MUI ICON COMPONENTS
 import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
-// GLOBAL CUSTOM HOOKS
-import useCart from "hooks/useCart";
 // CUSTOM COMPONENTS
-import { FavoriteButton, AddToCartButton, QuickViewButton } from "./styles";
+import { FavoriteButton, QuickViewButton } from "./styles";
 import { IProduct } from "models/Product.model";
 // CUSTOM DATA MODEL
 
