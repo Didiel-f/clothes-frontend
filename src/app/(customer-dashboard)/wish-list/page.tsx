@@ -20,7 +20,8 @@ export default async function WishList() {
   //const { page } = await searchParams;
   const products = await getProducts();
 
-
+  if(products === null) return <div>Data not found</div>;
+  
   if (!products || products?.length === 0) {
     return <div>Data not found</div>;
   }
