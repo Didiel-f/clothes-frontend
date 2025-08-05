@@ -2,11 +2,10 @@ import { memo } from "react";
 import Grid from "@mui/material/Grid";
 // GLOBAL CUSTOM COMPONENT
 import ProductCard1 from "components/product-cards/product-card-1";
-// CUSTOM DATA MODEL
-import Product from "models/Product.model";
+import { IProduct } from "models/Product.model";
 
 // ==============================================================
-type Props = { products: Product[] };
+type Props = { products: IProduct[] };
 // ==============================================================
 
 export default memo(function ProductList({ products }: Props) {
