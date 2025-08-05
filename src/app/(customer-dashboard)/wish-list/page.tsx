@@ -21,7 +21,7 @@ export default async function WishList({ searchParams }: Props) {
   const products = await getProducts();
 
 
-  if (!products || products.length === 0) {
+  if (!products || products?.length === 0) {
     return <div>Data not found</div>;
   }
 
