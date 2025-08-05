@@ -22,7 +22,7 @@ export default async function WishList() {
 
   if(products === null) return <div>Data not found</div>;
   
-  if (!products || products?.length === 0) {
+  if (!products) {
     return <div>Data not found</div>;
   }
 
