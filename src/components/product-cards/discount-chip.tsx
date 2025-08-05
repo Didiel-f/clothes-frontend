@@ -14,7 +14,7 @@ const StyledChip = styled(Chip, {
   paddingRight: 3,
   fontWeight: 500,
   borderRadius: 8,
-  fontSize: "10px",
+  fontSize: "15px",
   position: "absolute",
   ...(shape === "square" && { borderRadius: 0 })
 }));

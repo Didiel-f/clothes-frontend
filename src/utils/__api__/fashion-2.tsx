@@ -2,8 +2,8 @@ import { cache } from "react";
 import Blog from "models/Blog.model";
 import { IProduct } from "models/Product.model";
 import Service from "models/Service.model";
-import { IMainCarousel } from "models/Market-1.model";
 import { articles, serviceList, products, mainCarouselData, brandList } from "__server__/__db__/fashion-2/data";
+import { IMainCarousel } from "models/Carousel.model";
 
 export interface ICategory {
   id: number;

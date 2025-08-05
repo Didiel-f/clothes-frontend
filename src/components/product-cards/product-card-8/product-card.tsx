@@ -8,6 +8,8 @@ import { currency } from "lib";
 // STYLED COMPONENTS
 import { Card, CardMedia, CardContent } from "./styles";
 import { IProduct } from "models/Product.model";
+import { getDiscount } from "components/utils/getDiscount";
+import DiscountChip from "../discount-chip";
 // CUSTOM DATA MODEL
 
 // ==============================================================
@@ -16,7 +18,8 @@ type Props = { product: IProduct };
 
 export default function ProductCard8({ product }: Props) {
   const { slug, name, price, images, category } = product;
-
+  const { isDiscountAvailable, discount } = getDiscount(product);
+  console.log('isDiscountAvailable, discount', isDiscountAvailable, discount)
   return (
     <Card>
       <CardMedia>
@@ -29,7 +32,8 @@ export default function ProductCard8({ product }: Props) {
             className="product-img"
           />
         </Link>
-
+{/* PRODUCT PRICE */}
+{ isDiscountAvailable && <DiscountChip discount={discount} />}
         <HoverActions product={product} />
       </CardMedia>
 
@@ -40,7 +44,7 @@ export default function ProductCard8({ product }: Props) {
         {/* PRODUCT TITLE / NAME */}
         <p className="title">{name}</p>
 
-        {/* PRODUCT PRICE */}
+        
         <h4 className="price">{currency(price)}</h4>
       </CardContent>
     </Card>

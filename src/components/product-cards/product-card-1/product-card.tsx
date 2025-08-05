@@ -11,6 +11,7 @@ import FavoriteButton from "./favorite-button";
 // STYLED COMPONENTS
 import { ImageWrapper, ContentWrapper, StyledCard, HoverIconWrapper } from "./styles";
 import { IProduct } from "models/Product.model";
+import { getDiscount } from "components/utils/getDiscount";
 // CUSTOM DATA MODEL
 
 // ========================================================
@@ -22,12 +23,13 @@ interface Props {
 
 export default function ProductCard1({ product, showProductSize }: Props) {
   const { slug, name, price, images } = product;
+  const { isDiscountAvailable, discount } = getDiscount(product);
 
   return (
     <StyledCard elevation={6}>
       <ImageWrapper>
         {/* DISCOUNT PERCENT CHIP IF AVAILABLE */}
-        <DiscountChip discount={50} />
+        { isDiscountAvailable && <DiscountChip discount={discount} />}
 
         {/* HOVER ACTION ICONS */}
         <HoverIconWrapper className="hover-box">
@@ -62,7 +64,7 @@ export default function ProductCard1({ product, showProductSize }: Props) {
           {showProductSize ? <p className="size">Liter</p> : null}
 
           {/* PRODUCT PRICE WITH DISCOUNT */}
-          <ProductPrice discount={50} price={price} />
+          <ProductPrice discount={discount} price={price} />
         </div>
 
       </ContentWrapper>
