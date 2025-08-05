@@ -19,12 +19,12 @@ export const uniqueProducts = uniq(productList.map((item) => item.slug)).map((it
 );
 
 // get the all slugs
-export const slugs = uniqueProducts.map((item) => ({
+export const slugs = uniqueProducts?.map((item) => ({
   params: { slug: item?.slug as string }
 }));
 
 // get product names for search
-export const search = uniqueProducts.slice(0, 6).map((item) => item?.title);
+export const search = uniqueProducts?.slice(0, 6).map((item) => item?.title);
 
 export const reviews = [
   {

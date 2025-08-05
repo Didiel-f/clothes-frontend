@@ -26,7 +26,7 @@ export default function ListBlock({ title, products }: Props) {
         {title}
       </Typography>
 
-      {products.map((product) => (
+      {products?.map((product) => (
         <Wrapper key={product.id}>
           <Link href={`/products/${product.slug}`}>
             <div className="img-wrapper">

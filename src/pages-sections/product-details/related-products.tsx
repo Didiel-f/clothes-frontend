@@ -19,7 +19,7 @@ export default function RelatedProducts({ products }: Props) {
       </Typography>
 
       <Grid container spacing={3}>
-        {products.map((product) => (
+        {products?.map((product) => (
           <Grid size={{ lg: 3, md: 4, sm: 6, xs: 12 }} key={product.id}>
             <ProductCard1 product={product} />
           </Grid>

@@ -22,7 +22,7 @@ export default function WishListPageView({ products, totalPages }: Props) {
 
       {/* PRODUCT LIST AREA */}
       <Grid container spacing={3}>
-        {products.map((product) => (
+        {products?.map((product) => (
           <Grid size={{ lg: 4, sm: 6, xs: 12 }} key={product.id}>
             <ProductCard1 product={product} />
           </Grid>

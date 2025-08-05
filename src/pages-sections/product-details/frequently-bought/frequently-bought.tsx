@@ -25,7 +25,7 @@ export default function FrequentlyBought({ products }: Props) {
       </Typography>
 
       <div className="content-wrapper">
-        {products.map((item, ind) => (
+        {products?.map((item, ind) => (
           <Fragment key={item.id}>
             <FrequentlyProductCard
               id={item.id}
