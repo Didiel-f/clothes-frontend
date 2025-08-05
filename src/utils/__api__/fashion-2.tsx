@@ -5,6 +5,7 @@ import Brand from "models/Brand.model";
 import Product, { IProduct } from "models/Product.model";
 import Service from "models/Service.model";
 import MainCarouselItem, { IMainCarousel } from "models/Market-1.model";
+import { serviceList } from "__server__/__db__/fashion-2/data";
 
 export interface ICategory {
   id: number;
@@ -128,9 +129,9 @@ const getBlogs = cache(async (): Promise<Blog[]> => {
 });
 
 const getServices = cache(async (): Promise<Service[]> => {
-  const response = await axios.get("/api/fashion-shop-2/service");
-  return response.data;
+  return serviceList;
 });
+
 
 const getMainCarouselData = cache(async (): Promise<MainCarouselItem[]> => {
   const response = await axios.get("/api/fashion-shop-2/main-carousel");
