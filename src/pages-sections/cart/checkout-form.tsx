@@ -19,7 +19,7 @@ import { currency } from "lib";
 export default function CheckoutForm() {
   const { state } = useCart();
 
-  const getTotalPrice = () => state.cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const getTotalPrice = () => state.cart.reduce((acc, item) => acc + item.product.price * item.qty, 0);
 
   const STATE_LIST = [
     { value: "new-york", label: "New York" },
