@@ -15,8 +15,8 @@ import FlexBox from "components/flex-box/flex-box";
 // STYLED COMPONENT
 import { CategoryWrapper } from "../styles";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
 import Category from "models/Category.model";
+import { IProduct } from "models/Product.model";
 
 // ==============================================================
 interface Props {
@@ -24,7 +24,7 @@ interface Props {
   offer: string;
   discount: string;
   pageSize: number;
-  products: Product[];
+  products: IProduct[];
   totalProducts: number;
   categories: Category[];
 }
