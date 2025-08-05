@@ -5,13 +5,13 @@ import { IProduct } from "models/Product.model";
 // CUSTOM DATA MODEL
 
 // ========================================================
-type Props = { products: IProduct[] };
+type Props = { products: IProduct[] | null };
 // ========================================================
 
 export default function ProductsGridView({ products }: Props) {
   return (
     <Grid container spacing={3}>
-      {products.map((product: IProduct) => (
+      {products?.map((product: IProduct) => (
         <Grid size={{ lg: 4, sm: 6, xs: 12 }} key={product.id}>
           <ProductCard16 product={product} />
         </Grid>

@@ -34,7 +34,7 @@ const SORT_OPTIONS = [
 // ==============================================================
 interface Props {
   filters: Filters;
-  products: IProduct[];
+  products: IProduct[] | null;
   pageCount: number;
   lastIndex: number;
   firstIndex: number;
@@ -77,7 +77,7 @@ export default function ProductSearchPageView({
                 Searching for “{query}”
               </Typography>
               <Typography variant="body1" sx={{ color: "grey.600" }}>
-                {products.length} results found
+                {products?.length} results found
               </Typography>
             </div>
           ) : (
