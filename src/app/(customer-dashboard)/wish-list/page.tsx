@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 };
 
 // ==============================================================
-interface Props {
-  searchParams: Promise<{ page: string }>;
-}
+//interface Props {
+ // searchParams: Promise<{ page: string }>;
+//}
 // ==============================================================
 
-export default async function WishList({ searchParams }: Props) {
+export default async function WishList() {
   //export default async function WishList({ searchParams }: Props) {
   //const { page } = await searchParams;
   const products = await getProducts();
