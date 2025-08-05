@@ -9,7 +9,6 @@ import FilterList from "@mui/icons-material/FilterList";
 // GLOBAL CUSTOM COMPONENTS
 import SideNav from "components/side-nav";
 import ProductFilters from "components/products-view/filters";
-import ProductsGridView from "components/products-view/products-grid-view";
 // LOCAL CUSTOM COMPONENTS
 import ShopIntroCard from "../shop-intro-card";
 // CUSTOM DATA MODEL
@@ -50,8 +49,8 @@ export default function ShopDetailsPageView({ shop, filters }: Props) {
             </SideNav>
           </Box>
 
-          {/* PRODUCT LIST AREA */}
-          <ProductsGridView products={shop.products!} />
+          {/* TODO: PRODUCT LIST AREA 
+          <ProductsGridView products={shop.products!} />*/}
         </Grid>
       </Grid>
     </Container>

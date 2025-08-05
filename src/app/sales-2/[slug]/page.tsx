@@ -1,9 +1,8 @@
 import { Metadata } from "next";
 import { SalesTwoPageView } from "pages-sections/sales/page-view";
-// SALES API FUNCTIONS
-import api from "utils/__api__/sales";
 // CUSTOM TYPES
 import { SlugParams } from "models/Common";
+import { getProducts } from "utils/__api__/products";
 
 export const metadata: Metadata = {
   title: "Sales 2 - Bazaar Next.js E-commerce Template",
@@ -24,22 +23,22 @@ export default async function SalesWithCategoryPage({ params, searchParams }: Pr
   const { page } = await searchParams;
 
   const currentPage = +page || 1;
-  const data = await api.getProducts(currentPage, slug);
+  const products = await getProducts();
 
-  if (!data) {
+  if (!products) {
     return <div>Failed to load</div>;
   }
 
-  if (!data.products) {
+  if (!products) {
     return <div>No products found</div>;
   }
 
   return (
     <SalesTwoPageView
       page={currentPage}
-      products={data.products}
-      pageSize={data.pageSize}
-      totalProducts={data.totalProducts}
+      products={products}
+      pageSize={1}
+      totalProducts={1}
     />
   );
 }

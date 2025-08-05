@@ -18,7 +18,7 @@ import { CategoryWrapper } from "../styles";
 import Category from "models/Category.model";
 import { IProduct } from "models/Product.model";
 
-// ==============================================================
+// ==============================================================-1/[slug]/page.tsx
 interface Props {
   page: number;
   offer: string;

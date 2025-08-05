@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { SalesOnePageView } from "pages-sections/sales/page-view";
+import { getProducts } from "utils/__api__/products";
 // SALES API FUNCTIONS
 import api from "utils/__api__/sales";
 
@@ -23,13 +24,13 @@ export default async function SalesOne({ searchParams }: Props) {
   const currentPage = +page || 1;
 
   const categories = await api.getCategories();
-  const data = await api.getProducts(currentPage);
+  const products = await getProducts();
 
-  if (!categories || !data) {
+  if (!categories || !products) {
     return <div>Failed to load</div>;
   }
 
-  if (!data.products) {
+  if (!products) {
     return <div>No products found</div>;
   }
 
@@ -37,9 +38,9 @@ export default async function SalesOne({ searchParams }: Props) {
     <SalesOnePageView
       page={currentPage}
       categories={categories}
-      products={data.products}
-      pageSize={data.pageSize}
-      totalProducts={data.totalProducts}
+      products={products}
+      pageSize={1}
+      totalProducts={1}
       offer="Flash Deals,"
       discount="Enjoy Upto 80% discounts"
     />

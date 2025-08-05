@@ -4,6 +4,7 @@ import { SalesOnePageView } from "pages-sections/sales/page-view";
 import api from "utils/__api__/sales";
 // CUSTOM TYPES
 import { SlugParams } from "models/Common";
+import { getProducts } from "utils/__api__/products";
 
 export const metadata: Metadata = {
   title: "Sales 1 - Bazaar Next.js E-commerce Template",
@@ -24,13 +25,13 @@ export default async function SalesWithCategoryPage({ params, searchParams }: Pr
 
   const currentPage = +page || 1;
   const categories = await api.getCategories();
-  const data = await api.getProducts(currentPage, slug);
+  const products = await getProducts();
 
-  if (!categories || !data) {
+  if (!categories || !products) {
     return <div>Failed to load</div>;
   }
 
-  if (!data.products) {
+  if (!products) {
     return <div>No products found</div>;
   }
 
@@ -38,9 +39,9 @@ export default async function SalesWithCategoryPage({ params, searchParams }: Pr
     <SalesOnePageView
       page={currentPage}
       categories={categories}
-      products={data.products}
-      pageSize={data.pageSize}
-      totalProducts={data.totalProducts}
+      products={products}
+      pageSize={2}
+      totalProducts={6}
       offer="Flash Deals,"
       discount="Enjoy Upto 80% discounts"
     />

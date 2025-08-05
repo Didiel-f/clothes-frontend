@@ -4,14 +4,14 @@ import Container from "@mui/material/Container";
 // LOCAL CUSTOM COMPONENTS
 import ProductList from "../product-list";
 import ProductPagination from "../product-pagination";
+import { IProduct } from "models/Product.model";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
 
 // ==============================================================
 interface Props {
   page: number;
   pageSize: number;
-  products: Product[];
+  products: IProduct[];
   totalProducts: number;
 }
 // ==============================================================
