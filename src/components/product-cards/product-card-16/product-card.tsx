@@ -3,23 +3,19 @@ import Typography from "@mui/material/Typography";
 // GLOBAL CUSTOM COMPONENTS
 import LazyImage from "components/LazyImage";
 // LOCAL CUSTOM COMPONENTS
-import AddToCart from "./add-to-cart";
 import DiscountChip from "../discount-chip";
 // CUSTOM UTILS LIBRARY FUNCTIONS
 import { calculateDiscount, currency } from "lib";
 // STYLED COMPONENTS
 import { PriceText, StyledRoot } from "./styles";
-import { IProduct, IVariant } from "models/Product.model";
-import { useState } from "react";
+import { IProduct } from "models/Product.model";
 
 // ==============================================================
 type Props = { product: IProduct };
 // ==============================================================
 
 export default function ProductCard16({ product }: Props) {
-  const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
-  const hasStock = product.variants.some(variant => variant.stock > 0);
-  const { slug, name, images, price } = product;
+  const { slug, name, price } = product;
 
   return (
     <StyledRoot>
@@ -44,8 +40,6 @@ export default function ProductCard16({ product }: Props) {
           </PriceText>
         </div>
 
-        {/* ADD TO CART BUTTON */}
-        <AddToCart hasStock={hasStock} product={product} selectedVariant={selectedVariant} />
       </div>
     </StyledRoot>
   );

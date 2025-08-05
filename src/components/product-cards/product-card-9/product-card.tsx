@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Rating from "@mui/material/Rating";
 import Typography from "@mui/material/Typography";
 // GLOBAL CUSTOM COMPONENTS
 import LazyImage from "components/LazyImage";
@@ -7,22 +6,17 @@ import LazyImage from "components/LazyImage";
 import DiscountChip from "../discount-chip";
 import ProductPrice from "../product-price";
 import ProductTags from "./components/tags";
-import AddToCartButton from "./components/add-to-cart";
 import FavoriteButton from "./components/favorite-button";
 // STYLED COMPONENT
 import { ContentWrapper, Wrapper } from "./styles";
-import { IProduct, IVariant } from "models/Product.model";
+import { IProduct } from "models/Product.model";
 import { title } from "process";
-import { useState } from "react";
-import AddToCart from "../product-card-1/add-to-cart";
 
 // ===========================================================
 type Props = { product: IProduct };
 // ===========================================================
 
 export default function ProductCard9({ product }: Props) {
-  const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
-  const hasStock = product.variants.some(variant => variant.stock > 0);
 
   return (
     <Wrapper>
@@ -54,8 +48,6 @@ export default function ProductCard9({ product }: Props) {
             <ProductPrice price={product.price} discount={20} />
           </div>
 
-          {/* PRODUCT ADD TO CART BUTTON */}
-          <AddToCart hasStock={hasStock} product={product} selectedVariant={selectedVariant} />
         </div>
       </ContentWrapper>
     </Wrapper>

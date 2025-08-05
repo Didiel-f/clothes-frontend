@@ -4,15 +4,13 @@ import RemoveRedEye from "@mui/icons-material/RemoveRedEye";
 // GLOBAL CUSTOM COMPONENTS
 import LazyImage from "components/LazyImage";
 // LOCAL CUSTOM COMPONENTS
-import AddToCart from "./add-to-cart";
 import ProductPrice from "../product-price";
 import ProductTitle from "../product-title";
 import DiscountChip from "../discount-chip";
 import FavoriteButton from "./favorite-button";
 // STYLED COMPONENTS
 import { ImageWrapper, ContentWrapper, StyledCard, HoverIconWrapper } from "./styles";
-import { IProduct, IVariant } from "models/Product.model";
-import { useState } from "react";
+import { IProduct } from "models/Product.model";
 // CUSTOM DATA MODEL
 
 // ========================================================
@@ -24,9 +22,7 @@ interface Props {
 // ========================================================
 
 export default function ProductCard1({ product, showProductSize, showRating = true }: Props) {
-  const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
-  const { slug, name, price, images, category } = product;
-  const hasStock = product.variants.some(variant => variant.stock > 0);
+  const { slug, name, price, images } = product;
 
   return (
     <StyledCard elevation={6}>
@@ -70,8 +66,6 @@ export default function ProductCard1({ product, showProductSize, showRating = tr
           <ProductPrice discount={50} price={price} />
         </div>
 
-        {/* ADD TO CART BUTTON */}
-        <AddToCart hasStock={hasStock} product={product} selectedVariant={selectedVariant} />
       </ContentWrapper>
     </StyledCard>
   );
