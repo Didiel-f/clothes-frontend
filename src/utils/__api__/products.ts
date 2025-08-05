@@ -24,6 +24,24 @@ export const getProductData = cache(async (slug: string): Promise<IProduct | nul
   }
 });
 
+export const getProducts = cache(async (): Promise<IProduct[] | null> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products?populate=*`
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+      },
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+
+    const json = await response.json();
+    return json.data[0];
+  } catch (error) {
+    console.error("❌ Error al obtener el producto:", error);
+    return null;
+  }
+});
+
 // get all product slug
 const getSlugs = cache(async () => {
   const response = await axios.get<SlugParams[]>("/api/products/slug-list");
