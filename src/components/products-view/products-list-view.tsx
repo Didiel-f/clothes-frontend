@@ -1,9 +1,8 @@
 import ProductCard9 from "components/product-cards/product-card-9";
-// CUSTOM DATA MODEL
-import Product from "models/Product.model";
+import { IProduct } from "models/Product.model";
 
 // ==========================================================
-type Props = { products: Product[] };
+type Props = { products: IProduct[] };
 // ==========================================================
 
 export default function ProductsListView({ products }: Props) {
