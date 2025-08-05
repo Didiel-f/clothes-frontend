@@ -22,7 +22,7 @@ import ProductsGridView from "components/products-view/products-grid-view";
 import ProductsListView from "components/products-view/products-list-view";
 // TYPES
 import Filters from "models/Filters";
-import Product from "models/Product.model";
+import { IProduct } from "models/Product.model";
 
 const SORT_OPTIONS = [
   { label: "Relevance", value: "relevance" },
@@ -34,7 +34,7 @@ const SORT_OPTIONS = [
 // ==============================================================
 interface Props {
   filters: Filters;
-  products: Product[];
+  products: IProduct[];
   pageCount: number;
   lastIndex: number;
   firstIndex: number;

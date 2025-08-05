@@ -2,11 +2,10 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 // GLOBAL CUSTOM COMPONENTS
 import ProductCard1 from "components/product-cards/product-card-1";
-// CUSTOM DATA MODEL
-import Product from "models/Product.model";
+import { IProduct } from "models/Product.model";
 
 // ==============================================================
-type Props = { products: Product[] };
+type Props = { products: IProduct[] };
 // ==============================================================
 
 export default function RelatedProducts({ products }: Props) {

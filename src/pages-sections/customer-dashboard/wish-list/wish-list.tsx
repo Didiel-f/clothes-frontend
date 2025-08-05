@@ -6,11 +6,12 @@ import ProductCard1 from "components/product-cards/product-card-1";
 // LOCAL CUSTOM COMPONENT
 import Pagination from "../pagination";
 import DashboardHeader from "../dashboard-header";
+import { IProduct } from "models/Product.model";
 // CUSTOM DATA MODEL
-import Product from "models/Product.model";
+
 
 // ==================================================================
-type Props = { totalPages: number; products: Product[] };
+type Props = { totalPages: number; products: IProduct[] };
 // ==================================================================
 
 export default function WishListPageView({ products, totalPages }: Props) {
