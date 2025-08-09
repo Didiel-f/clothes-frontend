@@ -24,23 +24,85 @@ export const getProductData = cache(async (slug: string): Promise<IProduct | nul
   }
 });
 
-export const getProducts = cache(async (): Promise<IProduct[] | null> => {
-  try {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products?populate=*`
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
-      },
-    });
-    if (!response.ok) throw new Error(`Error ${response.status}`);
+type Initial = {
+  q?: string;
+  sale?: boolean;
+  page?: number;
+  sort?: string;                 // ej: "createdAt:desc" | "price:asc"
+  prices?: { min?: number; max?: number };
+  brand?: string[];             // slugs
+  category?: string;             // slug
+};
 
-    const json = await response.json();
-    return json.data[0];
-  } catch (error) {
-    console.error("❌ Error al obtener el producto:", error);
-    return null;
+interface StrapiCollectionResponse<T> {
+  data: T[];
+  meta: {
+    pagination: {
+      page: number;
+      pageSize: number;
+      pageCount: number;
+      total: number;
+    };
+  };
+}
+
+export async function getProducts(initial: Initial = {}): Promise<StrapiCollectionResponse<IProduct>> {
+  const base = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (!base) throw new Error("Missing NEXT_PUBLIC_BACKEND_URL");
+
+  const qs = new URLSearchParams();
+
+  // populate y paginación
+  qs.set("populate", "*");
+  qs.set("pagination[page]", String(initial.page ?? 1));
+  qs.set("pagination[pageSize]", "24");
+  qs.set("sort", initial.sort || "createdAt:desc");
+
+  // búsqueda por nombre
+  if (initial.q) qs.set("filters[name][$containsi]", initial.q);
+
+  // categoría
+  if (initial.category) qs.set("filters[category][slug][$eq]", initial.category);
+
+  // ✅ marcas (slug) usando `brand`
+  if (initial.brand && initial.brand.length) {
+    if (initial.brand.length === 1) {
+      qs.set(
+        "filters[brand][slug][$eq]",
+        initial.brand[0].toLowerCase()
+      );
+    } else {
+      initial.brand.forEach((b) => {
+        qs.append(
+          "filters[brand][slug][$in]",
+          b.toLowerCase()
+        );
+      });
+    }
   }
-});
+
+  // rango de precios
+  if (initial.prices?.min != null) qs.set("filters[price][$gte]", String(initial.prices.min));
+  if (initial.prices?.max != null) qs.set("filters[price][$lte]", String(initial.prices.max));
+
+  // sale
+  if (initial.sale) qs.set("filters[discount][$gt]", "0");
+
+  const url = `${base}/api/products?${qs.toString()}`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN ?? ""}` },
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Strapi ${res.status}: ${text}`);
+  }
+
+  return res.json();
+}
+
+
 
 // get all product slug
 const getSlugs = cache(async () => {

@@ -27,16 +27,7 @@ type Props = { product: IProduct };
 
 export default function ProductQuickView({ product }: Props) {
   const router = useRouter();
-  const [isLoading, setLoading] = useState(false);
 
-  //const { dispatch } = useCart();
-
-  const handleAddToCart = () => {
-    setLoading(true);
-      //dispatch({ type: "CHANGE_CART_AMOUNT", payload: { ...product, qty: 1 } });
-      setLoading(false);
-  };
-console.log('product.images', product.images)
   return (
     <Dialog open maxWidth={false} onClose={router.back} sx={{ zIndex: 1501, boxShadow: 5 }}>
       <DialogContent sx={{ maxWidth: 900, width: "100%" }}>
@@ -93,9 +84,8 @@ console.log('product.images', product.images)
                 size="large"
                 color="dark"
                 variant="contained"
-                loading={isLoading}
-                onClick={handleAddToCart}>
-                Añadir al carrito
+                onClick={() => router.push(`/products/${product.slug}`)}>
+                  Ver producto
               </Button>
             </Grid>
           </Grid>

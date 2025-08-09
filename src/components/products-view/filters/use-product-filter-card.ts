@@ -2,93 +2,97 @@ import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { debounce } from "lodash";
 
-export default function useProductFilterCard() {
+type InitialFilters = {
+  q: string;
+  sale?: boolean;
+  page: number;
+  sort: string;
+  prices: { min?: number; max?: number };
+  brand: string[];
+  category?: string;
+};
+
+type Options = { initial?: InitialFilters };
+
+export default function useProductFilterCard({ initial }: Options = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const setParam = useCallback((key: string, value?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value == null || value === "") params.delete(key);
+    else params.set(key, value);
+    if (key !== "page") params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [router, pathname, searchParams]);
+
+  // CATEGORY (valor actual)
+  const category = searchParams.get("category") ?? initial?.category ?? undefined;
+
+  // BRANDS / SALES desde URL con fallback a initial
+  const brand = useMemo(
+    () => (searchParams.get("brand") || (initial?.brand ?? [])?.join(","))
+            .split(",").filter(Boolean),
+    [searchParams, initial]
+  );
+  const sales = useMemo(
+    () => (searchParams.get("sales") || "").split(",").filter(Boolean),
+    [searchParams]
+  );
+
+  // PRECIOS
+  const getPricesFromURL = (): [number, number] => {
+    const raw = searchParams.get("prices");
+    if (raw) {
+      const [a, b] = raw.split("-");
+      const min = +a, max = +b;
+      if (Number.isFinite(min) && Number.isFinite(max)) return [min, max];
+    }
+    return [initial?.prices.min ?? 5000, initial?.prices.max ?? 300000];
+  };
+  const [prices, setPrices] = useState<number[]>(getPricesFromURL());
+  const debouncedChangePrice = useMemo(
+    () => debounce((v: number[]) => setParam("prices", `${v[0]}-${v[1]}`), 500),
+    [setParam]
+  );
+  const handleChangePrice = useCallback((v: number[]) => {
+    setPrices(v);
+    debouncedChangePrice(v);
+  }, [debouncedChangePrice]);
+
+  // HANDLERS
+  const handleChangeBrand = useCallback((val: string) => {
+    const next = brand.includes(val) ? brand.filter(v => v !== val) : [...brand, val];
+    setParam("brand", next.join(","));
+  }, [brand, setParam]);
+
+  const handleChangeSales = useCallback((val: string) => {
+    const next = sales.includes(val) ? sales.filter(v => v !== val) : [...sales, val];
+    setParam("sales", next.join(","));
+  }, [sales, setParam]);
+
+  const handleChangeSearchParams = useCallback((k: string, v: string) => {
+    if (!k) return;
+    setParam(k, v);
+  }, [setParam]);
+
+  const handleChangeCategory = useCallback((slug?: string) => {
+    const current = category;
+    setParam("category", current === slug ? undefined : slug);
+  }, [category, setParam]);
+
   const [collapsed, setCollapsed] = useState(true);
-  const [prices, setPrices] = useState<number[]>(
-    JSON.parse(searchParams.get("prices") || "[0, 300]")
-  );
-
-  const rating = useMemo<number>(
-    () => JSON.parse(searchParams.get("rating") || "0"),
-    [searchParams]
-  );
-
-  const colors = useMemo<string[]>(
-    () => JSON.parse(searchParams.get("colors") || "[]"),
-    [searchParams]
-  );
-
-  const sales = useMemo<string[]>(
-    () => JSON.parse(searchParams.get("sales") || "[]"),
-    [searchParams]
-  );
-
-  const brands = useMemo<string[]>(
-    () => JSON.parse(searchParams.get("brands") || "[]"),
-    [searchParams]
-  );
-
-  const handleChangeSearchParams = useCallback(
-    (key: string, value: string) => {
-      if (!key || !value) return;
-      const params = new URLSearchParams(searchParams);
-      params.set(key, value);
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [router, pathname, searchParams]
-  );
-
-  const debouncedChangePrice = debounce((values: number[]) => {
-    handleChangeSearchParams("prices", JSON.stringify(values));
-  }, 500);
-
-  const handleChangePrice = useCallback(
-    (values: number[]) => {
-      setPrices(values);
-      debouncedChangePrice(values);
-    },
-    [debouncedChangePrice]
-  );
-
-  const handleChangeColor = (value: string) => {
-    const values = colors.includes(value)
-      ? colors.filter((item) => item !== value)
-      : [...colors, value];
-
-    handleChangeSearchParams("colors", JSON.stringify(values));
-  };
-
-  const handleChangeBrand = (value: string) => {
-    const values = brands.includes(value)
-      ? brands.filter((item) => item !== value)
-      : [...brands, value];
-
-    handleChangeSearchParams("brands", JSON.stringify(values));
-  };
-
-  const handleChangeSales = (value: string) => {
-    const values = sales.includes(value)
-      ? sales.filter((item) => item !== value)
-      : [...sales, value];
-
-    handleChangeSearchParams("sales", JSON.stringify(values));
-  };
 
   return {
-    sales,
-    brands,
-    rating,
-    colors,
-    prices,
-    collapsed,
-    setCollapsed,
+    // estado
+    collapsed, setCollapsed,
+    prices, brand, sales, category,
+    // handlers
     handleChangePrice,
-    handleChangeColor,
     handleChangeBrand,
     handleChangeSales,
-    handleChangeSearchParams
+    handleChangeSearchParams,
+    handleChangeCategory,
   };
 }

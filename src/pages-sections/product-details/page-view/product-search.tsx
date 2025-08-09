@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-// MUI
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
@@ -10,26 +9,35 @@ import Container from "@mui/material/Container";
 import IconButton from "@mui/material/IconButton";
 import Pagination from "@mui/material/Pagination";
 import Typography from "@mui/material/Typography";
-// MUI ICON COMPONENTS
 import Apps from "@mui/icons-material/Apps";
 import ViewList from "@mui/icons-material/ViewList";
 import FilterList from "@mui/icons-material/FilterList";
-// GLOBAL CUSTOM COMPONENTS
+
 import Sidenav from "components/side-nav";
 import { FlexBetween, FlexBox } from "components/flex-box";
 import ProductFilters from "components/products-view/filters";
 import ProductsGridView from "components/products-view/products-grid-view";
 import ProductsListView from "components/products-view/products-list-view";
-// TYPES
+
 import Filters from "models/Filters";
 import { IProduct } from "models/Product.model";
 
 const SORT_OPTIONS = [
-  { label: "Relevance", value: "relevance" },
-  { label: "Date", value: "date" },
-  { label: "Price Low to High", value: "asc" },
-  { label: "Price High to Low", value: "desc" }
+  { label: "Relevance", value: "createdAt:desc" },
+  { label: "Date", value: "createdAt:desc" },
+  { label: "Price Low to High", value: "price:asc" },
+  { label: "Price High to Low", value: "price:desc" }
 ];
+
+interface InitialFilters {
+  q: string;
+  sale?: boolean;
+  page: number;
+  sort: string; // ej: "createdAt:desc" | "price:asc"
+  prices: { min?: number; max?: number };
+  brand: string[];
+  category?: string;
+}
 
 // ==============================================================
 interface Props {
@@ -39,6 +47,7 @@ interface Props {
   lastIndex: number;
   firstIndex: number;
   totalProducts: number;
+  initial: InitialFilters; // 👈 correcto
 }
 // ==============================================================
 
@@ -48,21 +57,25 @@ export default function ProductSearchPageView({
   pageCount,
   lastIndex,
   firstIndex,
-  totalProducts
+  totalProducts,
+  initial, // 👈 usar el alias correcto
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const query = searchParams.get("q");
-  const page = searchParams.get("page") || "1";
-  const view = searchParams.get("view") || "grid";
-  const sort = searchParams.get("sort") || "relevance";
+  // Lee URL, pero con fallback a `initial` del server
+  const query = searchParams.get("q") ?? initial.q ?? "";
+  const page = searchParams.get("page") ?? String(initial.page ?? 1);
+  const view = searchParams.get("view") ?? "grid";
+  const sort = searchParams.get("sort") ?? (initial.sort || "createdAt:desc");
 
   const handleChangeSearchParams = (key: string, value: string) => {
-    if (!key || !value) return;
-    const params = new URLSearchParams(searchParams);
-    params.set(key, value);
+    if (!key) return;
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set(key, value);
+    else params.delete(key);
+    if (key !== "page") params.set("page", "1"); // reset de paginación al cambiar filtros
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -77,7 +90,7 @@ export default function ProductSearchPageView({
                 Searching for “{query}”
               </Typography>
               <Typography variant="body1" sx={{ color: "grey.600" }}>
-                {products?.length} results found
+                {products?.length ?? 0} results found
               </Typography>
             </div>
           ) : (
@@ -98,7 +111,8 @@ export default function ProductSearchPageView({
                 variant="outlined"
                 placeholder="Sort by"
                 onChange={(e) => handleChangeSearchParams("sort", e.target.value)}
-                sx={{ flex: "1 1 0", minWidth: "150px" }}>
+                sx={{ flex: "1 1 0", minWidth: "150px" }}
+              >
                 {SORT_OPTIONS.map((item) => (
                   <MenuItem value={item.value} key={item.value}>
                     {item.label}
@@ -127,9 +141,10 @@ export default function ProductSearchPageView({
                     <IconButton onClick={close}>
                       <FilterList fontSize="small" />
                     </IconButton>
-                  )}>
+                  )}
+                >
                   <Box px={3} py={2}>
-                    <ProductFilters filters={filters} />
+                    <ProductFilters filters={filters} initial={initial} />
                   </Box>
                 </Sidenav>
               </Box>
@@ -140,7 +155,7 @@ export default function ProductSearchPageView({
         <Grid container spacing={4}>
           {/* PRODUCT FILTER SIDEBAR AREA */}
           <Grid size={{ xl: 2, md: 3 }} sx={{ display: { md: "block", xs: "none" } }}>
-            <ProductFilters filters={filters} />
+            <ProductFilters filters={filters} initial={initial} />
           </Grid>
 
           {/* PRODUCT VIEW AREA */}
@@ -159,9 +174,9 @@ export default function ProductSearchPageView({
               <Pagination
                 color="primary"
                 variant="outlined"
-                page={+page}
+                page={Number(page)}
                 count={pageCount}
-                onChange={(_, page) => handleChangeSearchParams("page", page.toString())}
+                onChange={(_, p) => handleChangeSearchParams("page", String(p))}
               />
             </FlexBetween>
           </Grid>

@@ -21,10 +21,20 @@ export default function ProductCard16({ product }: Props) {
     <StyledRoot>
       <Link href={`/products/${slug}`}>
         <div className="img-wrapper">
-          <LazyImage alt={name} width={380} height={379} src={product.images[0].url} />
+          <LazyImage
+            alt={name}
+            width={380}
+            height={379}
+            src={
+              product.images && product.images.length > 0
+                ? product.images[0].url
+                : "/assets/images/placeholder.png" // ✅ imagen por defecto
+            }
+          />
           {true ? <DiscountChip discount={20} sx={{ left: 20, top: 20 }} /> : null}
         </div>
       </Link>
+
 
       <div className="content">
         <div>

@@ -1,46 +1,26 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { useRouter } from "next/navigation";
 // MUI ICON COMPONENTS
 import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 // CUSTOM COMPONENTS
 import { FavoriteButton, QuickViewButton } from "./styles";
 import { IProduct } from "models/Product.model";
-// CUSTOM DATA MODEL
 
 // ==============================================================
-type Props = { product: IProduct };
+type Props = { product: IProduct, onOpen: () => void; };
 // ==============================================================
 
-export default function HoverActions({ product }: Props) {
-  const { slug, documentId, name, price, images } = product;
-
-  const router = useRouter();
+export default function HoverActions({ product, onOpen }: Props) {
   const [isFavorite, setFavorite] = useState(false);
 
   const handleFavorite = () => {
     setFavorite((state) => !state);
   };
 
-  /*
-  const handleAddToCart = () => {
-    dispatch({
-      type: "CHANGE_CART_AMOUNT",
-      payload: { product, variant: selectedVariant!, qty: 1 }
-    });
-
-    router.push("/mini-cart", { scroll: false });
-  };*/
-
   return (
     <Fragment>
-      {/* ADD TO CART BUTTON 
-      <AddToCartButton className="product-actions" onClick={handleAddToCart}>
-        <AddShoppingCart className="icon" fontSize="small" />
-      </AddToCartButton>
-*/}
       {/* PRODUCT FAVORITE BUTTON */}
       <FavoriteButton className="product-actions" onClick={handleFavorite}>
         {isFavorite ? (
@@ -58,10 +38,11 @@ export default function HoverActions({ product }: Props) {
           color="dark"
           variant="contained"
           className="product-view-action"
-          onClick={() => router.push(`/products/${slug}/view`, { scroll: false })}>
-          Quick View
+          onClick={() => onOpen()}>
+          Vista rápida
         </QuickViewButton>
       </div>
+
     </Fragment>
   );
 }

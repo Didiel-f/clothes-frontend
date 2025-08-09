@@ -4,7 +4,6 @@ import { Fragment } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 // MUI
 import Box from "@mui/material/Box";
-import Rating from "@mui/material/Rating";
 import Slider from "@mui/material/Slider";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
@@ -14,7 +13,7 @@ import FormGroup from "@mui/material/FormGroup";
 import Typography from "@mui/material/Typography";
 // GLOBAL CUSTOM COMPONENTS
 import AccordionHeader from "components/accordion";
-import { FlexBetween, FlexBox } from "components/flex-box";
+import { FlexBetween } from "components/flex-box";
 // LOCAL CUSTOM COMPONENTS
 import CheckboxLabel from "./checkbox-label";
 // CUSTOM LOCAL HOOK
@@ -22,64 +21,75 @@ import useProductFilterCard from "./use-product-filter-card";
 // TYPES
 import Filters from "models/Filters";
 
-export default function ProductFilters({ filters }: { filters: Filters }) {
-  const { brands: BRANDS, categories: CATEGORIES, others: OTHERS, colors: COLORS } = filters;
+type InitialFilters = {
+  q: string;
+  sale?: boolean;
+  page: number;
+  sort: string;
+  prices: { min?: number; max?: number };
+  brand: string[];
+  category?: string;
+};
+
+export default function ProductFilters({
+  filters,
+  initial,                 // 👈 le llega desde el server
+}: { filters: Filters; initial: InitialFilters }) {
+  const { brands: BRANDS, categories: CATEGORIES, others: OTHERS } = filters;
 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Pásale `initial` a tu hook para que parta con esos valores
   const {
     sales,
-    brands,
-    rating,
-    colors,
+    brand,
     prices,
     collapsed,
+    category,
     setCollapsed,
     handleChangeBrand,
-    handleChangeColor,
     handleChangePrice,
     handleChangeSales,
-    handleChangeSearchParams
-  } = useProductFilterCard();
+    handleChangeCategory,
+  } = useProductFilterCard({ initial });
 
-  // console.log(searchParams.delete);
-
-  const handleClearFilters = () => {
-    router.push(pathname);
-  };
+  const handleClearFilters = () => router.push(pathname);
 
   return (
     <div>
       {/* CATEGORY VARIANT FILTER */}
-      <Typography variant="h6" sx={{ mb: 1.25 }}>
-        Categories
-      </Typography>
+      <Typography variant="h6" sx={{ mb: 1.25 }}>Categories</Typography>
 
       {CATEGORIES.map((item) =>
-        item.children ? (
-          <Fragment key={item.title}>
+        item.children?.length ? (
+          <Fragment key={item.slug}>
             <AccordionHeader
               open={collapsed}
-              onClick={() => setCollapsed((state) => !state)}
+              onClick={() => setCollapsed((s) => !s)}
               sx={{ padding: ".5rem 0", cursor: "pointer", color: "grey.600" }}>
-              <Typography component="span">{item.title}</Typography>
+              <Typography
+                component="span"
+                onClick={(e) => { e.stopPropagation(); handleChangeCategory(item.slug); }}
+                sx={{ fontWeight: category === item.slug ? 600 : 400, color: category === item.slug ? "primary.main" : "grey.600" }}
+              >
+                {item.name}
+              </Typography>
             </AccordionHeader>
 
             <Collapse in={collapsed}>
-              {item.children.map((name) => (
+              {item.children.map((child) => (
                 <Typography
                   variant="body1"
-                  key={name}
+                  key={child.slug}
+                  onClick={() => handleChangeCategory(child.slug)}
                   sx={{
-                    py: 0.75,
-                    pl: "22px",
-                    fontSize: 14,
-                    cursor: "pointer",
-                    color: "grey.600"
+                    py: 0.75, pl: "22px", fontSize: 14, cursor: "pointer",
+                    color: category === child.slug ? "primary.main" : "grey.600",
+                    fontWeight: category === child.slug ? 600 : 400,
                   }}>
-                  {name}
+                  {child.name}
                 </Typography>
               ))}
             </Collapse>
@@ -87,34 +97,39 @@ export default function ProductFilters({ filters }: { filters: Filters }) {
         ) : (
           <Typography
             variant="body1"
-            key={item.title}
+            key={item.slug}
+            onClick={() => handleChangeCategory(item.slug)}
             sx={{
-              py: 0.75,
-              fontSize: 14,
-              cursor: "pointer",
-              color: "grey.600"
+              py: 0.75, fontSize: 14, cursor: "pointer",
+              color: category === item.slug ? "primary.main" : "grey.600",
+              fontWeight: category === item.slug ? 600 : 400,
             }}>
-            {item.title}
+            {item.name}
           </Typography>
         )
       )}
+
 
       <Box component={Divider} my={3} />
 
       {/* PRICE VARIANT FILTER */}
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Price Range
+        Rango de precio
       </Typography>
 
       <Slider
         min={0}
-        max={300}
+        max={300000}
+        step={10000}
         size="small"
         value={prices}
         valueLabelDisplay="auto"
-        valueLabelFormat={(v) => `$${v}`}
+        valueLabelFormat={(v) =>
+          new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(v)
+        }
         onChange={(_, v) => handleChangePrice(v as number[])}
       />
+
 
       <FlexBetween>
         <TextField
@@ -122,8 +137,12 @@ export default function ProductFilters({ filters }: { filters: Filters }) {
           size="small"
           type="number"
           placeholder="0"
-          value={prices[0]}
-          onChange={(e) => handleChangePrice([+e.target.value, prices[1]])}
+          value={new Intl.NumberFormat("es-CL").format(prices[0])}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/\./g, "");
+            handleChangePrice([+raw, prices[1]]);
+          }}
+
         />
 
         <Typography variant="h5" sx={{ px: 1, color: "grey.600" }}>
@@ -134,9 +153,13 @@ export default function ProductFilters({ filters }: { filters: Filters }) {
           fullWidth
           size="small"
           type="number"
-          placeholder="250"
-          value={prices[1]}
-          onChange={(e) => handleChangePrice([prices[0], +e.target.value])}
+          placeholder="300.000"
+          value={new Intl.NumberFormat("es-CL").format(prices[1])}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/\./g, "");
+            handleChangePrice([prices[0], +raw]); // 👈 correcto: [min, max]
+          }}
+
         />
       </FlexBetween>
 
@@ -147,12 +170,12 @@ export default function ProductFilters({ filters }: { filters: Filters }) {
         Brands
       </Typography>
       <FormGroup>
-        {BRANDS.map(({ label, value }) => (
+        {BRANDS.map(({ name }) => (
           <CheckboxLabel
-            key={value}
-            label={label}
-            checked={brands.includes(value)}
-            onChange={() => handleChangeBrand(value)}
+            key={name}
+            label={name}
+            checked={brand.includes(name)}
+            onChange={() => handleChangeBrand(name)}
           />
         ))}
       </FormGroup>
@@ -172,47 +195,6 @@ export default function ProductFilters({ filters }: { filters: Filters }) {
       </FormGroup>
 
       <Box component={Divider} my={3} />
-
-      {/* RATINGS FILTER */}
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Ratings
-      </Typography>
-      <FormGroup>
-        {[5, 4, 3, 2, 1].map((item) => (
-          <CheckboxLabel
-            key={item}
-            checked={rating === item}
-            onChange={() => handleChangeSearchParams("rating", item.toString())}
-            label={<Rating size="small" value={item} color="warn" readOnly />}
-          />
-        ))}
-      </FormGroup>
-
-      <Box component={Divider} my={3} />
-
-      {/* COLORS VARIANT FILTER */}
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Colors
-      </Typography>
-      <FlexBox mb={2} flexWrap="wrap" gap={1.5}>
-        {COLORS.map((item) => (
-          <Box
-            key={item}
-            bgcolor={item}
-            onClick={() => handleChangeColor(item)}
-            sx={{
-              width: 25,
-              height: 25,
-              flexShrink: 0,
-              outlineOffset: 1,
-              cursor: "pointer",
-              borderRadius: 3,
-              outline: colors.includes(item) ? 1 : 0,
-              outlineColor: item
-            }}
-          />
-        ))}
-      </FlexBox>
 
       {searchParams.size > 0 && (
         <Button

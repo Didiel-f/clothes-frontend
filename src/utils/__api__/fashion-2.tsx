@@ -4,6 +4,7 @@ import { IProduct } from "models/Product.model";
 import Service from "models/Service.model";
 import { articles, serviceList, products, mainCarouselData, brandList } from "__server__/__db__/fashion-2/data";
 import { IMainCarousel } from "models/Carousel.model";
+import { IBrand } from "models/Filters";
 
 export interface ICategory {
   id: number;
@@ -34,6 +35,26 @@ export interface ICategory {
   publishedAt: string;
 }
 
+
+export const getBrands = async (): Promise<IBrand[]> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/brands?populate=*`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+      },
+      next: { revalidate: 3600 }, // opcional: cachear 1 hora
+    });
+
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+
+    const json = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error("❌ Error al obtener marcas:", error);
+    return [];
+  }
+};
 
 export const getCategories = async (): Promise<ICategory[]> => {
   try {
@@ -125,10 +146,6 @@ const getServices = cache(async (): Promise<Service[]> => {
 
 const getMainCarouselData = cache(async (): Promise<any[]> => {
   return mainCarouselData;
-});
-
-const getBrands = cache(async (): Promise<any[]> => {
-  return brandList;
 });
 
 export default {

@@ -1,25 +1,25 @@
+"use client";
+
 import Link from "next/link";
 // GLOBAL CUSTOM COMPONENTS
 import LazyImage from "components/LazyImage";
 // LOCAL CUSTOM COMPONENTS
 import HoverActions from "./hover-actions";
 // CUSTOM UTILS LIBRARY FUNCTION
-import { currency } from "lib";
+import { calculateDiscount, currency } from "lib";
 // STYLED COMPONENTS
 import { Card, CardMedia, CardContent } from "./styles";
 import { IProduct } from "models/Product.model";
 import { getDiscount } from "components/utils/getDiscount";
 import DiscountChip from "../discount-chip";
-// CUSTOM DATA MODEL
 
 // ==============================================================
-type Props = { product: IProduct };
+type Props = { product: IProduct, onOpen: () => void; };
 // ==============================================================
 
-export default function ProductCard8({ product }: Props) {
+export default function ProductCard8({ product, onOpen }: Props) {
   const { slug, name, price, images, category } = product;
   const { isDiscountAvailable, discount } = getDiscount(product);
-  console.log('isDiscountAvailable, discount', isDiscountAvailable, discount)
   return (
     <Card>
       <CardMedia>
@@ -32,9 +32,9 @@ export default function ProductCard8({ product }: Props) {
             className="product-img"
           />
         </Link>
-{/* PRODUCT PRICE */}
-{ isDiscountAvailable && <DiscountChip discount={discount} />}
-        <HoverActions product={product} />
+        {/* PRODUCT PRICE */}
+        {isDiscountAvailable && <DiscountChip discount={discount} />}
+        <HoverActions product={product} onOpen={onOpen}/>
       </CardMedia>
 
       <CardContent>
@@ -44,8 +44,30 @@ export default function ProductCard8({ product }: Props) {
         {/* PRODUCT TITLE / NAME */}
         <p className="title">{name}</p>
 
-        
-        <h4 className="price">{currency(price)}</h4>
+
+        {isDiscountAvailable ? (
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              alignItems: "center",
+              justifyContent: "center", // 👈 esta es la clave
+            }}
+          >
+            <h4
+              className="price"
+              style={{ textDecoration: "line-through", color: "#999", margin: 0 }}
+            >
+              {currency(price)}
+            </h4>
+            <h4 className="price" style={{ color: "#e53935", margin: 0 }}>
+              {calculateDiscount(price, discount)}
+            </h4>
+          </div>
+        ) : (
+          <h4 className="price">{currency(price)}</h4>
+        )}
+
       </CardContent>
     </Card>
   );

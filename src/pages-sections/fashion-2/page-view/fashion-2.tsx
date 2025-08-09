@@ -39,11 +39,11 @@ export default function FashionTwoPageView() {
         {/* SUMMER SALE OFFER AREA */}
         <Section7 />
 
-        {/* BLOG LIST AREA */}
+        {/* BLOG LIST AREA
         <Section8 />
 
-        {/* BRAND LIST CAROUSEL AREA */}
-        <Section9 />
+        {/* BRAND LIST CAROUSEL AREA 
+        <Section9 /> */}
 
         {/* PRODUCT LIST COLUMN */}
         <Section10 />

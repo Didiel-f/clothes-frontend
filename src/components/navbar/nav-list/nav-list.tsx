@@ -2,18 +2,14 @@
 
 import Card from "@mui/material/Card";
 import MenuItem from "@mui/material/MenuItem";
-// MUI ICON COMPONENTS
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
-// GLOBAL CUSTOM COMPONENTS
+
 import { NavLink } from "components/nav-link";
 import FlexBox from "components/flex-box/flex-box";
-// LOCAL CUSTOM COMPONENTS
-import MegaMenu from "./mega-menu";
+
 import NavItemChild from "./nav-item-child";
-import CategoryBasedMenu from "./category-based-menu";
-// STYLED COMPONENTS
+
 import { NAV_LINK_STYLES, ChildNavListWrapper } from "../styles";
-// DATA TYPES
 import { Menu, MenuItemWithChild } from "models/Navigation.model";
 
 // ==============================================================
@@ -41,18 +37,7 @@ export default function NavigationList({ navigation }: Props) {
 
   const renderRootLevel = (list: Menu[]) => {
     return list.map((nav) => {
-      // SHOW GRID MEGA MENU
-      if (nav.megaMenu) {
-        return <MegaMenu key={nav.title} title={nav.title} menuList={nav.child} />;
-      }
-
-      // SHOW CATEGORY BASED MEGA MENU WITH SUB ITEMS
-      if (nav.megaMenuWithSub) {
-        return <CategoryBasedMenu key={nav.title} title={nav.title} menuList={nav.child} />;
-      }
-
-      // SHOW LIST MENU WITH CHILD
-      if (nav.child && nav.megaMenu === false && nav.megaMenuWithSub === false) {
+      if (nav.child && nav.child.length > 0) {
         return (
           <FlexBox
             key={nav.title}
@@ -60,9 +45,12 @@ export default function NavigationList({ navigation }: Props) {
             position="relative"
             flexDirection="column"
             sx={{ "&:hover": { "& > .child-nav-item": { display: "block" } } }}>
-            <FlexBox alignItems="flex-end" gap={0.3} sx={NAV_LINK_STYLES}>
-              {nav.title} <KeyboardArrowDown sx={{ color: "grey.500", fontSize: "1.1rem" }} />
-            </FlexBox>
+            <NavLink href={nav.url!}>
+              <FlexBox alignItems="center" gap={0.3} sx={NAV_LINK_STYLES}>
+                {nav.title}
+                <KeyboardArrowDown sx={{ color: "grey.500", fontSize: "1.1rem" }} />
+              </FlexBox>
+            </NavLink>
 
             <ChildNavListWrapper className="child-nav-item">
               <Card elevation={5} sx={{ mt: 2.5, py: 1, minWidth: 100, overflow: "unset" }}>
@@ -72,6 +60,15 @@ export default function NavigationList({ navigation }: Props) {
           </FlexBox>
         );
       }
+
+      // SIN HIJOS → solo muestra el link directo
+      return (
+        <NavLink href={nav.url!} key={nav.title}>
+          <FlexBox alignItems="center" sx={NAV_LINK_STYLES}>
+            {nav.title}
+          </FlexBox>
+        </NavLink>
+      );
     });
   };
 
