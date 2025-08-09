@@ -19,13 +19,19 @@ type SearchParams = {
   prices?: string;   
   brand?: string;
   category?: string;
+  discount?: boolean;
 };
 
 function parseSearchParams(sp: SearchParams) {
   const [minStr, maxStr] = (sp.prices ?? "").split("-");
   const min = Number.isFinite(+minStr) ? +minStr : 5000;
   const max = Number.isFinite(+maxStr) ? +maxStr : 300000;
-
+  // Si viene ?discount>0 o ?sale=true, activamos el filtro de descuento
+  const discount =
+    (typeof sp.discount !== "undefined" && Number(sp.discount) > 0) ||
+    sp.sale === "true"
+      ? true
+      : undefined;
   return {
     q: sp.q ?? "",
     sale: sp.sale === "true" ? true : undefined,
@@ -34,6 +40,7 @@ function parseSearchParams(sp: SearchParams) {
     prices: { min, max },
     brand: (sp.brand ?? "").split(",").filter(Boolean),
     category: sp.category ?? undefined,
+    discount,
   };
 }
 

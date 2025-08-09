@@ -10,46 +10,38 @@ import FavoriteButton from "./components/favorite-button";
 // STYLED COMPONENT
 import { ContentWrapper, Wrapper } from "./styles";
 import { IProduct } from "models/Product.model";
-import { title } from "process";
+import { getEffectiveDiscount } from "lib";
 
 // ===========================================================
 type Props = { product: IProduct };
 // ===========================================================
 
+
 export default function ProductCard9({ product }: Props) {
+  const discount = getEffectiveDiscount(product);
+  const img = product.images?.[0]?.url ?? "/placeholder.png";
+  const name = product.name ?? product.slug ?? "Producto";
+  const alt = product.images?.[0]?.alternativeText ?? name;
 
   return (
     <Wrapper>
-      {/* PRODUCT FAVORITE BUTTON */}
       <FavoriteButton />
-
       <ContentWrapper>
         <div className="img-wrapper">
-          {/* DISCOUNT PERCENT CHIP IF AVAILABLE */}
-          <DiscountChip discount={20} />
-
-          {/* PRODUCT IMAGE / THUMBNAIL */}
-          <LazyImage src={product.images[0].url} alt={title} width={500} height={500} />
+          {discount > 0 && <DiscountChip discount={discount} />}
+          <LazyImage src={img} alt={alt} width={500} height={500} />
         </div>
-
         <div className="content">
-          <div>
-            {/* PRODUCT TAG LIST */}
-            <ProductTags tags={["Bike", "Motor", "Ducati"]} />
-
-            {/* PRODUCT TITLE / NAME */}
-            <Link href={`/products/${product.slug}`}>
-              <Typography variant="h5" sx={{ mt: 1, mb: 2 }}>
-                {title}
-              </Typography>
-            </Link>
-
-            {/* PRODUCT PRICE */}
-            <ProductPrice price={product.price} discount={20} />
-          </div>
-
+          <ProductTags tags={["Bike", "Motor", "Ducati"]} />
+          <Link href={`/products/${product.slug}`}>
+            <Typography variant="h5" sx={{ mt: 1, mb: 2 }}>
+              {name}
+            </Typography>
+          </Link>
+          <ProductPrice price={product.price} discount={discount} />
         </div>
       </ContentWrapper>
     </Wrapper>
   );
 }
+

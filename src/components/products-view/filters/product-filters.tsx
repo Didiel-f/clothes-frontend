@@ -20,6 +20,7 @@ import CheckboxLabel from "./checkbox-label";
 import useProductFilterCard from "./use-product-filter-card";
 // TYPES
 import Filters from "models/Filters";
+import { FormControlLabel, Checkbox } from "@mui/material";
 
 type InitialFilters = {
   q: string;
@@ -48,11 +49,13 @@ export default function ProductFilters({
     prices,
     collapsed,
     category,
+    discount,
     setCollapsed,
     handleChangeBrand,
     handleChangePrice,
     handleChangeSales,
     handleChangeCategory,
+    handleToggleDiscount,
   } = useProductFilterCard({ initial });
 
   const handleClearFilters = () => router.push(pathname);
@@ -183,17 +186,16 @@ export default function ProductFilters({
       <Box component={Divider} my={3} />
 
       {/* SALES OPTIONS */}
-      <FormGroup>
-        {OTHERS.map(({ label, value }) => (
-          <CheckboxLabel
-            key={value}
-            label={label}
-            checked={sales.includes(value)}
-            onChange={() => handleChangeSales(value)}
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={discount}
+            onChange={handleToggleDiscount}
+            color="primary"
           />
-        ))}
-      </FormGroup>
-
+        }
+        label="Descuento"
+      />
       <Box component={Divider} my={3} />
 
       {searchParams.size > 0 && (

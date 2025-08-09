@@ -1,4 +1,5 @@
 import { formatDistanceStrict } from "date-fns/formatDistanceStrict";
+import { IProduct } from "models/Product.model";
 
 /**
  * GET THE DIFFERENCE DATE FORMAT
@@ -55,4 +56,22 @@ export function currency(price: number, fraction: number = 0) {
     currency: "CLP",
     maximumFractionDigits: fraction
   }).format(price);
+}
+
+// Valida y convierte a entero no negativo
+const toNonNegativeInt = (v: unknown): number | undefined => {
+  const n = Number(v);
+  return Number.isInteger(n) && n >= 0 ? n : undefined;
+};
+
+/**
+ * Devuelve el mayor descuento válido entre product.discount
+ * y product.category.discount. Si ninguno existe, retorna 0.
+ * Limita el valor entre 0 y 100.
+ */
+export function getEffectiveDiscount(p: IProduct): number {
+  const pd = toNonNegativeInt(p.discount);
+  const cd = toNonNegativeInt(p.category?.discount);
+  const d = Math.max(pd ?? -1, cd ?? -1);
+  return d >= 0 ? Math.min(d, 100) : 0;
 }

@@ -28,10 +28,11 @@ type Initial = {
   q?: string;
   sale?: boolean;
   page?: number;
-  sort?: string;                 // ej: "createdAt:desc" | "price:asc"
+  sort?: string;
   prices?: { min?: number; max?: number };
-  brand?: string[];             // slugs
-  category?: string;             // slug
+  brand?: string[];
+  category?: string;
+  discount?: boolean;
 };
 
 interface StrapiCollectionResponse<T> {
@@ -85,8 +86,12 @@ export async function getProducts(initial: Initial = {}): Promise<StrapiCollecti
   if (initial.prices?.min != null) qs.set("filters[price][$gte]", String(initial.prices.min));
   if (initial.prices?.max != null) qs.set("filters[price][$lte]", String(initial.prices.max));
 
-  // sale
-  if (initial.sale) qs.set("filters[discount][$gt]", "0");
+  // ✅ solo productos con descuento (discount > 0)
+  if (initial.discount) {
+    qs.set("filters[$and][0][discount][$notNull]", "true");
+    qs.set("filters[$and][1][discount][$gt]", "0");
+  }
+
 
   const url = `${base}/api/products?${qs.toString()}`;
   const res = await fetch(url, {

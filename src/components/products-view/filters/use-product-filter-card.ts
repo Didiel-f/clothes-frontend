@@ -4,7 +4,7 @@ import { debounce } from "lodash";
 
 type InitialFilters = {
   q: string;
-  sale?: boolean;
+  sale?: boolean; // fallback inicial (si ya lo usabas)
   page: number;
   sort: string;
   prices: { min?: number; max?: number };
@@ -30,7 +30,7 @@ export default function useProductFilterCard({ initial }: Options = {}) {
   // CATEGORY (valor actual)
   const category = searchParams.get("category") ?? initial?.category ?? undefined;
 
-  // BRANDS / SALES desde URL con fallback a initial
+  // BRANDS / SALES (si las sigues usando)
   const brand = useMemo(
     () => (searchParams.get("brand") || (initial?.brand ?? [])?.join(","))
             .split(",").filter(Boolean),
@@ -40,6 +40,18 @@ export default function useProductFilterCard({ initial }: Options = {}) {
     () => (searchParams.get("sales") || "").split(",").filter(Boolean),
     [searchParams]
   );
+
+  // ✅ DISCOUNT (solo productos con descuento)
+  // URL: ?discount=1 activa el filtro
+  const discount = useMemo(() => {
+    const d = searchParams.get("discount");
+    if (d !== null) return Number(d) > 0;           // desde URL
+    return !!initial?.sale;                          // fallback a "sale" inicial si lo usabas
+  }, [searchParams, initial]);
+
+  const handleToggleDiscount = useCallback(() => {
+    setParam("discount", discount ? undefined : "1");
+  }, [discount, setParam]);
 
   // PRECIOS
   const getPricesFromURL = (): [number, number] => {
@@ -88,11 +100,13 @@ export default function useProductFilterCard({ initial }: Options = {}) {
     // estado
     collapsed, setCollapsed,
     prices, brand, sales, category,
+    discount,
     // handlers
     handleChangePrice,
     handleChangeBrand,
     handleChangeSales,
     handleChangeSearchParams,
     handleChangeCategory,
+    handleToggleDiscount,
   };
 }

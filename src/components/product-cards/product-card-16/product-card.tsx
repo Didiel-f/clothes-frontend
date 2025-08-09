@@ -5,7 +5,7 @@ import LazyImage from "components/LazyImage";
 // LOCAL CUSTOM COMPONENTS
 import DiscountChip from "../discount-chip";
 // CUSTOM UTILS LIBRARY FUNCTIONS
-import { calculateDiscount, currency } from "lib";
+import { calculateDiscount, currency, getEffectiveDiscount } from "lib";
 // STYLED COMPONENTS
 import { PriceText, StyledRoot } from "./styles";
 import { IProduct } from "models/Product.model";
@@ -15,7 +15,9 @@ type Props = { product: IProduct };
 // ==============================================================
 
 export default function ProductCard16({ product }: Props) {
-  const { slug, name, price } = product;
+  const { slug, name, price, images } = product;
+  const discount = getEffectiveDiscount(product);
+  const hasDiscount = discount > 0;
 
   return (
     <StyledRoot>
@@ -26,30 +28,32 @@ export default function ProductCard16({ product }: Props) {
             width={380}
             height={379}
             src={
-              product.images && product.images.length > 0
-                ? product.images[0].url
-                : "/assets/images/placeholder.png" // ✅ imagen por defecto
+              images && images.length > 0
+                ? images[0].url
+                : "/assets/images/placeholder.png"
             }
           />
-          {true ? <DiscountChip discount={20} sx={{ left: 20, top: 20 }} /> : null}
+          {hasDiscount && (
+            <DiscountChip discount={discount} sx={{ left: 20, top: 20 }} />
+          )}
         </div>
       </Link>
 
-
       <div className="content">
-        <div>
-          <Link href={`/products/${slug}`}>
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              {name}
-            </Typography>
-          </Link>
+        <Link href={`/products/${slug}`}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            {name}
+          </Typography>
+        </Link>
 
-          <PriceText>
-            {calculateDiscount(price, 20)}
-            {true && <span className="base-price">{currency(price)}</span>}
-          </PriceText>
-        </div>
-
+        <PriceText>
+          {hasDiscount
+            ? calculateDiscount(price, discount)
+            : currency(price)}
+          {hasDiscount && (
+            <span className="base-price">{currency(price)}</span>
+          )}
+        </PriceText>
       </div>
     </StyledRoot>
   );
