@@ -33,7 +33,7 @@ export default async function SalesTwo({ searchParams }: Props) {
   return (
     <SalesTwoPageView
       page={currentPage}
-      products={products}
+      products={products.data}
       pageSize={1}
       totalProducts={1}
     />

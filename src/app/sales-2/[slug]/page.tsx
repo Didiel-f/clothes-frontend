@@ -36,7 +36,7 @@ export default async function SalesWithCategoryPage({ params, searchParams }: Pr
   return (
     <SalesTwoPageView
       page={currentPage}
-      products={products}
+      products={products.data}
       pageSize={1}
       totalProducts={1}
     />
