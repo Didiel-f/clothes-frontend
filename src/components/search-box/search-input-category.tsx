@@ -62,7 +62,7 @@ export default function SearchInputWithCategory({ categories }: Props) {
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Searching for..."
+        placeholder="¿Qué estás buscando?"
         onKeyDown={handleEnter}
         onChange={(e) => setSearch(e.target.value)}
         slotProps={{ input: INPUT_PROPS }}
