@@ -26,5 +26,5 @@ export default async function WishList() {
     return <div>Data not found</div>;
   }
 
-  return <WishListPageView products={products} totalPages={1} />;
+  return <WishListPageView products={products.data} totalPages={1} />;
 }

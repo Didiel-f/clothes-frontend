@@ -46,7 +46,7 @@ interface StrapiCollectionResponse<T> {
   };
 }
 
-export async function getProducts(initial: Initial = {}): Promise<StrapiCollectionResponse<IProduct[]>> {
+export async function getProducts(initial: Initial = {}): Promise<StrapiCollectionResponse<IProduct>> {
   const base = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (!base) throw new Error("Missing NEXT_PUBLIC_BACKEND_URL");
 
