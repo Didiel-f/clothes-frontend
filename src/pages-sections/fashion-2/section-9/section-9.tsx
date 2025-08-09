@@ -5,11 +5,11 @@ import Container from "@mui/material/Container";
 // GLOBAL CUSTOM COMPONENTS
 import { Carousel } from "components/carousel";
 import FlexRowCenter from "components/flex-box/flex-row-center";
+import { getBrands } from "utils/__api__/fashion-2";
 // API FUNCTIONS
-import api from "utils/__api__/fashion-2";
 
 export default async function Section9() {
-  const brands = await api.getBrands();
+  const brands = await getBrands();
 
   const responsive = [
     { breakpoint: 1024, settings: { slidesToShow: 3 } },
@@ -22,12 +22,12 @@ export default async function Section9() {
       <Divider sx={{ mb: 4, borderColor: "grey.200" }} />
 
       <Carousel autoplay arrows={false} slidesToShow={5} responsive={responsive}>
-        {brands.map(({ id, image }) => (
+        {brands.map(({ id, logo }) => (
           <FlexRowCenter position="relative" key={id} height={40} margin="auto" width={110}>
             <Image
               fill
               alt="brand"
-              src={image}
+              src={logo.url}
               sizes="(110px, 50px)"
               style={{ filter: "grayscale(1)", objectFit: "contain" }}
             />
