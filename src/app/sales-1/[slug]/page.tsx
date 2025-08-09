@@ -39,7 +39,7 @@ export default async function SalesWithCategoryPage({ params, searchParams }: Pr
     <SalesOnePageView
       page={currentPage}
       categories={categories}
-      products={products}
+      products={products.data}
       pageSize={2}
       totalProducts={6}
       offer="Flash Deals,"
