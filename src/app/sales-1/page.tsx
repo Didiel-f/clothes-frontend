@@ -38,7 +38,7 @@ export default async function SalesOne({ searchParams }: Props) {
     <SalesOnePageView
       page={currentPage}
       categories={categories}
-      products={products}
+      products={products.data}
       pageSize={1}
       totalProducts={1}
       offer="Flash Deals,"
