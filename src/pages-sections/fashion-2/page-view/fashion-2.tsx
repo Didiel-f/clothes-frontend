@@ -9,10 +9,9 @@ import Section4 from "../section-4";
 import Section5 from "../section-5";
 import Section6 from "../section-6";
 import Section7 from "../section-7";
-import Section8 from "../section-8";
-import Section9 from "../section-9";
 import Section10 from "../section-10";
 import Layout1 from "app/fashion-2/layout";
+import Section9 from "../section-9";
 
 export default function FashionTwoPageView() {
   return (
