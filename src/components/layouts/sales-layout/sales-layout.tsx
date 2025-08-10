@@ -28,7 +28,7 @@ interface Props extends PropsWithChildren {
 // ==============================================================
 
 export default function SalesLayout({ children, data }: Props) {
-  const { header, topbar, mobileNavigation, footer } = data;
+  const { header, topbar, mobileNavigation, footer, categories } = data;
 
   const MOBILE_VERSION_HEADER = (
     <MobileHeader>
@@ -64,7 +64,7 @@ export default function SalesLayout({ children, data }: Props) {
         <Header.Logo url={header.logo} />
 
         <Header.Mid>
-          <SearchInputWithCategory categories={header.categories} />
+          <SearchInputWithCategory categories={categories} />
         </Header.Mid>
 
         <Header.Right>
