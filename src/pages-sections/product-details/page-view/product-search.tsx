@@ -23,10 +23,8 @@ import Filters from "models/Filters";
 import { IProduct } from "models/Product.model";
 
 const SORT_OPTIONS = [
-  { label: "Relevance", value: "createdAt:desc" },
-  { label: "Date", value: "createdAt:desc" },
-  { label: "Price Low to High", value: "price:asc" },
-  { label: "Price High to Low", value: "price:desc" }
+  { label: "Precio bajo a alto", value: "price:asc" },
+  { label: "Precio alto a bajo", value: "price:desc" }
 ];
 
 interface InitialFilters {
@@ -100,7 +98,7 @@ export default function ProductSearchPageView({
           <FlexBox alignItems="center" columnGap={4} flexWrap="wrap">
             <FlexBox alignItems="center" gap={1} flex="1 1 0">
               <Typography variant="body1" sx={{ color: "grey.600", whiteSpace: "pre" }}>
-                Sort by:
+                Ordenar por:
               </Typography>
 
               <TextField
@@ -123,7 +121,7 @@ export default function ProductSearchPageView({
 
             <FlexBox alignItems="center" my="0.25rem">
               <Typography variant="body1" sx={{ color: "grey.600", mr: 1 }}>
-                View:
+                Vista:
               </Typography>
 
               <IconButton onClick={() => handleChangeSearchParams("view", "grid")}>

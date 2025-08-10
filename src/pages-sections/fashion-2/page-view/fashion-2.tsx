@@ -42,8 +42,8 @@ export default function FashionTwoPageView() {
         {/* BLOG LIST AREA
         <Section8 />
 
-        {/* BRAND LIST CAROUSEL AREA 
-        <Section9 /> */}
+        {/* BRAND LIST CAROUSEL AREA */}
+        <Section9 /> 
 
         {/* PRODUCT LIST COLUMN */}
         <Section10 />
