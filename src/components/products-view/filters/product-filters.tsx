@@ -53,7 +53,6 @@ export default function ProductFilters({
     setCollapsed,
     handleChangeBrand,
     handleChangePrice,
-    handleChangeSales,
     handleChangeCategory,
     handleToggleDiscount,
   } = useProductFilterCard({ initial });
@@ -206,7 +205,7 @@ export default function ProductFilters({
           variant="contained"
           onClick={handleClearFilters}
           sx={{ mt: 4 }}>
-          Clear all filters
+          Limpiar todos los filtros
         </Button>
       )}
     </div>

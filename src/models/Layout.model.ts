@@ -1,5 +1,6 @@
 import { Menu } from "./Navigation.model";
 import { CategoryMenuItem } from "models/Category.model";
+import { ICategory } from "./Product.model";
 
 export interface Socials {
   google: string;
@@ -66,4 +67,5 @@ export default interface LayoutModel {
   header: Header;
   topbar: Topbar;
   mobileNavigation: MobileNavigation;
+  categories: ICategory[];
 }

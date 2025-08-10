@@ -10,10 +10,10 @@ import CategoryDropdown from "./category-dropdown";
 // CUSTOM ICON COMPONENT
 import Search from "icons/Search";
 // CUSTOM DATA MODEL
-import { CategoryLink } from "models/Layout.model";
+import { ICategory } from "models/Product.model";
 
 // ==============================================================
-type Props = { categories: CategoryLink[] };
+type Props = { categories: ICategory[] };
 // ==============================================================
 
 export default function SearchInputWithCategory({ categories }: Props) {

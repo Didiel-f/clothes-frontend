@@ -7,24 +7,27 @@ import BazaarMenu from "components/BazaarMenu";
 // STYLED COMPONENT
 import { DropDownHandler } from "./styles";
 // CUSTOM DATA MODEL
-import { CategoryLink } from "models/Layout.model";
+import { ICategory } from "models/Product.model";
 
-// ==============================================================
-type Props = { categories: CategoryLink[] };
-// ==============================================================
+type Props = { categories: ICategory[] };
 
 export default function CategoryDropdown({ categories }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const selected = searchParams.get("category") || "";
 
-  const handleSelect = (value: string) => {
+  const selectedSlug = searchParams.get("category") ?? "";
+
+  const handleSelect = (slug: string) => {
     const params = new URLSearchParams(searchParams);
-    if (value === "") params.delete("category");
-    else params.set("category", value);
-    router.push(`${pathname}?${params.toString()}`);
+    if (slug === "") params.delete("category");
+    else params.set("category", slug);
+    params.delete("page");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
+
+  const selectedName =
+    categories.find((c) => c.slug === selectedSlug)?.name || "Todas las categorías";
 
   return (
     <BazaarMenu
@@ -32,22 +35,33 @@ export default function CategoryDropdown({ categories }: Props) {
       sx={{ zIndex: { md: 1502, xs: 99999 } }}
       handler={(e) => (
         <DropDownHandler onClick={e}>
-          {categories.find((item) => item.value === selected)?.title}
+          {selectedName}
           <KeyboardArrowDownOutlined fontSize="small" color="inherit" />
         </DropDownHandler>
       )}
-      options={(onClose) => {
-        return categories.map((item) => (
+      options={(onClose) => [
+        <MenuItem
+          key="all-categories"
+          onClick={() => {
+            handleSelect("");
+            onClose();
+          }}
+        >
+          Todas las categorías
+        </MenuItem>,
+        ...categories.map((item) => (
           <MenuItem
-            key={item.value}
+            key={item.slug}
             onClick={() => {
-              handleSelect(item.value);
+              handleSelect(item.slug);
               onClose();
-            }}>
-            {item.title}
+            }}
+          >
+            {item.name}
           </MenuItem>
-        ));
-      }}
+        )),
+      ]}
     />
+
   );
 }

@@ -31,7 +31,7 @@ interface Props extends PropsWithChildren {
 // ==============================================================
 
 export default function ShopLayout1({ children, data }: Props) {
-  const { footer, header, topbar, mobileNavigation } = data;
+  const { footer, header, topbar, mobileNavigation, categories } = data;
 
   const [isFixed, setIsFixed] = useState(false);
   const toggleIsFixed = useCallback((fixed: boolean) => setIsFixed(fixed), []);
@@ -78,7 +78,7 @@ export default function ShopLayout1({ children, data }: Props) {
           ) : null}
 
           <Header.Mid>
-            <SearchInputWithCategory categories={header.categories} />
+            <SearchInputWithCategory categories={categories} />
           </Header.Mid>
 
           <Header.Right>

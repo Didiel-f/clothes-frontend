@@ -18,7 +18,7 @@ export const SearchResultCard = styled(Card)({
 });
 
 export const DropDownHandler = styled(ButtonBase)(({ theme }) => ({
-  width: 160,
+  width: 270,
   minWidth: 160,
   height: "100%",
   display: "flex",
