@@ -7,7 +7,6 @@ import Typography from "@mui/material/Typography";
 // CUSTOM GLOBAL COMPONENTS
 import {
   Footer1,
-  FooterApps,
   FooterContact,
   FooterLinksWidget,
   FooterSocialLinks
@@ -90,7 +89,6 @@ export default function SalesLayout({ children, data }: Props) {
             {footer.description}
           </Typography>
 
-          <FooterApps playStoreUrl={footer.playStoreUrl} appleStoreUrl={footer.appStoreUrl} />
         </Footer1.Brand>
 
         <Footer1.Widget1>

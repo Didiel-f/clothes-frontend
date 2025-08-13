@@ -47,11 +47,9 @@ export const footerLinks = [
 ];
 
 export const footerAboutLinks = [
-  { title: "Careers", url: "#" },
-  { title: "Our Stores", url: "#" },
-  { title: "Our Cares", url: "#" },
-  { title: "Terms & Conditions", url: "#" },
-  { title: "Privacy Policy", url: "#" }
+  { title: "Acerca de nosotros", url: "#" },
+  { title: "Terminos y condiciones", url: "#" },
+  { title: "Política de privacidad", url: "#" }
 ];
 
 export const footerCustomerCareLinks = [
@@ -63,17 +61,16 @@ export const footerCustomerCareLinks = [
 
 export const footerSocialLinks = {
   facebook: "https://www.facebook.com/",
-  twitter: "https://twitter.com/",
   instagram: "https://www.instagram.com/",
   youtube: "https://www.instagram.com/",
   google: "https://www.instagram.com/"
 };
 
 export const footerDescription =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor libero id et, in gravida. Sit diam duis mauris nulla cursus. Erat et lectus vel ut sollicitudin elit at amet.";
+  "Explora nuestra tienda online y descubre estilos únicos, precios accesibles y envíos a todo Chile. Viste con confianza y marca tu propio estilo.";
 
 export const footerContact = {
   phone: "+1 1123 456 780",
   email: "uilib.help@gmail.com",
-  address: "70 Washington Square South, New York, NY 10012, United States"
+  address: ""
 };

@@ -40,8 +40,6 @@ interface MobileNavigation {
 export interface Footer {
   logo: string;
   description: string;
-  appStoreUrl: string;
-  playStoreUrl: string;
   about: Link[];
   customers: Link[];
   socials: Socials;

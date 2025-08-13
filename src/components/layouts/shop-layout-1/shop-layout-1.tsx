@@ -7,7 +7,6 @@ import Typography from "@mui/material/Typography";
 // GLOBAL CUSTOM COMPONENTS
 import {
   Footer1,
-  FooterApps,
   FooterContact,
   FooterLinksWidget,
   FooterSocialLinks
@@ -19,7 +18,7 @@ import { MobileMenu } from "components/navbar/mobile-menu";
 import { MobileNavigationBar } from "components/mobile-navigation";
 import { Header, HeaderCart, HeaderLogin } from "components/header";
 import { MobileHeader, HeaderSearch } from "components/header/mobile-header";
-import { Topbar, TopbarLanguageSelector, TopbarSocialLinks } from "components/topbar";
+import { Topbar, TopbarSocialLinks } from "components/topbar";
 import { SearchInput, SearchInputWithCategory } from "components/search-box";
 // CUSTOM DATA MODEL
 import LayoutModel from "models/Layout.model";
@@ -116,7 +115,6 @@ export default function ShopLayout1({ children, data }: Props) {
             {footer.description}
           </Typography>
 
-          <FooterApps playStoreUrl={footer.playStoreUrl} appleStoreUrl={footer.appStoreUrl} />
         </Footer1.Brand>
 
         <Footer1.Widget1>

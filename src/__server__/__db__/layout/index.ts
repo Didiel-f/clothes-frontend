@@ -14,8 +14,6 @@ export const LayoutEndpoints = (Mock: MockAdapter) => {
         200,
         {
           footer: {
-            appStoreUrl: "#",
-            playStoreUrl: "#",
             logo: "/assets/images/logo.svg",
             contact: db.footerContact,
             about: db.footerAboutLinks,
