@@ -16,7 +16,7 @@ type Props = { address: Address };
 // ==============================================================
 
 export default function AddressListItem({ address }: Props) {
-  const { title, street, city, phone, id } = address;
+  const { countyName, regionName, streetName, streetNumber, houseApartment } = address;
 
   // HANDLE ADDRESS DELETE
   const handleAddressDelete = (id: string) => {
@@ -24,18 +24,18 @@ export default function AddressListItem({ address }: Props) {
   };
 
   return (
-    <Link href={`/address/${id}`}>
+    <Link href={`/address/${houseApartment}`}>
       <TableRow>
         <Typography noWrap variant="body1">
-          {title}
+          {regionName}
         </Typography>
 
         <Typography noWrap variant="body1">
-          {`${street}, ${city}`}
+          {`${streetName}, ${countyName}`}
         </Typography>
 
         <Typography noWrap variant="body1">
-          {phone}
+          {streetNumber}
         </Typography>
 
         <Typography noWrap variant="body1" sx={{ color: "grey.600" }}>
@@ -46,7 +46,7 @@ export default function AddressListItem({ address }: Props) {
           <IconButton
             onClick={(e) => {
               e.stopPropagation();
-              handleAddressDelete(id);
+              handleAddressDelete(houseApartment);
             }}>
             <Delete fontSize="small" color="inherit" />
           </IconButton>
