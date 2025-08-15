@@ -11,12 +11,12 @@ import ListItem from "./list-item";
 // CUSTOM UTILS LIBRARY FUNCTION
 import { currency } from "lib";
 // GLOBAL CUSTOM HOOK
-import useCart from "hooks/useCart";
+import { useCartStore } from "contexts/CartContext";
 
 export default function CheckoutSummary() {
-  const { state } = useCart();
+  const { cart } = useCartStore();
 
-  const total = state.cart.reduce((acc, item) => acc + item.product.price * item.qty, 0);
+  const total = cart.reduce((acc, item) => acc + item.product.price * item.qty, 0);
 
   return (
     <Card sx={{ p: 3 }}>
@@ -32,7 +32,7 @@ export default function CheckoutSummary() {
       <Stack spacing={2} mt={3}>
         <TextField placeholder="Voucher" variant="outlined" size="small" fullWidth />
         <Button variant="outlined" color="primary" fullWidth>
-          Apply Voucher
+          Aplicar cupón
         </Button>
       </Stack>
     </Card>

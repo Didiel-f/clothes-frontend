@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Button from "@mui/material/Button";
 import Add from "@mui/icons-material/Add";
 // GLOBAL CUSTOM HOOKS
-import useCart from "hooks/useCart";
 import { IProduct, IVariant } from "models/Product.model";
+import { useCartStore } from "contexts/CartContext";
 // CUSTOM DATA MODEL
 
 // ==============================================================
@@ -14,15 +14,18 @@ type Props = { hasStock: boolean, product: IProduct, selectedVariant: IVariant |
 // ==============================================================
 
 export default function AddToCart({ hasStock, product, selectedVariant }: Props) {
-  const { dispatch } = useCart();
+  const { addItem } = useCartStore();
+
   const router = useRouter();
   const [isLoading, setLoading] = useState(false);
 
   const handleAddToCart = () => {
+    if (!selectedVariant) return;
     setLoading(true);
-    dispatch({
-      type: "CHANGE_CART_AMOUNT",
-      payload: { product, variant: selectedVariant!, qty: 1 }
+    addItem({
+      product,               // el precio viene aquí, como dijiste
+      variant: selectedVariant, // la variante tiene su propio documentId
+      qty: 1,
     });
 
     router.push("/mini-cart", { scroll: false });

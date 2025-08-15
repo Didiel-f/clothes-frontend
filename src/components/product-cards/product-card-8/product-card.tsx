@@ -20,6 +20,17 @@ type Props = { product: IProduct, onOpen: () => void; };
 export default function ProductCard8({ product, onOpen }: Props) {
   const { slug, name, price, images, category } = product;
   const { isDiscountAvailable, discount } = getDiscount(product);
+  
+  function getFirstImageUrl(images: unknown): string {
+    if (Array.isArray(images) && images.length > 0) {
+      const url = (images[0] as any)?.url;
+      if (typeof url === "string" && url.length > 0) return url;
+    }
+    return "/assets/images/faces/7.png"; // fallback
+  }
+  
+  const imgSrc = getFirstImageUrl(images);
+  
   return (
     <Card>
       <CardMedia>
@@ -27,7 +38,7 @@ export default function ProductCard8({ product, onOpen }: Props) {
           <LazyImage
             width={150}
             height={150}
-            src={images[0]?.url ?? "/assets/images/faces/7.png"}
+            src={imgSrc}
             alt="category"
             className="product-img"
           />

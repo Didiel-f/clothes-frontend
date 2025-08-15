@@ -17,7 +17,8 @@ import DeliveryAddressForm from "./delivery-address-form";
 // GLOBAL CUSTOM COMPONENTS
 import { FlexBetween, FlexBox } from "components/flex-box";
 // TYPES
-import { DeliveryAddress } from "models/Common";
+import { useDeliveryAddressesCTX } from "contexts/delivery-addresses-context";
+import Address from "models/Address.model";
 
 // STYLED COMPONENTS
 const AddressCard = styled(Card, {
@@ -37,9 +38,7 @@ const AddressCard = styled(Card, {
   p: { color: theme.palette.grey[700] }
 }));
 
-// ==============================================================
-type Props = { deliveryAddresses: DeliveryAddress[] };
-// ==============================================================
+type Props = { deliveryAddresses?: Address[] };
 
 export default function DeliveryAddresses({ deliveryAddresses }: Props) {
   const {
@@ -51,58 +50,95 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
     handleDeleteDeliveryAddress
   } = useDeliveryAddresses();
 
+  const { isLoggedIn, addresses } = useDeliveryAddressesCTX();
   const { control } = useFormContext();
+
+  // === Fuente de datos a renderizar según login ===
+  // - Logueado: lista completa
+  // - Anónimo: solo la primera (si existe)
+  const source: Address[] = isLoggedIn
+    ? (deliveryAddresses ?? addresses ?? [])
+    : (addresses && addresses.length ? [addresses[0]] : []);
+
+  const addBtnLabel = isLoggedIn
+    ? "Añade nueva dirección"
+    : (source.length ? "Cambiar dirección" : "Agregar dirección");
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
-      {/* HEADING & BUTTON SECTION */}
       <FlexBetween mb={4}>
-        <Heading number={2} title="Delivery Address" mb={0} />
+        <Heading number={2} title="Dirección de envío" mb={0} />
 
-        <Button color="primary" variant="outlined" onClick={handleAddNewAddress}>
-          Add New Address
+        <Button
+          color="primary"
+          variant="outlined"
+          onClick={handleAddNewAddress}
+          // Si NO está logueado y ya hay 1, igualmente abrimos el modal para reemplazar.
+          // Si prefieres bloquear, descomenta la línea de abajo:
+          // disabled={!isLoggedIn && !canAddAnother}
+        >
+          {addBtnLabel}
         </Button>
       </FlexBetween>
 
-      {/* ADDRESS LIST SECTION */}
       <Grid container spacing={3}>
-        {deliveryAddresses.map((item, ind) => (
+        {source?.map((item, ind) => (
           <Grid size={{ md: 4, sm: 6, xs: 12 }} key={ind}>
             <Controller
               name="address"
               control={control}
-              render={({ field, fieldState: { error } }) => (
-                <AddressCard
-                  error={Boolean(error)}
-                  active={item.street1 === field.value}
-                  onClick={() => field.onChange(item.street1)}>
-                  <FlexBox position="absolute" top={5} right={5}>
-                    <IconButton size="small" onClick={() => handleEditDeliveryAddress(item)}>
-                      <ModeEditOutline fontSize="inherit" />
-                    </IconButton>
+              render={({ field, fieldState: { error } }) => {
+                const selected = field.value as Address | undefined;
+                const isActive = selected ? selected.houseApartment === item.houseApartment : false;
 
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleDeleteDeliveryAddress(item.id)}>
-                      <DeleteOutline fontSize="inherit" />
-                    </IconButton>
-                  </FlexBox>
+                return (
+                  <AddressCard
+                    error={Boolean(error)}
+                    active={isActive}
+                    onClick={() => field.onChange(item)}
+                  >
+                    <FlexBox position="absolute" top={5} right={5}>
+                      {/* Editar siempre disponible (en anónimo actúa como "reemplazar") */}
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditDeliveryAddress(item);
+                        }}
+                      >
+                        <ModeEditOutline fontSize="inherit" />
+                      </IconButton>
 
-                  <Typography noWrap variant="h6">
-                    {item.name}
-                  </Typography>
-                  <Typography variant="body1">{item.street1}</Typography>
-                  {item.street2 ? <Typography variant="body1">{item.street2}</Typography> : null}
-                  <Typography variant="body1">{item.phone}</Typography>
-                </AddressCard>
-              )}
+                      {/* Eliminar solo si está logueado (múltiples direcciones) */}
+                      {isLoggedIn && (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteDeliveryAddress(item.houseApartment);
+                          }}
+                        >
+                          <DeleteOutline fontSize="inherit" />
+                        </IconButton>
+                      )}
+                    </FlexBox>
+
+                    <Typography noWrap variant="h6">
+                      {item.streetName}
+                    </Typography>
+                    <Typography variant="body1">{item.regionName}</Typography>
+                    <Typography variant="body1">{item.countyName}</Typography>
+                    <Typography variant="body1">{item.streetNumber}</Typography>
+                    <Typography variant="body1">{item.houseApartment}</Typography>
+                  </AddressCard>
+                );
+              }}
             />
           </Grid>
         ))}
       </Grid>
 
-      {/* SHOW DELIVERY ADDRESS FORM MODAL WHEN CLICK EDIT BUTTON */}
       {openModal && (
         <DeliveryAddressForm handleCloseModal={toggleModal} deliveryAddress={editDeliveryAddress} />
       )}

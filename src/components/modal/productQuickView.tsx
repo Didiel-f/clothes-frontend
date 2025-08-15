@@ -34,7 +34,7 @@ export default function ProductQuickView({ open, onClose, product, onViewProduct
                                     color: "primary.main",
                                     backgroundColor: "transparent"
                                 }}>
-                                {product.images.map((item) => (
+                                {product?.images?.map((item) => (
                                     <Box
                                         key={item.documentId}
                                         src={item.url}

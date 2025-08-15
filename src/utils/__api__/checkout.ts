@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { DeliveryTime, DeliveryAddress, PaymentCard } from "models/Common";
+import Address from "models/Address.model";
 
 const DUMMY_ADDRESS_LIST = [
   {
@@ -50,8 +51,8 @@ const CARD_LIST = [
   { cardType: "Visa", last4Digits: "4543", name: "Jaslynn Land" }
 ];
 
-export const getAddresses = cache(async (): Promise<DeliveryAddress[]> => {
-  return DUMMY_ADDRESS_LIST;
+export const getAddresses = cache(async (): Promise<Address[]> => {
+  return [];
 });
 
 export const deleteAddress = cache(async (id: number) => {

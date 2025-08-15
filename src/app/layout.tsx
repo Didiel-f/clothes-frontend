@@ -15,7 +15,6 @@ import "slick-carousel/slick/slick-theme.css";
 // THEME PROVIDER
 import ThemeProvider from "theme/theme-provider";
 // PRODUCT CART PROVIDER
-import CartProvider from "contexts/CartContext";
 // SITE SETTINGS PROVIDER
 import SettingsProvider from "contexts/SettingContext";
 // GLOBAL CUSTOM COMPONENTS
@@ -29,7 +28,6 @@ export default function RootLayout({ children, modal }: { children: ReactNode; m
   return (
     <html lang="en" suppressHydrationWarning>
       <body id="body" className={publicSans.className}>
-        <CartProvider>
           <SettingsProvider>
             <ThemeProvider>
               <ProgressBar />
@@ -39,7 +37,6 @@ export default function RootLayout({ children, modal }: { children: ReactNode; m
               </RTL>
             </ThemeProvider>
           </SettingsProvider>
-        </CartProvider>
 
         <GoogleAnalytics gaId="G-XKPD36JXY0" />
       </body>

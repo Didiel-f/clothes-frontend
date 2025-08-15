@@ -8,7 +8,7 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Typography from "@mui/material/Typography";
 // GLOBAL CUSTOM HOOK
-import useCart from "hooks/useCart";
+import { useCartStore } from "contexts/CartContext";
 // GLOBAL CUSTOM COMPONENTS
 import { FlexBetween, FlexBox } from "components/flex-box";
 // DUMMY CUSTOM DATA
@@ -17,9 +17,9 @@ import countryList from "data/countryList";
 import { currency } from "lib";
 
 export default function CheckoutForm() {
-  const { state } = useCart();
+  const { cart } = useCartStore();
 
-  const getTotalPrice = () => state.cart.reduce((acc, item) => acc + item.product.price * item.qty, 0);
+  const getTotalPrice = () => cart.reduce((acc, item) => acc + item.product.price * item.qty, 0);
 
   const STATE_LIST = [
     { value: "new-york", label: "New York" },

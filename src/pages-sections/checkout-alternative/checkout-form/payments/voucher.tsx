@@ -17,7 +17,7 @@ export default function Voucher() {
         disableRipple
         onClick={() => setHasVoucher((state) => !state)}
         sx={{ color: "primary.main", fontWeight: 500 }}>
-        I have a voucher
+        Tengo un cupón
       </ButtonBase>
 
       <Collapse in={hasVoucher}>
