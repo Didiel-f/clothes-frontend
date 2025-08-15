@@ -28,13 +28,13 @@ import { useCartStore } from "contexts/CartContext";
 // ======== VALIDACIÓN ========
 const validationSchema = yup.object({
   regionCode: yup.string().required("Región es requerida"),
-  regionName: yup.string().optional(),
+  regionName: yup.string().required(),
   countyName: yup.string().required("Comuna es requerida"),
-  countyCode: yup.string().optional(),
+  countyCode: yup.string().required(),
   streetId: yup.mixed<number>().required("Calle es requerida"),
-  streetName: yup.string().optional(),
+  streetName: yup.string().required(),
   streetNumber: yup.string().required("Número es requerido"),
-  houseApartment: yup.string().optional()
+  houseApartment: yup.string().required()
 });
 
 type FormValues = yup.InferType<typeof validationSchema>;
@@ -95,7 +95,6 @@ export default function DeliveryAddressForm({
     if (!countyCode) return;
     const val = Number(rate?.serviceValue);
     if (!Number.isFinite(val)) return;
-    console.log('val', val)
     addShippingPrice(val);
   }, [countyCode, rate?.serviceValue, addShippingPrice]);
 

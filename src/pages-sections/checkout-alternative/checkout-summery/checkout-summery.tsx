@@ -15,7 +15,6 @@ export default function CheckoutSummary() {
   const cart         = useCartStore((s) => s.cart);
   const shipping     = useCartStore((s) => s.shippingPrice);
   const discount     = useCartStore((s) => s.discount);
-
   const subtotal     = useCartSubtotal();
   const total        = useCartTotals();
 

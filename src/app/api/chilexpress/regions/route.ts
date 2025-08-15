@@ -11,7 +11,6 @@ export async function GET() {
         "Ocp-Apim-Subscription-Key": process.env.CHILEXPRESS_COVERAGE_API_KEY!,
       },
     });
-    console.log('res', res)
     const data = await res.json();
 
     return NextResponse.json(data);

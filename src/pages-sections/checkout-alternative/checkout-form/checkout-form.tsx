@@ -14,12 +14,12 @@ import ClientInfoForm from "./delivery-addresses/client-info-form";
 import Address from "models/Address.model";
 
 const validationSchema = yup.object().shape({
-  name: yup.string().required("Name is required"),
-  lastname: yup.string().optional(),
-  rut: yup.string().optional(),
-  phone: yup.string().required("Phone is required"),
+  name: yup.string().required("El nombre es requerido"),
+  lastname: yup.string().required("El apellido es requerido"),
+  rut: yup.string().required("Ingrese RUT"),
+  phone: yup.string().required("Ingrese teléfono"),
   email: yup.string().email("Correo inválido").required("Correo es requerido"),
-  address: yup.mixed<Address>().required("Delivery address is required"),
+  address: yup.mixed<Address>().required("Se necesita una dirección de envío"),
   voucher: yup.string().optional(),
 });
 
