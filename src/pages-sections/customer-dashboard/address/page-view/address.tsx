@@ -19,7 +19,7 @@ export default function AddressPageView({ addressList, totalPages }: Props) {
 
       {/* ALL ADDRESS LIST AREA */}
       {addressList.map((address) => (
-        <AddressListItem key={address.id} address={address} />
+        <AddressListItem key={address.houseApartment} address={address} />
       ))}
 
       {/* PAGINATION AREA */}
