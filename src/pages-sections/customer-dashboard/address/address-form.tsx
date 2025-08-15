@@ -23,9 +23,9 @@ type Props = { address: Address };
 
 export default function AddressForm({ address }: Props) {
   const initialValues = {
-    name: address.title || "",
-    contact: address.phone || "",
-    address: address.street || ""
+    name: address.regionName || "",
+    contact: address.countyName || "",
+    address: address.houseApartment || ""
   };
 
   const methods = useForm({
