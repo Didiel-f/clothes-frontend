@@ -54,7 +54,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
   } = useDeliveryAddresses();
 
   const { isLoggedIn, addresses } = useDeliveryAddressesCTX();
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
 
   // === Fuente de datos a renderizar según login ===
   // - Logueado: lista completa
@@ -105,8 +105,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
                       // Actualizar el campo address
                       field.onChange(item);
                       
-                      // También actualizar los campos individuales para mantener consistencia
-                      const { setValue } = useFormContext();
+                      
                       setValue("regionName", item.regionName || "");
                       setValue("countyName", item.countyName || "");
                       setValue("countyCode", item.countyCode || null);
