@@ -12,7 +12,6 @@ import DialogContent from "@mui/material/DialogContent";
 import { FormControl, InputLabel, Select, MenuItem, Autocomplete, TextField as MuiTextField } from "@mui/material";
 // RHF
 import { Controller } from "react-hook-form";
-import { FormProvider } from "components/form-hook";
 // Tipos de tu API (ajústalos si difieren)
 type IStreet = { streetId: number; streetName: string };
 
@@ -114,23 +113,27 @@ export default function DeliveryAddressForm({
     setValue("houseApartment", val ?? "", { shouldValidate: true, shouldDirty: true });
   };
 
-  const onSubmit = handleSubmit((values) => {
-    // Ensambla el DeliveryAddress real si necesitas adaptar tipos/campos
-    const addr = {
-      ...values,
-    } as unknown as Address;
+  // Función wrapper para evitar propagación al formulario padre
+  const handleFormSubmit = () => {
+    // Llamar directamente a la función de submit
+    handleSubmit((values) => {
+      // Ensambla el DeliveryAddress real si necesitas adaptar tipos/campos
+      const addr = {
+        ...values,
+      } as unknown as Address;
 
-    if (isLoggedIn) {
-      addAddress(addr); // puede agregar múltiples
-    } else {
-      // NO logueado -> siempre 1 (reemplaza)
-      replaceOnlyAddress(addr);
-    }
+      if (isLoggedIn) {
+        addAddress(addr); // puede agregar múltiples
+      } else {
+        // NO logueado -> siempre 1 (reemplaza)
+        replaceOnlyAddress(addr);
+      }
 
-    console.log("Nueva dirección:", addr);
-    handleCloseModal();
-    reset();
-  });
+      console.log("Nueva dirección:", addr);
+      handleCloseModal();
+      reset();
+    })();
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setStreetQuery(rawQuery.trim()), 250);
@@ -144,7 +147,11 @@ export default function DeliveryAddressForm({
           Añade información de dirección
         </Typography>
 
-        <FormProvider methods={methods} onSubmit={onSubmit}>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleFormSubmit();
+        }}>
           <Grid container spacing={3}>
             {/* ===== Región ===== */}
             <Grid size={{ sm: 6, xs: 12 }}>
@@ -311,7 +318,8 @@ export default function DeliveryAddressForm({
               <Button
                 color="primary"
                 variant="contained"
-                type="submit"
+                type="button"
+                onClick={handleFormSubmit}
                 disabled={!isValid || isSubmitting}
               >
                 Guardar
@@ -319,7 +327,7 @@ export default function DeliveryAddressForm({
 
             </Grid>
           </Grid>
-        </FormProvider>
+        </form>
       </DialogContent>
     </Dialog>
   );

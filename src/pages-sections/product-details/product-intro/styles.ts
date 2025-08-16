@@ -37,7 +37,7 @@ export const ProductImageWrapper = styled("div")(({ theme }) => ({
   borderRadius: theme.spacing(3),
   marginBottom: theme.spacing(6),
   border: `1px solid ${theme.palette.grey[300]}`,
-  "& img": { objectFit: "cover" },
+  "& img": { objectFit: "contain" },
   [theme.breakpoints.down("sm")]: { height: 300 },
   "& + .preview-images": {
     overflow: "auto",
@@ -55,6 +55,7 @@ export const PreviewImage = styled("div", {
   justifyContent: "center",
   borderRadius: "10px",
   overflow: "hidden",
+  "& img": { objectFit: "contain" },
   width: 64,
   height: 64,
   cursor: "pointer",

@@ -1,129 +1,111 @@
-import Link from "next/link";
-// MUI
-import Card from "@mui/material/Card";
+// checkout-form.tsx
+"use client";
+
 import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
-import MenuItem from "@mui/material/MenuItem";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import Typography from "@mui/material/Typography";
-// GLOBAL CUSTOM HOOK
-import { useCartStore } from "contexts/CartContext";
-// GLOBAL CUSTOM COMPONENTS
-import { FlexBetween, FlexBox } from "components/flex-box";
-// DUMMY CUSTOM DATA
-import countryList from "data/countryList";
-// CUSTOM UTILS LIBRARY FUNCTION
-import { currency } from "lib";
+import { Resolver, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+// GLOBAL
+import { FormProvider } from "components/form-hook";
+// LOCALES
+// TIPOS
+import Address from "models/Address.model";
+// 🆕
+import { makeKey } from "utils/ns";
+import { ls } from "utils/form-persist";
+import { usePersistRHF } from "hooks/usePersistRHF";
+import DeliveryAddresses from "pages-sections/checkout-alternative/checkout-form/delivery-addresses";
+import ClientInfoForm from "pages-sections/checkout-alternative/checkout-form/delivery-addresses/client-info-form";
+import Voucher from "pages-sections/checkout-alternative/checkout-form/payments/voucher";
 
-export default function CheckoutForm() {
-  const { cart } = useCartStore();
+type Props = {
+  isLoggedIn?: boolean;
+  userId?: string | null;
+  deliveryAddresses?: Address[];
+};
 
-  const getTotalPrice = () => cart.reduce((acc, item) => acc + item.product.price * item.qty, 0);
+// Ajusta a tus campos reales:
+type FormValues = {
+  // cliente
+  name: string;
+  lastname?: string;
+  rut?: string;
+  phone: string;
+  email: string;
+  // dirección (si la manejas dentro del mismo form con RHF)
+  regionName?: string;
+  regionId?: string;
+  countyName?: string;
+  countyCode?: string | null;
+  streetName?: string;
+  streetNumber?: string;
+  houseApartment?: string;
+  // ... cualquier otro que uses
+};
 
-  const STATE_LIST = [
-    { value: "new-york", label: "New York" },
-    { value: "chicago", label: "Chicago" }
-  ];
+const validationSchema = yup.object().shape({
+  name: yup.string().required("Name is required"),
+  lastname: yup.string().optional(),
+  rut: yup.string().optional(),
+  phone: yup.string().required("Phone is required"),
+  email: yup.string().email("Correo inválido").required("Correo es requerido"),
+  // agrega validaciones de dirección según tu flujo
+}) as yup.ObjectSchema<any>;
+
+export default function CheckoutForm({ isLoggedIn = false, userId = null, deliveryAddresses }: Props) {
+  const ns = makeKey(isLoggedIn ? userId : undefined);
+  const FORM_KEY = ns("checkout:form");
+
+  const DEFAULTS: FormValues = {
+    name: "",
+    lastname: "",
+    rut: "",
+    phone: "",
+    email: "",
+    regionName: "",
+    regionId: "",
+    countyName: "",
+    countyCode: null,
+    streetName: "",
+    streetNumber: "",
+    houseApartment: ""
+  };
+
+  // 1) defaultValues:
+  // - Si estuvieras logueado y ya trajiste perfil/direcciones del servidor,
+  //   reemplaza aquí con esos datos.
+  const methods = useForm<FormValues>({
+    defaultValues: ls.get<FormValues>(FORM_KEY, DEFAULTS),
+    resolver: yupResolver(validationSchema) as unknown as Resolver<FormValues>
+  });
+
+  // 2) persistencia automática (limpia en submit si es invitado)
+  usePersistRHF<FormValues>(FORM_KEY, methods, {
+    clearOnSubmitSuccess: !isLoggedIn,
+    // ejemplo: si countyCode es null, limpia calle
+    serialize: (v) => (!v.countyCode ? { ...v, streetName: "", streetNumber: "" } : v)
+  });
+
+  const { handleSubmit, formState } = methods;
+  const { isSubmitting } = formState;
+
+  const handleSubmitForm = handleSubmit(async (values) => {
+    // Aquí haces tu submit real
+    // Si estás logueado: backend manda (perfil + direcciones)
+    // Si NO: el LS se limpia por clearOnSubmitSuccess
+
+    // Demo:
+    alert(JSON.stringify(values, null, 2));
+  });
 
   return (
-    <Card sx={{ padding: 3 }}>
-      <FlexBetween mb={2}>
-        <Typography variant="body1" sx={{ color: "grey.600" }}>
-          Total:
-        </Typography>
-
-        <Typography variant="h4" sx={{ fontSize: 18, lineHeight: 1 }}>
-          {currency(getTotalPrice())}
-        </Typography>
-      </FlexBetween>
-
-      <Divider sx={{ mb: 2 }} />
-
-      <FlexBox alignItems="center" columnGap={1} mb={2}>
-        <Typography variant="h6">Additional Comments</Typography>
-
-        <Typography
-          variant="body1"
-          sx={{
-            fontSize: 12,
-            lineHeight: 1,
-            padding: "2px 6px",
-            borderRadius: "3px",
-            color: "primary.main",
-            bgcolor: "primary.light"
-          }}>
-          Note
-        </Typography>
-      </FlexBox>
-
-      {/* COMMENTS TEXT FIELD */}
-      <TextField variant="outlined" rows={6} fullWidth multiline />
-
-      <Divider sx={{ mb: 2 }} />
-
-      {/* APPLY VOUCHER TEXT FIELD */}
-      <TextField fullWidth size="small" label="Voucher" variant="outlined" placeholder="Voucher" />
-
-      <Button variant="outlined" color="primary" fullWidth sx={{ mt: 2, mb: 4 }}>
-        Apply Voucher
+    <FormProvider methods={methods} onSubmit={handleSubmitForm}>
+      <ClientInfoForm />
+      <DeliveryAddresses deliveryAddresses={deliveryAddresses} />
+      <Voucher />
+      <Button size="large" type="submit" color="primary" variant="contained" loading={isSubmitting}>
+        Pagar
       </Button>
-
-      <Divider sx={{ mb: 2 }} />
-
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Shipping Estimates
-      </Typography>
-
-      {/* COUNTRY TEXT FIELD */}
-      <Autocomplete
-        fullWidth
-        sx={{ mb: 2 }}
-        options={countryList}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            size="small"
-            label="Country"
-            variant="outlined"
-            placeholder="Select Country"
-          />
-        )}
-      />
-
-      {/* STATE/CITY TEXT FIELD */}
-      <TextField
-        select
-        fullWidth
-        size="small"
-        label="State"
-        variant="outlined"
-        placeholder="Select State"
-        defaultValue="new-york">
-        {STATE_LIST.map(({ label, value }) => (
-          <MenuItem value={value} key={label}>
-            {label}
-          </MenuItem>
-        ))}
-      </TextField>
-
-      {/* ZIP-CODE TEXT FIELD */}
-      <TextField
-        fullWidth
-        size="small"
-        label="Zip Code"
-        placeholder="3100"
-        variant="outlined"
-        sx={{ mt: 2 }}
-      />
-
-      <Button variant="outlined" color="primary" fullWidth sx={{ my: 2 }}>
-        Calculate Shipping
-      </Button>
-
-      <Button fullWidth color="primary" href="/checkout" variant="contained" LinkComponent={Link}>
-        Checkout Now
-      </Button>
-    </Card>
+    </FormProvider>
   );
 }

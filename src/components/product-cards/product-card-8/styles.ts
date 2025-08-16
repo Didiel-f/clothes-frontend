@@ -19,10 +19,15 @@ export const CardMedia = styled("div")(({ theme }) => ({
   overflow: "hidden",
   position: "relative",
   backgroundColor: theme.palette.grey[100],
-  img: { transition: "0.3s" },
-  ".quick-view-btn": {
-    position: "relative",
-    marginInline: theme.spacing(1)
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+
+  img: {
+    transition: "0.3s",
+    width: "100%",
+    height: "100%",
+    objectFit: "contain"
   }
 }));
 

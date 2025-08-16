@@ -36,8 +36,8 @@ export default function ProductCard8({ product, onOpen }: Props) {
       <CardMedia>
         <Link href={`/products/${slug}`}>
           <LazyImage
-            width={150}
-            height={150}
+            width={2000}
+            height={2000}
             src={imgSrc}
             alt="category"
             className="product-img"

@@ -11,6 +11,7 @@ import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import ModeEditOutline from "@mui/icons-material/ModeEditOutline";
 // LOCAL CUSTOM HOOK
 import useDeliveryAddresses from "./use-delivery-addresses";
+import { useHydration } from "hooks/useHydration";
 // LOCAL CUSTOM COMPONENTS
 import Heading from "../heading";
 import DeliveryAddressForm from "./delivery-address-form";
@@ -41,6 +42,8 @@ const AddressCard = styled(Card, {
 type Props = { deliveryAddresses?: Address[] };
 
 export default function DeliveryAddresses({ deliveryAddresses }: Props) {
+  const isHydrated = useHydration();
+  
   const {
     openModal,
     editDeliveryAddress,
@@ -60,9 +63,12 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
     ? (deliveryAddresses ?? addresses ?? [])
     : (addresses && addresses.length ? [addresses[0]] : []);
 
-  const addBtnLabel = isLoggedIn
-    ? "Añade nueva dirección"
-    : (source.length ? "Cambiar dirección" : "Agregar dirección");
+  // Solo mostrar el texto del botón después de la hidratación para evitar mismatch
+  const addBtnLabel = !isHydrated 
+    ? "Agregar dirección" // Texto por defecto durante SSR
+    : isLoggedIn
+      ? "Añade nueva dirección"
+      : (source.length ? "Cambiar dirección" : "Agregar dirección");
 
   return (
     <Card sx={{ p: 3, mb: 3 }}>
@@ -95,7 +101,19 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
                   <AddressCard
                     error={Boolean(error)}
                     active={isActive}
-                    onClick={() => field.onChange(item)}
+                    onClick={() => {
+                      // Actualizar el campo address
+                      field.onChange(item);
+                      
+                      // También actualizar los campos individuales para mantener consistencia
+                      const { setValue } = useFormContext();
+                      setValue("regionName", item.regionName || "");
+                      setValue("countyName", item.countyName || "");
+                      setValue("countyCode", item.countyCode || null);
+                      setValue("streetName", item.streetName || "");
+                      setValue("streetNumber", item.streetNumber || "");
+                      setValue("houseApartment", item.houseApartment || "");
+                    }}
                   >
                     <FlexBox position="absolute" top={5} right={5}>
                       {/* Editar siempre disponible (en anónimo actúa como "reemplazar") */}
@@ -110,7 +128,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
                       </IconButton>
 
                       {/* Eliminar solo si está logueado (múltiples direcciones) */}
-                      {isLoggedIn && (
+                      {isHydrated && isLoggedIn && (
                         <IconButton
                           size="small"
                           color="error"
@@ -139,7 +157,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
         ))}
       </Grid>
 
-      {openModal && (
+      {isHydrated && openModal && (
         <DeliveryAddressForm handleCloseModal={toggleModal} deliveryAddress={editDeliveryAddress} />
       )}
     </Card>

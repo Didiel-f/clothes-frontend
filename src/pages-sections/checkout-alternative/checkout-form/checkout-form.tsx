@@ -12,50 +12,90 @@ import Voucher from "./payments/voucher";
 // TIPOS
 import ClientInfoForm from "./delivery-addresses/client-info-form";
 import Address from "models/Address.model";
+// HOOKS
+import { usePersistRHF } from "hooks/usePersistRHF";
+
+// ================== CONFIG BÁSICA ==================
+type Props = {
+  deliveryAddresses?: Address[];
+};
+
+// Ajusta a tus campos reales:
+type FormValues = {
+  // cliente
+  name: string;
+  lastname?: string;
+  rut?: string;
+  phone: string;
+  email: string;
+  // dirección seleccionada
+  address?: Address;
+  // dirección (si usas RHF aquí mismo)
+  regionName?: string;
+  countyName?: string;
+  countyCode?: string | null;
+  streetName?: string;
+  streetNumber?: string;
+  houseApartment?: string;
+};
 
 const validationSchema = yup.object().shape({
-  name: yup.string().required("El nombre es requerido"),
-  lastname: yup.string().required("El apellido es requerido"),
-  rut: yup.string().required("Ingrese RUT"),
-  phone: yup.string().required("Ingrese teléfono"),
+  name: yup.string().required("Name is required"),
+  lastname: yup.string().optional(),
+  rut: yup.string().optional(),
+  phone: yup.string().required("Phone is required"),
   email: yup.string().email("Correo inválido").required("Correo es requerido"),
-  address: yup.mixed<Address>().required("Se necesita una dirección de envío"),
-  voucher: yup.string().optional(),
-});
+}) as yup.ObjectSchema<any>;
 
-type FormValues = yup.InferType<typeof validationSchema>;
+// ================== PERSISTENCIA CON HOOK ==================
+const FORM_KEY = "checkout:form";
 
-interface Props {
-  deliveryAddresses?: Address[];
-}
+const DEFAULTS: FormValues = {
+  name: "",
+  lastname: "",
+  rut: "",
+  phone: "",
+  email: "",
+  address: undefined,
+  regionName: "",
+  countyName: "",
+  countyCode: null,
+  streetName: "",
+  streetNumber: "",
+  houseApartment: ""
+};
+
+// ==========================================================
 
 export default function CheckoutForm({ deliveryAddresses }: Props) {
-
-  const initialValues: Partial<FormValues> = {
-    name: "",
-    lastname: "",
-    rut: "",
-    phone: "",
-    email: "",
-    address: undefined,
-    voucher: "",
-  };
-
+  // 1) RHF con valores por defecto
   const methods = useForm<FormValues>({
-    defaultValues: initialValues as FormValues,
-    resolver: yupResolver(validationSchema) as Resolver<FormValues>,
+    defaultValues: DEFAULTS,
+    resolver: yupResolver(validationSchema) as unknown as Resolver<FormValues>
   });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+  // 2) Usar el hook de persistencia robusto
+  usePersistRHF(FORM_KEY, methods, {
+    // Opcional: limpiar solo ciertos campos o transformar datos
+    serialize: (values) => {
+      // Saneos mínimo: si countyCode está vacío, limpiamos calle/número
+      const sanitized = values.countyCode == null || values.countyCode === ""
+        ? { ...values, streetName: "", streetNumber: "" }
+        : values;
+      
+      // Asegurar que el campo address se mantenga
+      return sanitized;
+    },
+    // Opcional: limpiar al enviar exitosamente
+    clearOnSubmitSuccess: true
+  });
 
+  const { handleSubmit, formState } = methods;
+  const { isSubmitting } = formState;
 
-
-  const handleSubmitForm = handleSubmit((values) => {
+  const handleSubmitForm = handleSubmit(async (values) => {
+    // Aquí tu submit real
     console.log("SUBMIT CHECKOUT", values);
-    alert(JSON.stringify(values, null, 2));
   });
 
   return (
