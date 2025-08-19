@@ -23,8 +23,9 @@ export default function ProductDetailsPageView({product}: Props) {
       {/* PRODUCT DETAILS INFO AREA */}
       {product && <ProductIntro product={product} />}
 
-      {/* PRODUCT DESCRIPTION AND REVIEW */}
-      <ProductTabs description={<ProductDescription description={shortDescription} />} reviews={<ProductReviews />} />
+      {/* PRODUCT DESCRIPTION AND REVIEW 
+      <ProductTabs description={<ProductDescription description={shortDescription} />} />
+*/}
 
       {/* FREQUENTLY BOUGHT PRODUCTS AREA 
       <FrequentlyBought products={props.frequentlyBought} />

@@ -36,7 +36,7 @@ function parseSearchParams(sp: SearchParams) {
     q: sp.q ?? "",
     sale: sp.sale === "true" ? true : undefined,
     page: Number(sp.page ?? 1),
-    sort: sp.sort ?? "createdAt:desc",
+    sort: sp.sort ?? "price:asc",
     prices: { min, max },
     brand: (sp.brand ?? "").split(",").filter(Boolean),
     category: sp.category ?? undefined,

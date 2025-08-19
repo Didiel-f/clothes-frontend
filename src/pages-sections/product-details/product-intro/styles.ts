@@ -23,6 +23,7 @@ export const StyledRoot = styled("div")(({ theme }) => ({
   "& .variant-group": {
     gap: "0.5rem",
     display: "flex",
+    flexWrap: "wrap",
     alignItems: "center",
     "& .MuiChip-root": { height: 28, cursor: "pointer", borderRadius: "6px" }
   }

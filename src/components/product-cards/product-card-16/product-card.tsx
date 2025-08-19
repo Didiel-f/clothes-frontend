@@ -15,7 +15,7 @@ type Props = { product: IProduct };
 // ==============================================================
 
 export default function ProductCard16({ product }: Props) {
-  const { slug, name, price, images } = product;
+  const { slug, name, price, images, brand, category } = product;
   const discount = getEffectiveDiscount(product);
   const hasDiscount = discount > 0;
 
@@ -42,7 +42,7 @@ export default function ProductCard16({ product }: Props) {
       <div className="content">
         <Link href={`/products/${slug}`}>
           <Typography variant="h6" sx={{ mb: 1 }}>
-            {name}
+          {category.name} - {brand.name} - {name}
           </Typography>
         </Link>
 

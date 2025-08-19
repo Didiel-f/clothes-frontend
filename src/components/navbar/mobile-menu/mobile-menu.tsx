@@ -11,8 +11,6 @@ import Clear from "@mui/icons-material/Clear";
 import OverlayScrollbar from "components/overlay-scrollbar";
 // RENDER MENU LEVEL FUNCTION
 import { renderLevels } from "./render-levels";
-// NAVIGATION DATA LIST
-import { updateNavigation } from "./modified-navigation";
 // CUSTOM DATA MODEL
 import { Menu } from "models/Navigation.model";
 
@@ -23,7 +21,6 @@ type Props = { navigation: Menu[] };
 export default function MobileMenu({ navigation }: Props) {
   const [openDrawer, setOpenDrawer] = useState(false);
   const handleClose = () => setOpenDrawer(false);
-
   return (
     <Fragment>
       <IconButton onClick={() => setOpenDrawer(true)} sx={{ flexShrink: 0, color: "grey.600" }}>
@@ -40,7 +37,7 @@ export default function MobileMenu({ navigation }: Props) {
               </IconButton>
 
               {/* MULTI LEVEL MENU RENDER */}
-              {renderLevels(updateNavigation(navigation), handleClose)}
+              {renderLevels(navigation, handleClose)}
             </Box>
           </OverlayScrollbar>
         </Box>

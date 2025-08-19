@@ -13,6 +13,8 @@ import { StyledRoot } from "./styles";
 // CUSTOM DATA MODEL
 import { IProduct, IVariant } from "models/Product.model";
 import { useState } from "react";
+import Link from "next/link";
+import ProductDescription from "../product-description";
 
 // ================================================================
 type Props = { product: IProduct };
@@ -21,12 +23,12 @@ type Props = { product: IProduct };
 export default function ProductIntro({ product }: Props) {
   const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
   const hasStock = product.variants.some(variant => variant.stock > 0);
-  
+
   return (
     <StyledRoot>
       <Grid container spacing={3} justifyContent="space-around">
         {/* IMAGE GALLERY AREA */}
-        { product.images && (<Grid size={{ lg: 5, md: 7, xs: 12 }}>
+        {product.images && (<Grid size={{ lg: 5, md: 7, xs: 12 }}>
           <ProductGallery images={product.images!} />
         </Grid>)}
 
@@ -40,9 +42,23 @@ export default function ProductIntro({ product }: Props) {
           {/* PRODUCT BRAND */}
           {product.brand && (
             <p className="brand">
-              Marca: <strong>{product.brand.name}</strong>
+              Marca:{" "}
+              <Link href={`/products/search?brand=${product.brand.slug}`} >
+                <strong className="underline">{product.brand.name}</strong>
+              </Link>
             </p>
           )}
+
+          {/* PRODUCT CATEGORY */}
+          {product.category && (
+            <p className="brand">
+              Categoría:{" "}
+              <Link href={`/products/search?category=${product.category.slug}`}>
+                <strong>{product.category.name}</strong>
+              </Link>
+            </p>
+          )}
+
 
           {/* PRODUCT VARIANTS */}
           <ProductVariantSelector selectedVariant={selectedVariant} setSelectedVariant={setSelectedVariant} variants={product.variants} />
@@ -53,7 +69,7 @@ export default function ProductIntro({ product }: Props) {
               {currency(product.price)}
             </Typography>
 
-            { hasStock
+            {hasStock
               ? (<p>Stock Disponible</p>)
               : (<p>Agotado</p>)
             }
@@ -61,7 +77,7 @@ export default function ProductIntro({ product }: Props) {
 
           {/* ADD TO CART BUTTON */}
           <AddToCart hasStock={hasStock} product={product} selectedVariant={selectedVariant} />
-
+          <ProductDescription description={product.shortDescription} />
         </Grid>
       </Grid>
     </StyledRoot>

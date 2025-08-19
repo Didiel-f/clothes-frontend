@@ -18,7 +18,7 @@ type Props = { product: IProduct, onOpen: () => void; };
 // ==============================================================
 
 export default function ProductCard8({ product, onOpen }: Props) {
-  const { slug, name, price, images, category } = product;
+  const { slug, name, price, images, category, brand } = product;
   const { isDiscountAvailable, discount } = getDiscount(product);
   
   function getFirstImageUrl(images: unknown): string {
@@ -53,7 +53,7 @@ export default function ProductCard8({ product, onOpen }: Props) {
         <p className="category">{category?.name}</p>
 
         {/* PRODUCT TITLE / NAME */}
-        <p className="title">{name}</p>
+        <p className="title">{brand.name} {name}</p>
 
 
         {isDiscountAvailable ? (

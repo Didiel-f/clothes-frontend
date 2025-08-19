@@ -7,7 +7,7 @@ const navbarNavigation: Menu[] = [
   },
   {
     title: "Zapatillas",
-    url: "/market-1",
+    url: "/products/search?category=zapatillas"
   },
   {
     title: "Vestuario",
@@ -24,16 +24,16 @@ const navbarNavigation: Menu[] = [
     url: "/orders",
     child: [
       {
-        title: "Orders",
-        url: "/orders"
+        title: "Under Armour",
+        url: "/products/search?brand=under-armour"
       },
     ],
   },
   {
     title: "Ofertas",
-    url: "/ofertas",
+    url: "/products/search?discount=1",
     child: [
-      { title: "Profile", url: "/vendor/account-settings" },
+      { title: "Zapatillas", url: "/products/search?category=zapatillas&discount=1" },
     ],
   },
 ];

@@ -66,7 +66,7 @@ export default function ProductSearchPageView({
   const query = searchParams.get("q") ?? initial.q ?? "";
   const page = searchParams.get("page") ?? String(initial.page ?? 1);
   const view = searchParams.get("view") ?? "grid";
-  const sort = searchParams.get("sort") ?? (initial.sort || "createdAt:desc");
+  const sort = searchParams.get("sort") ?? (initial.sort || SORT_OPTIONS[0].value);
 
   const handleChangeSearchParams = (key: string, value: string) => {
     if (!key) return;
@@ -107,7 +107,7 @@ export default function ProductSearchPageView({
                 size="small"
                 value={sort}
                 variant="outlined"
-                placeholder="Sort by"
+                placeholder="Ordenar por"
                 onChange={(e) => handleChangeSearchParams("sort", e.target.value)}
                 sx={{ flex: "1 1 0", minWidth: "150px" }}
               >
