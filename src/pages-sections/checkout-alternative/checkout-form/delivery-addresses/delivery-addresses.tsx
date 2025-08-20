@@ -102,7 +102,6 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
                     error={Boolean(error)}
                     active={isActive}
                     onClick={() => {
-                      // Actualizar el campo address
                       field.onChange(item);
                       
                       

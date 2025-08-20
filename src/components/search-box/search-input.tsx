@@ -50,7 +50,7 @@ export default function SearchInput() {
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Searching for..."
+        placeholder="Buscando..."
         onChange={(e) => setSearch(e.target.value)}
         slotProps={{ input: INPUT_PROPS }}
       />

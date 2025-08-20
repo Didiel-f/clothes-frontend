@@ -17,7 +17,7 @@ export default function NavbarCategoryDropdown({ children }: PropsWithChildren) 
         <CategoryMenuButton variant="text" onClick={(e) => handler(e)}>
           <div className="prefix">
             <Category fontSize="small" className="icon" />
-            <Typography variant="h6">Categories</Typography>
+            <Typography variant="h6">Categorías</Typography>
           </div>
 
           <ChevronRight className="dropdown-icon" fontSize="small" />

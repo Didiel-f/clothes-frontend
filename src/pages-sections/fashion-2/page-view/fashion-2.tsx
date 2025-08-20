@@ -10,12 +10,10 @@ import Section5 from "../section-5";
 import Section6 from "../section-6";
 import Section7 from "../section-7";
 import Section10 from "../section-10";
-import Layout1 from "app/fashion-2/layout";
 import Section9 from "../section-9";
 
 export default function FashionTwoPageView() {
   return (
-    <Layout1>
       <div className="bg-white">
         {/* HERO SECTION CAROUSEL */}
         <Section1 />
@@ -53,6 +51,5 @@ export default function FashionTwoPageView() {
         {/* SETTINGS IS USED ONLY FOR DEMO, YOU CAN REMOVE THIS */}
         <Setting />
       </div>
-    </Layout1>
   );
 }

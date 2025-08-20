@@ -31,7 +31,7 @@ interface InitialFilters {
   q: string;
   sale?: boolean;
   page: number;
-  sort: string; // ej: "createdAt:desc" | "price:asc"
+  sort: string; 
   prices: { min?: number; max?: number };
   brand: string[];
   category?: string;
@@ -85,10 +85,10 @@ export default function ProductSearchPageView({
           {query ? (
             <div>
               <Typography variant="h5" sx={{ mb: 0.5 }}>
-                Searching for “{query}”
+                Buscando “{query}”
               </Typography>
               <Typography variant="body1" sx={{ color: "grey.600" }}>
-                {products?.length ?? 0} results found
+                {products?.length ?? 0} resultados encontrados
               </Typography>
             </div>
           ) : (
