@@ -92,7 +92,6 @@ export async function getProducts(initial: Initial = {}): Promise<StrapiCollecti
     qs.set("filters[$and][1][discount][$gt]", "0");
   }
 
-
   const url = `${base}/api/products?${qs.toString()}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN ?? ""}` },
