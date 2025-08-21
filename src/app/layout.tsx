@@ -23,7 +23,6 @@ import ProgressBar from "components/progress";
 
 // IMPORT i18n SUPPORT FILE
 import "i18n";
-import Layout1 from "./fashion-2/layout";
 
 export default function RootLayout({ children, modal }: { children: ReactNode; modal: ReactNode }) {
   return (
@@ -33,10 +32,8 @@ export default function RootLayout({ children, modal }: { children: ReactNode; m
             <ThemeProvider>
               <ProgressBar />
               <RTL>
-                <Layout1>
-                  {modal}
-                  {children}
-                </Layout1>
+                {modal}
+                {children}
               </RTL>
             </ThemeProvider>
           </SettingsProvider>
