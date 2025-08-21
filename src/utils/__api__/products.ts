@@ -59,8 +59,15 @@ export async function getProducts(initial: Initial = {}): Promise<StrapiCollecti
   qs.set("pagination[pageSize]", "24");
   qs.set("sort", initial.sort || "createdAt:desc");
 
-  // búsqueda por nombre
-  if (initial.q) qs.set("filters[name][$containsi]", initial.q);
+  // búsqueda por nombre O por marca (name/slug)
+  if (initial.q) {
+    const q = initial.q.trim();
+
+    qs.set("filters[$or][0][name][$containsi]", q);
+    qs.set("filters[$or][1][brand][name][$containsi]", q);
+    qs.set("filters[$or][2][brand][slug][$containsi]", q);
+  }
+
 
   // categoría
   if (initial.category) qs.set("filters[category][slug][$eq]", initial.category);
