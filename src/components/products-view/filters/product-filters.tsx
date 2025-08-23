@@ -34,17 +34,15 @@ type InitialFilters = {
 
 export default function ProductFilters({
   filters,
-  initial,                 // 👈 le llega desde el server
+  initial,
 }: { filters: Filters; initial: InitialFilters }) {
-  const { brands: BRANDS, categories: CATEGORIES, others: OTHERS } = filters;
+  const { brands: BRANDS, categories: CATEGORIES } = filters;
 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Pásale `initial` a tu hook para que parta con esos valores
   const {
-    sales,
     brand,
     prices,
     collapsed,
@@ -169,7 +167,7 @@ export default function ProductFilters({
 
       {/* BRAND VARIANT FILTER */}
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Brands
+        Marcas
       </Typography>
       <FormGroup>
         {BRANDS.map(({ name }) => (

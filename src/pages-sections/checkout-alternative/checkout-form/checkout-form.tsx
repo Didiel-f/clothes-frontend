@@ -14,6 +14,8 @@ import ClientInfoForm from "./delivery-addresses/client-info-form";
 import Address from "models/Address.model";
 // HOOKS
 import { usePersistRHF } from "hooks/usePersistRHF";
+// COMPONENTS
+import { MercadoPagoButton } from "./delivery-addresses/MercadoPagoButton";
 
 // ================== CONFIG BÁSICA ==================
 type Props = {
@@ -103,9 +105,20 @@ export default function CheckoutForm({ deliveryAddresses }: Props) {
       <ClientInfoForm />
       <DeliveryAddresses deliveryAddresses={deliveryAddresses} />
       <Voucher />
-      <Button size="large" type="submit" color="primary" variant="contained" loading={isSubmitting}>
-        Pagar
-      </Button>
+      <MercadoPagoButton 
+        formValues={{
+          regionName: methods.watch("regionName") || "",
+          countyName: methods.watch("countyName") || "",
+          streetName: methods.watch("streetName") || "",
+          streetNumber: methods.watch("streetNumber") || "",
+          houseApartment: methods.watch("houseApartment") || "",
+          firstName: methods.watch("name") || "",
+          lastName: methods.watch("lastname") || "",
+          phone: methods.watch("phone") || "",
+          email: methods.watch("email") || "",
+          rut: methods.watch("rut") || "",
+        }}
+      />
     </FormProvider>
   );
 }

@@ -33,8 +33,8 @@ export default function OrderConfirmationPageView() {
           alt="complete"
           src="/assets/images/illustrations/party-popper.svg"
         />
-        <h1>Your order is completed!</h1>
-        <p>You will be receiving confirmation email with order details.</p>
+        <h1>¡Tu pedido ha sido completado!</h1>
+        <p>Recibirás un correo electrónico de confirmación con los detalles del pedido.</p>
 
         <StyledButton
           color="primary"

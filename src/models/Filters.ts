@@ -60,13 +60,7 @@ export interface IImageFormat {
   };
 }
 
-interface Item {
-  label: string;
-  value: string;
-}
-
 export default interface Filters {
   brands: IBrand[];
-  others: Item[];
   categories: ICategory[];
 }

@@ -52,8 +52,7 @@ export default async function ProductSearch({ searchParams }: Props) {
   const sp = await searchParams;
   const initial = parseSearchParams(sp);
 
-  const [filters, productsRes, categories, brands] = await Promise.all([
-    getFilters(),
+  const [productsRes, categories, brands] = await Promise.all([
     getProducts(initial),
     getCategories(),
     getBrands(),
@@ -68,7 +67,7 @@ export default async function ProductSearch({ searchParams }: Props) {
 
   return (
     <ProductSearchPageView
-      filters={{ ...filters, categories, brands }}
+      filters={{ categories, brands }}
       products={productsRes.data}
       initial={initial}
       pageCount={pageCount}
