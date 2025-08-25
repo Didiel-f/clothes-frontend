@@ -28,9 +28,9 @@ export default function Error({ error, reset }: Props) {
   return (
     <StyledRoot>
       <Card>
-        <Typography variant="h1">Something went wrong!</Typography>
+        <Typography variant="h1">¡Ups! Algo salió mal</Typography>
         <Button color="error" variant="contained" onClick={() => reset()}>
-          Try again
+          Intentar de nuevo
         </Button>
       </Card>
     </StyledRoot>

@@ -11,7 +11,7 @@ import { MobileMenu } from "components/navbar/mobile-menu";
 import { MobileNavigationBar } from "components/mobile-navigation";
 import { Header, HeaderCart, HeaderLogin } from "components/header";
 import { MobileHeader, HeaderSearch } from "components/header/mobile-header";
-import { Topbar, TopbarLanguageSelector, TopbarSocialLinks } from "components/topbar";
+import { Topbar, TopbarSocialLinks } from "components/topbar";
 import { SearchInputWithCategory, SearchInput } from "components/search-box";
 // LOCAL CUSTOM COMPONENTS
 import Footer from "./footer";
@@ -71,7 +71,6 @@ export default function ShopLayout4({ children, navigation, data }: Props) {
       {/* TOP BAR SECTION */}
       <Topbar label={topbar.label} title={topbar.title}>
         <Topbar.Right>
-          <TopbarLanguageSelector languages={topbar.languageOptions} />
           <TopbarSocialLinks links={topbar.socials} />
         </Topbar.Right>
       </Topbar>

@@ -9,7 +9,7 @@ import { CategoryList } from "components/categories";
 import { MobileMenu } from "components/navbar/mobile-menu";
 import { Header, HeaderCart, HeaderLogin } from "components/header";
 import { MobileHeader, HeaderSearch } from "components/header/mobile-header";
-import { Topbar, TopbarLanguageSelector, TopbarSocialLinks } from "components/topbar";
+import { Topbar, TopbarSocialLinks } from "components/topbar";
 // CUSTOM DATA MODEL
 import LayoutModel from "models/Layout.model";
 
@@ -50,7 +50,6 @@ export default function ShopLayout2({ children, navbar, data }: LayoutProps) {
       {/* TOP BAR AREA */}
       <Topbar label={topbar.label} title={topbar.title}>
         <Topbar.Right>
-          <TopbarLanguageSelector languages={topbar.languageOptions} />
           <TopbarSocialLinks links={topbar.socials} />
         </Topbar.Right>
       </Topbar>

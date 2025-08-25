@@ -28,10 +28,5 @@ export const validateMercadoPagoConfig = () => {
     return false;
   }
   
-  if (!MERCADO_PAGO_CONFIG.ACCESS_TOKEN) {
-    console.error('MP_ACCESS_TOKEN no está configurada');
-    return false;
-  }
-  
   return true;
 };

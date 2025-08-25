@@ -15,7 +15,7 @@ import { MobileMenu } from "components/navbar/mobile-menu";
 import { MobileNavigationBar } from "components/mobile-navigation";
 import { Header, HeaderCart, HeaderLogin } from "components/header";
 import { HeaderSearch, MobileHeader } from "components/header/mobile-header";
-import { Topbar, TopbarLanguageSelector, TopbarSocialLinks } from "components/topbar";
+import { Topbar, TopbarSocialLinks } from "components/topbar";
 import { SearchInput, SearchInputWithCategory } from "components/search-box";
 // CUSTOM DATA MODEL
 import LayoutModel from "models/Layout.model";
@@ -53,7 +53,6 @@ export default function SalesLayout({ children, data }: Props) {
       {/* TOP BAR AREA */}
       <Topbar label={topbar.label} title={topbar.title}>
         <Topbar.Right>
-          <TopbarLanguageSelector languages={topbar.languageOptions} />
           <TopbarSocialLinks links={topbar.socials} />
         </Topbar.Right>
       </Topbar>

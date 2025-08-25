@@ -44,7 +44,7 @@ export default function CarouselCard1({
 
         <Grid size={{ xl: 8, md: 7, sm: 6, xs: 12 }}>
           <div className="img-wrapper">
-            <LazyImage fill src={imgUrl} alt={title} sizes="(max-width: 768px) 100vw, 100vw" />
+            <LazyImage fill src={imgUrl || "/assets/images/products/product-1.png"} alt={title} sizes="(max-width: 768px) 100vw, 100vw" />
           </div>
         </Grid>
       </Grid>
