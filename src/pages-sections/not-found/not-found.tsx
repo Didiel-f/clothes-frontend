@@ -22,11 +22,11 @@ export default function NotFound() {
 
       <FlexBox flexWrap="wrap" gap={2}>
         <Button variant="outlined" color="primary" onClick={() => router.back()}>
-          Go Back
+          Atrás
         </Button>
 
         <Button variant="contained" color="primary" onClick={() => router.push("/")}>
-          Go to Home
+          Inicio
         </Button>
       </FlexBox>
     </FlexRowCenter>
