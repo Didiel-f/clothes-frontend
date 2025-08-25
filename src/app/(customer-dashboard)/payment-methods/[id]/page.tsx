@@ -7,10 +7,10 @@ import api from "utils/__api__/payments";
 import { IdParams } from "models/Common";
 
 export const metadata: Metadata = {
-  title: "Payment Details - Bazaar Next.js E-commerce Template",
-  description: `Bazaar is a React Next.js E-commerce template. Build SEO friendly Online store, delivery app and Multi vendor store`,
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+  title: "Detalles del Método de Pago | ZAG",
+  description: "Edita o elimina tu método de pago guardado en ZAG. Mantén tu información de pago actualizada y segura.",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["método de pago", "editar", "eliminar", "pagos", "ZAG", "tienda online", "configuración"]
 };
 
 export default async function PaymentMethodDetails({ params }: IdParams) {

@@ -2,10 +2,10 @@ import { Metadata } from "next";
 import FashionTwoPageView from "pages-sections/fashion-2/page-view";
 
 export const metadata: Metadata = {
-  title: "Fashion 2 - Bazaar Next.js E-commerce Template",
-  description: `Bazaar is a React Next.js E-commerce template. Build SEO friendly Online store, delivery app and Multi vendor store`,
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+  title: "Moda y Estilo | ZAG",
+  description: "Descubre las últimas tendencias en moda, calzado y accesorios en ZAG. Estilo único y calidad garantizada para todos los gustos.",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["moda", "estilo", "tendencias", "ZAG", "tienda online", "calzado", "ropa", "accesorios"]
 };
 
 export default function FashionShopTwo() {

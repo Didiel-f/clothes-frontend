@@ -4,10 +4,10 @@ import { PaymentMethodsPageView } from "pages-sections/customer-dashboard/paymen
 import api from "utils/__api__/payments";
 
 export const metadata: Metadata = {
-  title: "Payment Methods - Bazaar Next.js E-commerce Template",
-  description: `Bazaar is a React Next.js E-commerce template. Build SEO friendly Online store, delivery app and Multi vendor store`,
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+  title: "Métodos de Pago | ZAG",
+  description: "Gestiona tus métodos de pago guardados en ZAG. Agrega, edita o elimina tarjetas y cuentas bancarias de forma segura.",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["métodos de pago", "tarjetas", "cuentas bancarias", "pagos", "ZAG", "tienda online", "seguridad"]
 };
 
 // ==============================================================

@@ -3,11 +3,11 @@ import FashionTwoPageView from "pages-sections/fashion-2/page-view";
 import Layout1 from "./fashion-2/layout";
 
 export const metadata: Metadata = {
-  title: "Bazaar - Next.js E-commerce Template",
+  title: "ZAG - Tienda online",
   description:
-    "Bazaar is a React Next.js E-commerce template. Build SEO friendly Online store, delivery app and Multi vendor store",
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+    "Zag es una tienda online de calzado y ropa",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["e-commerce", "Tienda de ropa", "Zapatillas", "Calzado"]
 };
 export default function IndexPage() {
 return <Layout1>

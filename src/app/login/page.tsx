@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { LoginPageView } from "pages-sections/sessions/page-view";
 
 export const metadata: Metadata = {
-  title: "Login - Bazaar Next.js E-commerce Template",
-  description: `Bazaar is a React Next.js E-commerce template. Build SEO friendly Online store, delivery app and Multi vendor store`,
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+  title: "Iniciar Sesión | ZAG",
+  description: "Accede a tu cuenta de ZAG para gestionar tus pedidos, direcciones y métodos de pago. Tu tienda online de calzado y ropa.",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["login", "iniciar sesión", "cuenta", "ZAG", "tienda online", "calzado", "ropa"]
 };
 
 export default function Login() {

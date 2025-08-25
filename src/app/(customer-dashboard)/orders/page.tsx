@@ -4,10 +4,10 @@ import { OrdersPageView } from "pages-sections/customer-dashboard/orders/page-vi
 import api from "utils/__api__/orders";
 
 export const metadata: Metadata = {
-  title: "Orders - Bazaar Next.js E-commerce Template",
-  description: `Bazaar is a React Next.js E-commerce template. Build SEO friendly Online store, delivery app and Multi vendor store`,
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+  title: "Mis Pedidos | ZAG",
+  description: "Revisa el estado de todos tus pedidos en ZAG. Seguimiento en tiempo real, historial de compras y detalles de envío.",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["pedidos", "mis compras", "historial", "seguimiento", "ZAG", "tienda online", "envío"]
 };
 
 // ==============================================================

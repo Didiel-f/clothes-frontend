@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { RegisterPageView } from "pages-sections/sessions/page-view";
 
 export const metadata: Metadata = {
-  title: "Register - Bazaar Next.js E-commerce Template",
-  description:
-    "Bazaar is a React Next.js E-commerce template. Build SEO friendly Online store, delivery app and Multi vendor store",
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+  title: "Crear Cuenta | ZAG",
+  description: "Únete a ZAG y crea tu cuenta para acceder a ofertas exclusivas, seguimiento de pedidos y una experiencia de compra personalizada.",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["registro", "crear cuenta", "nuevo usuario", "ZAG", "tienda online", "ofertas exclusivas"]
 };
 
 export default function Register() {

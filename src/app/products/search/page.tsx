@@ -5,10 +5,10 @@ import { getFilters } from "utils/__api__/product-search";
 import { getProducts } from "utils/__api__/products";
 
 export const metadata: Metadata = {
-  title: "Product Search - Bazaar Next.js E-commerce Template",
-  description: "Bazaar is a React Next.js E-commerce template...",
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"],
+  title: "Buscar Productos | ZAG",
+  description: "Encuentra exactamente lo que buscas en ZAG. Filtra por categoría, marca, precio y más. Tu tienda online de calzado y ropa.",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["búsqueda", "productos", "filtros", "categorías", "marcas", "ZAG", "tienda online", "calzado", "ropa"]
 };
 
 type SearchParams = {

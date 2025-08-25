@@ -3,10 +3,10 @@ import { WishListPageView } from "pages-sections/customer-dashboard/wish-list";
 import { getProducts } from "utils/__api__/products";
 
 export const metadata: Metadata = {
-  title: "Wish List - Bazaar Next.js E-commerce Template",
-  description: `Bazaar is a React Next.js E-commerce template. Build SEO friendly Online store, delivery app and Multi vendor store`,
-  authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-  keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+  title: "Lista de Deseos | ZAG",
+  description: "Guarda tus productos favoritos en tu lista de deseos de ZAG. Recibe notificaciones cuando bajen de precio o estén disponibles.",
+  authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+  keywords: ["lista de deseos", "favoritos", "productos", "notificaciones", "ZAG", "tienda online", "ofertas"]
 };
 
 // ==============================================================

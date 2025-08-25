@@ -12,10 +12,10 @@ export async function generateMetadata({ params }: IdParams): Promise<Metadata> 
   if (!address) notFound();
 
   return {
-    title: address.regionName + " - Bazaar Next.js E-commerce Template",
-    description: "Bazaar is a React Next.js E-commerce template.",
-    authors: [{ name: "UI-LIB", url: "https://ui-lib.com" }],
-    keywords: ["e-commerce", "e-commerce template", "next.js", "react"]
+    title: `${address.regionName} - Detalles de Dirección | ZAG`,
+    description: `Gestiona tu dirección de envío en ${address.regionName}. Edita o elimina esta dirección de tu cuenta ZAG.`,
+    authors: [{ name: "Didiel Figueroa", url: "figueroadidiel@gmail.com" }],
+    keywords: ["dirección", "envío", "domicilio", "editar", "ZAG", "tienda online", "logística"]
   };
 }
 
