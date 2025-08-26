@@ -117,6 +117,18 @@ export async function POST(req: NextRequest) {
 
   const mp_payment_id = Number(payment?.id);
 
+  // Filtra los items de venta (excluye "shipping")
+  const saleItems = (items || []).filter((it: any) => String(it?.id).toLowerCase() !== "shipping");
+
+  // Dedup + toma los documentId (vienen en item.id desde MP)
+  const productDocIds = Array.from(
+    new Set(
+      saleItems
+        .map((it: any) => String(it.id || "").trim())
+        .filter(Boolean)
+    )
+  );
+
   const orderData = {
     mp_payment_id,
     client_email,
@@ -133,9 +145,7 @@ export async function POST(req: NextRequest) {
     streetName: (meta.street_name as string) || "",
     streetNumber: (meta.street_number as string) || "",
     houseApartment: (meta.house_apartment as string) || "",
-    variants: {connect: items.map((item: any) => ({
-      documentId: item.id,
-    }))}
+    ...(productDocIds.length ? { variants: { connect: productDocIds } } : {})
   };
 
   // 3) Idempotencia por mp_payment_id
