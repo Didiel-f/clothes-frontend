@@ -144,7 +144,6 @@ function itemsAsText(items: ReturnType<typeof mapVariants>) {
  * ============================ */
 export async function POST(req: NextRequest) {
   // 1) Seguridad: secreto en header "clave"
-  console.log('ME ESTOY LLAMANDO req 🔥', req);
 
   const token = req.headers.get("clave");
   if (token !== process.env.STRAPI_WEBHOOK_SECRET) {
@@ -158,10 +157,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+console.log('🔥🔥ESTA ES body🔥🔥'), body;
+
     const order: Order = body.entry ?? {};
     const storeName = process.env.STORE_NAME || "Tu Tienda";
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
-console.log('🔥🔥ESTA ES LA ORDEN🔥🔥'), order;
     // Datos base
     const orderId = order.id;
     const customerEmail = nonEmpty(order.client_email || order.email);
