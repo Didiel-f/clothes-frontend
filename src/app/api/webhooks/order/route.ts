@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-console.log('🔥🔥ESTA ES body🔥🔥'), body;
+console.log('🔥🔥ESTA ES body🔥🔥', body);
 
     const order: Order = body.entry ?? {};
     const storeName = process.env.STORE_NAME || "Tu Tienda";
