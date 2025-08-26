@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
   );
   const payment = await mpRes.json();
 
-  // ===== Crear/actualizar orden en Strapi =====
+  // ===== Crear/actualizar orden en Strapi (con address) =====
   const STRAPI_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN;
   if (!STRAPI_URL || !STRAPI_TOKEN) {
@@ -87,57 +87,55 @@ export async function POST(req: NextRequest) {
   };
 
   // 1) Mapear estado MP -> enum de Strapi
-  // MP status: approved | pending | rejected | in_process | cancelled | refunded | charged_back ...
   const mpStatus = String(payment?.status ?? "").toLowerCase();
   const payment_status: "approved" | "pending" | "rejected" =
     mpStatus === "approved" ? "approved"
       : mpStatus === "rejected" ? "rejected"
         : "pending";
 
-  // order_status según estado de pago (ajústalo si quieres otra lógica)
+  // order_status según estado de pago
   const order_status =
     payment_status === "approved" ? "Confirmado"
-      : payment_status === "pending" ? "Revisión"
-        : "Revisión";
+      : "Revisión";
 
-  // 2) Tomar datos desde metadata con fallback
+  // 2) Datos desde metadata + fallbacks
   const meta = payment?.metadata ?? {};
-  const additionalItems = Array.isArray(payment?.additional_info?.items)
-    ? payment.additional_info.items
-    : [];
+  const items = Array.isArray(payment?.additional_info?.items) ? payment.additional_info.items : [];
 
-  // Envío: metadata.shipping_price -> item "shipping" -> shipping_amount
   const shippingFromMeta = toNumber(meta.shipping_price);
-  const shippingFromItems = toNumber(
-    (additionalItems.find((i: any) => i?.id === "shipping") || {}).unit_price
-  );
-  const shippingFromRoot = toNumber(payment?.shipping_amount); // suele venir 0 en Checkout Pro
+  const shippingFromItems = toNumber((items.find((i: any) => i?.id === "shipping") || {}).unit_price);
+  const shippingFromRoot = toNumber(payment?.shipping_amount);
   const shippingPrice = shippingFromMeta || shippingFromItems || shippingFromRoot;
 
-  // Total: metadata.total -> transaction_amount
   const totalPrice = toNumber(meta.total) || toNumber(payment?.transaction_amount);
 
-  // Email cliente: metadata.email -> payer.email
   const client_email = (meta.email as string) || (payment?.payer?.email as string) || "";
-
-  // Nombre: metadata.first_name
   const firstName = (meta.first_name as string) || "";
+  const lastName = (meta.last_name as string) || "";
+  const rut = (meta.rut as string) || "";
+  const phone = (meta.phone as string) || "";
 
-  // mp_payment_id
   const mp_payment_id = Number(payment?.id);
 
-  // Construir payload compatible con tu schema de Strapi
   const orderData = {
-    mp_payment_id,          // biginteger
-    client_email,           // string
-    payment_status,         // enum: pending | approved | rejected
-    order_status,           // enum: Confirmado | Revisión | Preparación | Entregado a courier
-    totalPrice,             // decimal
-    shippingPrice,          // decimal
-    firstName               // string
+    mp_payment_id,
+    client_email,
+    payment_status,
+    order_status,
+    totalPrice,
+    shippingPrice,
+    firstName,
+    lastName,
+    rut,
+    phone,
+    regionName: (meta.region_name as string) || "",
+    countyName: (meta.county_name as string) || "",
+    streetName: (meta.street_name as string) || "",
+    streetNumber: (meta.street_number as string) || "",
+    houseApartment: (meta.house_apartment as string) || ""
   };
 
-  // 3) Idempotencia: ¿ya existe orden con este mp_payment_id?
+  // 3) Idempotencia por mp_payment_id
   const existRes = await fetch(
     `${STRAPI_URL}/api/orders?filters[mp_payment_id][$eq]=${mp_payment_id}&pagination[pageSize]=1`,
     { headers: { Authorization: `Bearer ${STRAPI_TOKEN}` } }
@@ -146,12 +144,10 @@ export async function POST(req: NextRequest) {
   const existingId = existing?.data?.[0]?.id;
 
   if (existingId) {
-    // 4) Actualizar
-    return NextResponse.json({ error: "Strapi update failed" }, { status: 500 });
+    // Actualizar
+    return NextResponse.json({ error: "Order update failed" }, { status: 500 });
   } else {
-    // 5) Crear
-    console.log('STRAPI_TOKEN', STRAPI_TOKEN);
-    console.log('orderData', orderData);
+    // Crear
     const createRes = await fetch(`${STRAPI_URL}/api/orders`, {
       method: "POST",
       headers: {
@@ -170,7 +166,6 @@ export async function POST(req: NextRequest) {
     const created = await createRes.json();
     console.log("🆕 Order creada en Strapi:", created?.data?.id, orderData);
   }
-
 
   return NextResponse.json({ received: true });
 }
