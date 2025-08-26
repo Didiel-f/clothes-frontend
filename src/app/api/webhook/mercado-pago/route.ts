@@ -17,6 +17,11 @@ export async function POST(req: NextRequest) {
       // Aquí puedes hacer la lógica para actualizar tu base de datos
       // Por ejemplo, marcar el pedido como pagado
     }
+    const secret = process.env.MP_WEBHOOK_SECRET;
+    if (!secret) {
+      console.error("⚠️ MP_WEBHOOK_SECRET no configurado");
+      return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+    }
     
     return NextResponse.json({ status: "ok" });
   } catch (error) {
