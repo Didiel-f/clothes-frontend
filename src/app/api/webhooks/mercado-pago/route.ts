@@ -128,8 +128,8 @@ export async function POST(req: NextRequest) {
     lastName,
     rut,
     phone,
-    regionName: (meta.region_name as string) || "",
-    countyName: (meta.county_name as string) || "",
+    region: (meta.region_name as string) || "",
+    county: (meta.county_name as string) || "",
     streetName: (meta.street_name as string) || "",
     streetNumber: (meta.street_number as string) || "",
     houseApartment: (meta.house_apartment as string) || ""
