@@ -144,6 +144,8 @@ function itemsAsText(items: ReturnType<typeof mapVariants>) {
  * ============================ */
 export async function POST(req: NextRequest) {
   // 1) Seguridad: secreto en header "clave"
+  console.log('ME ESTOY LLAMANDO req 🔥', req);
+
   const token = req.headers.get("clave");
   if (token !== process.env.STRAPI_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
