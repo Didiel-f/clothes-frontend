@@ -1,176 +1,194 @@
+// app/api/strapi-order-webhook/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { sendMail } from "lib/mailer";
-import { IVariant } from "models/Product.model";
 
-// ——————————————————————
-// Utilidades
-// ——————————————————————
-const CLP = (n: number | undefined | null) =>
-  new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(Number(n ?? 0));
+// Opcional en Next.js 14+: asegura entorno Node (no edge) para Nodemailer
+export const runtime = "nodejs";
 
-function line(str?: string | null) {
-  return (str ?? "").toString().trim();
-}
+/* ============================
+ * Tipos alineados a tus schemas
+ * ============================ */
+type PaymentStatus = "pending" | "approved" | "rejected";
+type OrderStatus = "Confirmado" | "Revisión" | "Preparación" | "Entregado a courier";
 
-function renderAddress(order: any) {
-  const parts = [
-    [order?.streetName, order?.streetNumber].filter(Boolean).join(" "),
-    line(order?.houseApartment),
-    [order?.county, order?.region].filter(Boolean).join(", "),
-  ].filter(Boolean);
-
-  return parts.join(" · ");
-}
-
-type NormalizedItem = {
-  id?: string | number;
-  title: string;
-  variant?: string;
-  qty: number;
-  unitPrice: number;
-  subtotal: number;
+type Variant = {
+  id: number | string;
+  title?: string;
+  isShoe: boolean;
+  shoesSize?: string | null;
+  clotheSize?: string | null;
+  stock: number;
+  product?: {
+    name?: string;
+    price?: number | string;
+  };
+  // Por si guardas cantidad con otro nombre:
+  quantity?: number | string;
+  qty?: number | string;
+  orderItem?: { quantity?: number | string };
 };
 
-// Trata de normalizar distintos posibles formatos de tus variantes/productos
-function normalizeItems(variants: IVariant[] | any[]): NormalizedItem[] {
-  if (!Array.isArray(variants)) return [];
+type Order = {
+  id: number | string;
+  client_email?: string;
+  email?: string;
+  payment_status?: PaymentStatus;
+  mp_payment_id?: number | string | null;
+  totalPrice?: number | string | null;
+  shippingPrice?: number | string | null;
+  order_status?: OrderStatus;
+  firstName?: string;
+  lastName?: string;
+  rut?: string;
+  phone?: string;
+  streetName?: string;
+  streetNumber?: string;
+  region?: string;
+  county?: string;
+  houseApartment?: string;
+  variants?: Variant[];
+  createdAt?: string;
+};
 
-  return variants.map((raw: any) => {
-    // posibles ubicaciones de nombre
-    const title: string =
-      raw?.name ??
-      raw?.product?.name ??
-      raw?.title ??
-      raw?.attributes?.name ??
-      "Producto";
+/* =============
+ * Utilidades
+ * ============= */
+const CLP = (n: number | string | null | undefined) =>
+  new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    maximumFractionDigits: 0,
+  }).format(Number(n ?? 0));
 
-    // talla / color en distintos lugares
-    const size =
-      raw?.size ?? raw?.attributes?.size ?? raw?.variant?.size ?? raw?.selectedSize;
-    const color =
-      raw?.color ?? raw?.attributes?.color ?? raw?.variant?.color ?? raw?.selectedColor;
+const nonEmpty = (s?: string | null) => (s ?? "").trim();
 
-    const variantLabel = [size ? `Talla: ${size}` : "", color ? `Color: ${color}` : ""]
-      .filter(Boolean)
-      .join(" · ");
+const renderAddress = (o: Order) =>
+  [
+    [o.streetName, o.streetNumber].filter(Boolean).join(" "),
+    nonEmpty(o.houseApartment),
+    [o.county, o.region].filter(Boolean).join(", "),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
-    // cantidad / precio en distintos lugares
-    const qty = Number(raw?.qty ?? raw?.quantity ?? raw?.count ?? 1) || 1;
-    const unitPrice = Number(
-      raw?.price ?? raw?.sellPrice ?? raw?.unit_price ?? raw?.unitPrice ?? 0
-    );
+/* ============================
+ * Ítems: mapeo específico Variant
+ * ============================ */
+function mapVariants(items: Variant[] = []) {
+  return items.map((v) => {
+    // Nombre: prioriza el del producto, luego title de la variante
+    const title = v.product?.name || v.title || "Producto";
+
+    // Talla desde la variante
+    const size = v.isShoe ? v.shoesSize : v.clotheSize;
+    const variantLabel = size ? `Talla: ${size}` : undefined;
+
+    // Cantidad: intenta varios campos, fallback 1
+    const qty = Number(v.quantity ?? v.qty ?? v.orderItem?.quantity ?? 1) || 1;
+
+    // Precio unitario: viene del producto
+    const unitPrice = Number(v.product?.price ?? 0);
+
     const subtotal = unitPrice * qty;
 
-    return {
-      id: raw?.id ?? raw?.documentId ?? raw?._id,
-      title,
-      variant: variantLabel || undefined,
-      qty,
-      unitPrice,
-      subtotal,
-    };
+    return { title, variantLabel, qty, unitPrice, subtotal };
   });
 }
 
-function itemsAsHTML(items: NormalizedItem[]) {
-  if (!items.length) {
-    return `<p><em>Sin ítems asociados.</em></p>`;
-  }
+function itemsAsHTML(items: ReturnType<typeof mapVariants>) {
+  if (!items.length) return `<p><em>Sin ítems asociados.</em></p>`;
 
   const rows = items
     .map(
       (it) => `
-      <tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #eee;">
-          <div style="font-weight:600;">${it.title}</div>
-          ${it.variant ? `<div style="font-size:12px;color:#555;">${it.variant}</div>` : ""}
-        </td>
-        <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;">${it.qty}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;">${CLP(it.unitPrice)}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${CLP(it.subtotal)}</td>
-      </tr>`
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;">
+        <div style="font-weight:600;">${it.title}</div>
+        ${it.variantLabel ? `<div style="font-size:12px;color:#555;">${it.variantLabel}</div>` : ""}
+      </td>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;">${it.qty}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;">${CLP(it.unitPrice)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${CLP(it.subtotal)}</td>
+    </tr>`
     )
     .join("");
 
   return `
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee;border-radius:8px;overflow:hidden;">
-      <thead>
-        <tr style="background:#fafafa;">
-          <th align="left" style="padding:10px 12px;border-bottom:1px solid #eee;">Producto</th>
-          <th style="padding:10px 12px;border-bottom:1px solid #eee;">Cant.</th>
-          <th align="right" style="padding:10px 12px;border-bottom:1px solid #eee;">Precio</th>
-          <th align="right" style="padding:10px 12px;border-bottom:1px solid #eee;">Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `;
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee;border-radius:8px;overflow:hidden;">
+    <thead>
+      <tr style="background:#fafafa;">
+        <th align="left" style="padding:10px 12px;border-bottom:1px solid #eee;">Producto</th>
+        <th style="padding:10px 12px;border-bottom:1px solid #eee;">Cant.</th>
+        <th align="right" style="padding:10px 12px;border-bottom:1px solid #eee;">Precio</th>
+        <th align="right" style="padding:10px 12px;border-bottom:1px solid #eee;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }
 
-function itemsAsText(items: NormalizedItem[]) {
+function itemsAsText(items: ReturnType<typeof mapVariants>) {
   if (!items.length) return "Sin ítems asociados.";
   return items
-    .map((it) => {
-      const v = it.variant ? ` (${it.variant})` : "";
-      return `• ${it.title}${v}  x${it.qty}  ${CLP(it.unitPrice)}  ==> ${CLP(it.subtotal)}`;
-    })
+    .map(
+      (it) =>
+        `• ${it.title}${it.variantLabel ? ` (${it.variantLabel})` : ""}  x${it.qty}  ${CLP(
+          it.unitPrice
+        )}  ==> ${CLP(it.subtotal)}`
+    )
     .join("\n");
 }
 
-// ——————————————————————
-// Handler principal
-// ——————————————————————
+/* ============================
+ * Handler Webhook
+ * ============================ */
 export async function POST(req: NextRequest) {
-  // 1) Validar secreto
+  // 1) Seguridad: secreto en header "clave"
   const token = req.headers.get("clave");
   if (token !== process.env.STRAPI_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // 2) Validar payload/trigger
+  // 2) Validación de evento
   const body = await req.json();
   if (body.event !== "entry.create" || body.uid !== "api::order.order") {
     return NextResponse.json({ ok: true, ignored: true });
   }
 
   try {
-    const order = body.entry ?? {};
+    const order: Order = body.entry ?? {};
     const storeName = process.env.STORE_NAME || "Tu Tienda";
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER; // fallback
-    const orderId = order?.id ?? order?.documentId ?? body?.entry?.id;
-    const customerEmail = line(order?.client_email);
-    const firstName = line(order?.firstName);
-    const lastName = line(order?.lastName);
-    const rut = line(order?.rut);
-    const phone = line(order?.phone);
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
+console.log('🔥🔥ESTA ES LA ORDEN🔥🔥'), order;
+    // Datos base
+    const orderId = order.id;
+    const customerEmail = nonEmpty(order.client_email || order.email);
+    const paymentStatus = order.payment_status || "pending";
+    const orderStatus = order.order_status || "Confirmado";
+    const mpId = order.mp_payment_id ?? undefined;
 
-    const shippingPrice = Number(order?.shippingPrice ?? 0);
-    const total = Number(order?.totalPrice ?? 0);
-    const orderStatus = line(order?.order_status) || "Confirmado";
-    const paymentStatus = line(order?.payment_status) || "pending";
-    const mpPaymentId = order?.mp_payment_id ?? order?.mp_paymentId ?? order?.mp_paymentID;
+    const shippingPrice = Number(order.shippingPrice ?? 0);
+    const reportedTotal = Number(order.totalPrice ?? 0);
 
-    const addressStr = renderAddress(order);
-    const items = normalizeItems(order?.variants ?? order?.items ?? []);
-
-    // Totales calculados (por si quieres validar)
+    // Ítems
+    const items = mapVariants(order.variants);
     const itemsTotal = items.reduce((acc, it) => acc + it.subtotal, 0);
-    const grandTotal = total || (itemsTotal + shippingPrice);
 
-    // 3) Armar correos (HTML + texto plano)
-    const headerHTML = `
-      <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial;">
-        <h2 style="margin:0 0 8px 0;">${storeName}</h2>
-        <p style="margin:0;color:#666;">Orden #${orderId}</p>
-      </div>
-      <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
-    `;
+    // Total final: respeta el que guardas; si viene vacío, lo calcula
+    const grandTotal = reportedTotal || itemsTotal + shippingPrice;
 
+    // Dirección
+    const address = renderAddress(order);
+
+    // ======= Email Cliente =======
     const customerHTML = `
-      ${headerHTML}
-      <p>¡Hola${firstName ? ` ${firstName}` : ""}!</p>
-      <p>Gracias por tu compra. Hemos recibido tu pedido <strong>#${orderId}</strong>.</p>
-      <p><strong>Estado de pago:</strong> ${paymentStatus.toUpperCase()} ${mpPaymentId ? `(MP ${mpPaymentId})` : ""}<br/>
+      <h2>${storeName}</h2>
+      <p>¡Hola ${nonEmpty(order.firstName)}!</p>
+      <p>Hemos recibido tu pedido <strong>#${orderId}</strong>.</p>
+
+      <p><strong>Estado de pago:</strong> ${paymentStatus.toUpperCase()} ${
+      mpId ? `(MP ${mpId})` : ""
+    }<br/>
       <strong>Estado de orden:</strong> ${orderStatus}</p>
 
       <h3 style="margin:20px 0 8px 0;">Resumen</h3>
@@ -181,47 +199,43 @@ export async function POST(req: NextRequest) {
         <p style="margin:4px 0;font-size:18px;"><strong>Total:</strong> ${CLP(grandTotal)}</p>
       </div>
 
-      ${addressStr
-        ? `<h3 style="margin:20px 0 8px 0;">Dirección de entrega</h3><p style="margin:0;">${addressStr}</p>`
-        : ""
-      }
+      ${address ? `<h3 style="margin:20px 0 8px 0;">Dirección de entrega</h3><p>${address}</p>` : ""}
 
       <h3 style="margin:20px 0 8px 0;">Datos del cliente</h3>
       <p style="margin:0;">
-        ${[firstName, lastName].filter(Boolean).join(" ")}<br/>
-        ${customerEmail || ""}${customerEmail ? "<br/>" : ""}${phone ? `Tel: ${phone}` : ""}${rut ? `<br/>RUT: ${rut}` : ""}
+        ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}<br/>
+        ${customerEmail || ""}${
+      customerEmail ? "<br/>" : ""
+    }${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
       </p>
-
-      <p style="margin-top:24px;">Si tienes alguna duda, responde a este correo. ¡Gracias por elegirnos!</p>
     `;
 
     const customerText = `
 ${storeName} – Orden #${orderId}
 
-Estado de pago: ${paymentStatus.toUpperCase()} ${mpPaymentId ? `(MP ${mpPaymentId})` : ""}
+Estado de pago: ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}
 Estado de orden: ${orderStatus}
 
-Resumen:
+Ítems:
 ${itemsAsText(items)}
 
 Envío: ${CLP(shippingPrice)}
 Total: ${CLP(grandTotal)}
 
-${addressStr ? `Dirección: ${addressStr}\n` : ""}
+${address ? `Dirección: ${address}` : ""}
 
 Datos del cliente:
-${[firstName, lastName].filter(Boolean).join(" ")}
-${customerEmail || ""}${phone ? `\nTel: ${phone}` : ""}${rut ? `\nRUT: ${rut}` : ""}
+${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}
+${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
+    `.trim();
 
-Gracias por tu compra.
-`.trim();
-
+    // ======= Email Admin =======
     const adminHTML = `
-      ${headerHTML}
-      <p><strong>Nueva orden creada.</strong></p>
+      <h2>${storeName}</h2>
+      <p><strong>Nueva orden #${orderId}</strong></p>
 
-      <p><strong>Pago:</strong> ${paymentStatus.toUpperCase()} ${mpPaymentId ? `(MP ${mpPaymentId})` : ""}<br/>
-      <strong>Orden:</strong> #${orderId} — ${orderStatus}</p>
+      <p><strong>Pago:</strong> ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}<br/>
+      <strong>Estado:</strong> ${orderStatus}</p>
 
       <h3 style="margin:20px 0 8px 0;">Ítems</h3>
       ${itemsAsHTML(items)}
@@ -232,23 +246,25 @@ Gracias por tu compra.
         <p style="margin:4px 0;font-size:18px;"><strong>Total:</strong> ${CLP(grandTotal)}</p>
       </div>
 
-      ${addressStr
-        ? `<h3 style="margin:20px 0 8px 0;">Dirección</h3><p style="margin:0;">${addressStr}</p>`
-        : ""
-      }
+      ${address ? `<h3 style="margin:20px 0 8px 0;">Dirección</h3><p>${address}</p>` : ""}
 
       <h3 style="margin:20px 0 8px 0;">Cliente</h3>
       <p style="margin:0;">
-        ${[firstName, lastName].filter(Boolean).join(" ")}<br/>
-        ${customerEmail || ""}${customerEmail ? "<br/>" : ""}${phone ? `Tel: ${phone}` : ""}${rut ? `<br/>RUT: ${rut}` : ""}
+        ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}<br/>
+        ${customerEmail || ""}${
+      customerEmail ? "<br/>" : ""
+    }${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
       </p>
+      <p style="margin-top: 25px;">Fecha: ${
+        order.createdAt ? new Date(order.createdAt).toLocaleString("es-CL") : ""
+      }</p>
     `;
 
     const adminText = `
 ${storeName} – Nueva orden #${orderId}
 
-Pago: ${paymentStatus.toUpperCase()} ${mpPaymentId ? `(MP ${mpPaymentId})` : ""}
-Orden: #${orderId} — ${orderStatus}
+Pago: ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}
+Estado: ${orderStatus}
 
 Ítems:
 ${itemsAsText(items)}
@@ -257,16 +273,15 @@ Items: ${CLP(itemsTotal)}
 Envío: ${CLP(shippingPrice)}
 Total: ${CLP(grandTotal)}
 
-${addressStr ? `Dirección: ${addressStr}\n` : ""}
+${address ? `Dirección: ${address}` : ""}
 
 Cliente:
-${[firstName, lastName].filter(Boolean).join(" ")}
-${customerEmail || ""}${phone ? `\nTel: ${phone}` : ""}${rut ? `\nRUT: ${rut}` : ""}
-`.trim();
+${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}
+${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
+    `.trim();
 
-    // 4) Envíos (condicional: solo se envía a cliente si existe su correo)
+    // 3) Envía correos
     const tasks: Promise<any>[] = [];
-
     if (customerEmail) {
       tasks.push(
         sendMail({
@@ -277,7 +292,6 @@ ${customerEmail || ""}${phone ? `\nTel: ${phone}` : ""}${rut ? `\nRUT: ${rut}` :
         })
       );
     }
-
     if (adminEmail) {
       tasks.push(
         sendMail({
@@ -290,14 +304,7 @@ ${customerEmail || ""}${phone ? `\nTel: ${phone}` : ""}${rut ? `\nRUT: ${rut}` :
     }
 
     const results = await Promise.allSettled(tasks);
-
-    const sent = {
-      customer: results[0]?.status === "fulfilled" && Boolean(customerEmail),
-      admin:
-        results[results.length - 1]?.status === "fulfilled" && Boolean(adminEmail),
-    };
-
-    return NextResponse.json({ ok: true, sent, orderId });
+    return NextResponse.json({ ok: true, results, orderId });
   } catch (error) {
     console.error("❌ Error enviando correos:", error);
     return NextResponse.json({ error: "Error enviando correos" }, { status: 500 });
