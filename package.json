@@ -33,6 +33,7 @@
     "mercadopago": "^2.8.0",
     "next": "^15.3.2",
     "next-i18next": "^15.4.2",
+    "nodemailer": "^7.0.5",
     "notistack": "^3.0.2",
     "nprogress": "^0.2.0",
     "overlayscrollbars-react": "^0.5.6",
@@ -57,6 +58,7 @@
   "devDependencies": {
     "@types/lodash": "^4.17.16",
     "@types/node": "22.15.17",
+    "@types/nodemailer": "^7.0.1",
     "@types/nprogress": "^0.2.3",
     "@types/react": "19.1.4",
     "@types/react-dom": "19.1.5",
