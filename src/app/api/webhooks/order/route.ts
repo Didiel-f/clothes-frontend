@@ -157,11 +157,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-console.log('🔥🔥ESTA ES body🔥🔥', body);
-
     const order: Order = body.entry ?? {};
     const storeName = process.env.STORE_NAME || "Tu Tienda";
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
+console.log('🔥🔥ESTA ES LA ORDEN🔥🔥', order);
     // Datos base
     const orderId = order.id;
     const customerEmail = nonEmpty(order.client_email || order.email);
@@ -174,6 +173,7 @@ console.log('🔥🔥ESTA ES body🔥🔥', body);
 
     // Ítems
     const items = mapVariants(order.variants);
+    console.log('🔥🔥ESTA ES items🔥🔥', items);
     const itemsTotal = items.reduce((acc, it) => acc + it.subtotal, 0);
 
     // Total final: respeta el que guardas; si viene vacío, lo calcula
