@@ -68,8 +68,6 @@ export async function POST(req: NextRequest) {
     { headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` } }
   );
   const payment = await mpRes.json();
-  console.log('resourceId', resourceId);
-  console.log('payment', payment);
 
   // ===== Crear/actualizar orden en Strapi =====
   const STRAPI_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -152,6 +150,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Strapi update failed" }, { status: 500 });
   } else {
     // 5) Crear
+    console.log('STRAPI_TOKEN', STRAPI_TOKEN);
+    console.log('orderData', orderData);
     const createRes = await fetch(`${STRAPI_URL}/api/orders`, {
       method: "POST",
       headers: {
