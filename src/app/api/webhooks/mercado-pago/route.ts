@@ -71,106 +71,106 @@ export async function POST(req: NextRequest) {
   console.log('resourceId', resourceId);
   console.log('payment', payment);
 
-    // ===== Crear/actualizar orden en Strapi =====
-    const STRAPI_URL = process.env.STRAPI_URL;              // ej: https://mi-backend.com
-    const STRAPI_TOKEN = process.env.STRAPI_TOKEN;          // "Bearer <token>"
-    if (!STRAPI_URL || !STRAPI_TOKEN) {
-      console.error("Faltan STRAPI_URL o STRAPI_TOKEN");
-      return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
-    }
-  
-    // helper: convierte "57501" o "57.501" a number (57501)
-    const toNumber = (v: unknown): number => {
-      if (typeof v === "number") return v;
-      if (v == null) return 0;
-      const cleaned = String(v).replace(/[^\d.-]/g, "");
-      const n = Number(cleaned);
-      return Number.isFinite(n) ? n : 0;
-    };
-  
-    // 1) Mapear estado MP -> enum de Strapi
-    // MP status: approved | pending | rejected | in_process | cancelled | refunded | charged_back ...
-    const mpStatus = String(payment?.status ?? "").toLowerCase();
-    const payment_status: "approved" | "pending" | "rejected" =
-      mpStatus === "approved" ? "approved"
+  // ===== Crear/actualizar orden en Strapi =====
+  const STRAPI_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN;
+  if (!STRAPI_URL || !STRAPI_TOKEN) {
+    console.error("Faltan STRAPI_URL o STRAPI_TOKEN");
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+  }
+
+  // helper: convierte "57501" o "57.501" a number (57501)
+  const toNumber = (v: unknown): number => {
+    if (typeof v === "number") return v;
+    if (v == null) return 0;
+    const cleaned = String(v).replace(/[^\d.-]/g, "");
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // 1) Mapear estado MP -> enum de Strapi
+  // MP status: approved | pending | rejected | in_process | cancelled | refunded | charged_back ...
+  const mpStatus = String(payment?.status ?? "").toLowerCase();
+  const payment_status: "approved" | "pending" | "rejected" =
+    mpStatus === "approved" ? "approved"
       : mpStatus === "rejected" ? "rejected"
-      : "pending";
-  
-    // order_status según estado de pago (ajústalo si quieres otra lógica)
-    const order_status =
-      payment_status === "approved" ? "Confirmado"
-      : payment_status === "pending"  ? "Revisión"
-      : "Revisión";
-  
-    // 2) Tomar datos desde metadata con fallback
-    const meta = payment?.metadata ?? {};
-    const additionalItems = Array.isArray(payment?.additional_info?.items)
-      ? payment.additional_info.items
-      : [];
-  
-    // Envío: metadata.shipping_price -> item "shipping" -> shipping_amount
-    const shippingFromMeta = toNumber(meta.shipping_price);
-    const shippingFromItems = toNumber(
-      (additionalItems.find((i: any) => i?.id === "shipping") || {}).unit_price
-    );
-    const shippingFromRoot = toNumber(payment?.shipping_amount); // suele venir 0 en Checkout Pro
-    const shippingPrice = shippingFromMeta || shippingFromItems || shippingFromRoot;
-  
-    // Total: metadata.total -> transaction_amount
-    const totalPrice = toNumber(meta.total) || toNumber(payment?.transaction_amount);
-  
-    // Email cliente: metadata.email -> payer.email
-    const client_email = (meta.email as string) || (payment?.payer?.email as string) || "";
-  
-    // Nombre: metadata.first_name
-    const firstName = (meta.first_name as string) || "";
-  
-    // mp_payment_id
-    const mp_payment_id = Number(payment?.id);
-  
-    // Construir payload compatible con tu schema de Strapi
-    const orderData = {
-      mp_payment_id,          // biginteger
-      client_email,           // string
-      payment_status,         // enum: pending | approved | rejected
-      order_status,           // enum: Confirmado | Revisión | Preparación | Entregado a courier
-      totalPrice,             // decimal
-      shippingPrice,          // decimal
-      firstName               // string
-    };
-  
-    // 3) Idempotencia: ¿ya existe orden con este mp_payment_id?
-    const existRes = await fetch(
-      `${STRAPI_URL}/api/orders?filters[mp_payment_id][$eq]=${mp_payment_id}&pagination[pageSize]=1`,
-      { headers: { Authorization: `Bearer ${STRAPI_TOKEN}` } }
-    );
-    const existing = await existRes.json();
-    const existingId = existing?.data?.[0]?.id;
-  
-    if (existingId) {
-      // 4) Actualizar
-      return NextResponse.json({ error: "Strapi update failed" }, { status: 500 });
-    } else {
-      // 5) Crear
-      const createRes = await fetch(`${STRAPI_URL}/api/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${STRAPI_TOKEN}`
-        },
-        body: JSON.stringify({ data: orderData })
-      });
-  
-      if (!createRes.ok) {
-        const err = await createRes.text();
-        console.error("Error creando order en Strapi:", err);
-        return NextResponse.json({ error: "Strapi create failed" }, { status: 500 });
-      }
-  
-      const created = await createRes.json();
-      console.log("🆕 Order creada en Strapi:", created?.data?.id, orderData);
+        : "pending";
+
+  // order_status según estado de pago (ajústalo si quieres otra lógica)
+  const order_status =
+    payment_status === "approved" ? "Confirmado"
+      : payment_status === "pending" ? "Revisión"
+        : "Revisión";
+
+  // 2) Tomar datos desde metadata con fallback
+  const meta = payment?.metadata ?? {};
+  const additionalItems = Array.isArray(payment?.additional_info?.items)
+    ? payment.additional_info.items
+    : [];
+
+  // Envío: metadata.shipping_price -> item "shipping" -> shipping_amount
+  const shippingFromMeta = toNumber(meta.shipping_price);
+  const shippingFromItems = toNumber(
+    (additionalItems.find((i: any) => i?.id === "shipping") || {}).unit_price
+  );
+  const shippingFromRoot = toNumber(payment?.shipping_amount); // suele venir 0 en Checkout Pro
+  const shippingPrice = shippingFromMeta || shippingFromItems || shippingFromRoot;
+
+  // Total: metadata.total -> transaction_amount
+  const totalPrice = toNumber(meta.total) || toNumber(payment?.transaction_amount);
+
+  // Email cliente: metadata.email -> payer.email
+  const client_email = (meta.email as string) || (payment?.payer?.email as string) || "";
+
+  // Nombre: metadata.first_name
+  const firstName = (meta.first_name as string) || "";
+
+  // mp_payment_id
+  const mp_payment_id = Number(payment?.id);
+
+  // Construir payload compatible con tu schema de Strapi
+  const orderData = {
+    mp_payment_id,          // biginteger
+    client_email,           // string
+    payment_status,         // enum: pending | approved | rejected
+    order_status,           // enum: Confirmado | Revisión | Preparación | Entregado a courier
+    totalPrice,             // decimal
+    shippingPrice,          // decimal
+    firstName               // string
+  };
+
+  // 3) Idempotencia: ¿ya existe orden con este mp_payment_id?
+  const existRes = await fetch(
+    `${STRAPI_URL}/api/orders?filters[mp_payment_id][$eq]=${mp_payment_id}&pagination[pageSize]=1`,
+    { headers: { Authorization: `Bearer ${STRAPI_TOKEN}` } }
+  );
+  const existing = await existRes.json();
+  const existingId = existing?.data?.[0]?.id;
+
+  if (existingId) {
+    // 4) Actualizar
+    return NextResponse.json({ error: "Strapi update failed" }, { status: 500 });
+  } else {
+    // 5) Crear
+    const createRes = await fetch(`${STRAPI_URL}/api/orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${STRAPI_TOKEN}`
+      },
+      body: JSON.stringify({ data: orderData })
+    });
+
+    if (!createRes.ok) {
+      const err = await createRes.text();
+      console.error("Error creando order en Strapi:", err);
+      return NextResponse.json({ error: "Strapi create failed" }, { status: 500 });
     }
-  
+
+    const created = await createRes.json();
+    console.log("🆕 Order creada en Strapi:", created?.data?.id, orderData);
+  }
+
 
   return NextResponse.json({ received: true });
 }
