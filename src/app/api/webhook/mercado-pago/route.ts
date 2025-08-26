@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
     { headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` } }
   );
   const payment = await mpRes.json();
+  console.log('resourceId', resourceId);
   console.log('payment', payment);
 
   return NextResponse.json({ received: true });
