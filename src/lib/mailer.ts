@@ -1,52 +1,61 @@
+// lib/mailer.ts
+import nodemailer from "nodemailer";
 
-import nodemailer, { Transporter } from "nodemailer";
+const port = Number(process.env.SMTP_PORT || 465);
+const secure = String(process.env.SMTP_SECURE ?? "true") !== "false";
 
-let cached: Transporter | null = null;
+export const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,            // p.ej. smtp.hostinger.com
+  port,                                   // 465 (SSL) o 587 (STARTTLS)
+  secure,                                 // true si 465, false si 587
+  auth: {
+    user: process.env.SMTP_USER,          // email completo (ventas@tudominio.cl)
+    pass: process.env.SMTP_PASS,          // contraseña del buzón
+  },
+  connectionTimeout: 10_000,
+  greetingTimeout: 10_000,
+  socketTimeout: 20_000,
+  // Si te aparece error de certificados en dev, descomenta:
+  // tls: { rejectUnauthorized: false },
+});
 
-function must(name: string) {
-  const v = process.env[name];
-  if (!v) throw new Error(`Falta variable de entorno: ${name}`);
-  return v;
-}
+// Verificación de conexión (se loguea 1 vez por boot del proceso)
+transporter.verify((err, success) => {
+  if (err) {
+    console.error("✖️ SMTP verify error:", err.message || err);
+  } else {
+    console.log("✅ SMTP listo para enviar (verify):", success);
+  }
+});
 
-export function getTransporter() {
-  if (cached) return cached;
-
-  const port = Number(process.env.SMTP_PORT ?? 465);
-  const secure = port === 465;
-
-  cached = nodemailer.createTransport({
-    host: must("SMTP_HOST"),
-    port,
-    secure,
-    auth: { user: must("SMTP_USER"), pass: must("SMTP_PASS") },
-    pool: true,            // opcional: mejor rendimiento si envías varios
-    maxConnections: 3,
-    maxMessages: 50,
-    requireTLS: !secure,   // exige STARTTLS en 587
-  });
-
-  return cached;
-}
-
-export async function sendMail(opts: {
+type MailInput = {
   to: string | string[];
   subject: string;
-  html: string;
+  html?: string;
   text?: string;
-  replyTo?: string;
-}) {
-  const t = getTransporter();
-  const text = opts.text ?? opts.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  cc?: string | string[];
+  bcc?: string | string[];
+  attachments?: any[];
+};
 
-  const info = await t.sendMail({
-    from: must("SMTP_FROM"),
-    to: opts.to,
-    subject: opts.subject,
-    html: opts.html,
-    text,
-    replyTo: opts.replyTo,
-  });
+export async function sendMail(input: MailInput) {
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER, // mismo dominio que SMTP
+      replyTo: process.env.REPLY_TO || process.env.SMTP_USER,
+      ...input,
+    });
 
-  return { messageId: info.messageId, accepted: info.accepted, rejected: info.rejected };
+    console.log("✅ sendMail ok", {
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+      response: info.response,
+    });
+
+    return info;
+  } catch (e: any) {
+    console.error("✖️ sendMail error:", e?.message || e);
+    throw e;
+  }
 }
