@@ -16,9 +16,6 @@ export const MERCADO_PAGO_CONFIG = {
   SUCCESS_URL: '/order-confirmation',
   FAILURE_URL: '/checkout-alternative',
   PENDING_URL: '/checkout-alternative',
-  
-  // URL del webhook
-  WEBHOOK_URL: '/api/mercado-pago/webhook',
 };
 
 // Validar configuración

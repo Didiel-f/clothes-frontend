@@ -30,7 +30,6 @@ export async function POST(req: NextRequest) {
           pending: `${MERCADO_PAGO_CONFIG.BASE_URL}${MERCADO_PAGO_CONFIG.PENDING_URL}`,
         },
         auto_return: "approved",
-        notification_url: `${MERCADO_PAGO_CONFIG.BASE_URL}${MERCADO_PAGO_CONFIG.WEBHOOK_URL}`,
       },
     });
 
