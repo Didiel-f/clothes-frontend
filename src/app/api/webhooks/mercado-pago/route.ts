@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
+  console.log('ME ESTOY LLAMANDO 🔥');
 
   const secret = process.env.MP_WEBHOOK_SECRET;
   if (!secret) {
@@ -72,3 +73,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ received: true });
 }
+123738879144
