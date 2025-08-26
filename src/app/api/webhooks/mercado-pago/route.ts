@@ -132,7 +132,10 @@ export async function POST(req: NextRequest) {
     county: (meta.county_name as string) || "",
     streetName: (meta.street_name as string) || "",
     streetNumber: (meta.street_number as string) || "",
-    houseApartment: (meta.house_apartment as string) || ""
+    houseApartment: (meta.house_apartment as string) || "",
+    variants: {connect: items.map((item: any) => ({
+      documentId: item.id,
+    }))}
   };
 
   // 3) Idempotencia por mp_payment_id
