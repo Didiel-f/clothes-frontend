@@ -101,7 +101,7 @@ async function fetchVariantsWithProduct(ids: Array<number | string>): Promise<Re
   params.append("pagination[pageSize]", String(Math.max(ids.length, 100)));
 
   const url = `${base}/api/variants?${params.toString()}`;
-
+console.log('url', url);
   try {
     const res = await fetch(url, {
       method: "GET",

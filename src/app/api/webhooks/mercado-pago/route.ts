@@ -176,7 +176,6 @@ export async function POST(req: NextRequest) {
     }
 
     const created = await createRes.json();
-    console.log("🆕 Order creada en Strapi:", created?.data?.id, orderData);
   }
 
   return NextResponse.json({ received: true });
