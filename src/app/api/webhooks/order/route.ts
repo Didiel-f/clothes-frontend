@@ -2,8 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendMail } from "lib/mailer";
 
-// Opcional en Next.js 14+: asegura entorno Node (no edge) para Nodemailer
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 /* ============================
  * Tipos alineados a tus schemas
@@ -22,7 +22,6 @@ type Variant = {
     name?: string;
     price?: number | string;
   };
-  // Por si guardas cantidad con otro nombre:
   quantity?: number | string;
   qty?: number | string;
   orderItem?: { quantity?: number | string };
@@ -71,23 +70,99 @@ const renderAddress = (o: Order) =>
     .filter(Boolean)
     .join(" · ");
 
+/* ===========================================
+ * Fetch a Strapi: variantes -> producto (name/price)
+ * =========================================== */
+type Enriched = { productName?: string; productPrice?: number };
+
+async function fetchVariantsWithProduct(ids: Array<number | string>): Promise<Record<string, Enriched>> {
+  const out: Record<string, Enriched> = {};
+  if (!ids?.length) return out;
+
+  const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/$/, "");
+  if (!base) {
+    console.warn("⚠️ NEXT_PUBLIC_BACKEND_URL no definido; no se hidratarán variantes");
+    return out;
+  }
+
+  // Strapi v4/v5: filters[$in] y populate de product con solo 'name' y 'price'
+  const qs =
+    `filters[id][$in]=${encodeURIComponent(ids.join(","))}` +
+    `&populate[product][fields][0]=name` +
+    `&populate[product][fields][1]=price` +
+    `&fields[0]=title&fields[1]=isShoe&fields[2]=shoesSize&fields[3]=clotheSize`;
+
+  const url = `${base}/api/variants?${qs}`;
+
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.STRAPI_API_TOKEN ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` } : {}),
+      },
+      cache: "no-store",
+      next: { revalidate: 0 },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("✖️ Error Strapi variants fetch:", res.status, text);
+      return out;
+    }
+
+    const json = await res.json();
+
+    // Soportar posibles formas (v4/v5 / response sanitizada vs cruda)
+    const data: any[] = Array.isArray(json?.data) ? json.data : [];
+
+    for (const item of data) {
+      const vId = String(item?.id ?? item?.documentId ?? "");
+      // Dos posibles ubicaciones:
+      const attrs = item?.attributes ?? item;
+      const prodAttrs =
+        attrs?.product?.data?.attributes // v4/v5 REST
+        ?? attrs?.product                 // payload ya aplanado
+
+      const name =
+        prodAttrs?.name ??
+        attrs?.productName ??
+        attrs?.title;
+
+      const price = Number(
+        prodAttrs?.price ??
+        attrs?.productPrice ??
+        0
+      );
+
+      if (vId) out[vId] = { productName: name, productPrice: price };
+    }
+  } catch (e: any) {
+    console.error("✖️ Variants fetch exception:", e?.message || e);
+  }
+
+  return out;
+}
+
 /* ============================
- * Ítems: mapeo específico Variant
+ * Ítems con enriquecimiento
  * ============================ */
-function mapVariants(items: Variant[] = []) {
+function mapVariants(items: Variant[] = [], enriched: Record<string, Enriched> = {}) {
   return items.map((v) => {
-    // Nombre: prioriza el del producto, luego title de la variante
-    const title = v.product?.name || v.title || "Producto";
+    const key = String(v.id);
+    const extra = enriched[key] || {};
+    // Nombre desde producto de Strapi (enriquecido) -> luego el del payload -> luego title
+    const title = extra.productName || v.product?.name || v.title || "Producto";
 
     // Talla desde la variante
     const size = v.isShoe ? v.shoesSize : v.clotheSize;
     const variantLabel = size ? `Talla: ${size}` : undefined;
 
-    // Cantidad: intenta varios campos, fallback 1
+    // Cantidad (fallback 1)
     const qty = Number(v.quantity ?? v.qty ?? v.orderItem?.quantity ?? 1) || 1;
 
-    // Precio unitario: viene del producto
-    const unitPrice = Number(v.product?.price ?? 0);
+    // Precio unitario: prioridad al enriquecido
+    const unitPrice = Number(extra.productPrice ?? v.product?.price ?? 0);
 
     const subtotal = unitPrice * qty;
 
@@ -143,16 +218,15 @@ function itemsAsText(items: ReturnType<typeof mapVariants>) {
  * Handler Webhook
  * ============================ */
 export async function POST(req: NextRequest) {
-  // 1) Seguridad: secreto en header "clave"
-
+  // Seguridad
   const token = req.headers.get("clave");
   if (token !== process.env.STRAPI_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // 2) Validación de evento
+  // Evento
   const body = await req.json();
-  if (body.event !== "entry.create" || body.uid !== "api::order.order") {
+  if (body.event !== "entry.create" || (body.uid !== "api::order.order" && body.model !== "order")) {
     return NextResponse.json({ ok: true, ignored: true });
   }
 
@@ -160,7 +234,23 @@ export async function POST(req: NextRequest) {
     const order: Order = body.entry ?? {};
     const storeName = process.env.STORE_NAME || "Tu Tienda";
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
-console.log('🔥🔥ESTA ES LA ORDEN🔥🔥', order);
+
+    // ——— Enriquecer variantes con producto (name/price) ———
+    const variantIds = (order.variants ?? []).map((v) => v.id).filter((x) => x !== undefined) as (number | string)[];
+    const enriched = await fetchVariantsWithProduct(variantIds);
+
+    // Ítems (ya con nombre y precio del producto)
+    const items = mapVariants(order.variants, enriched);
+    const itemsTotal = items.reduce((acc, it) => acc + it.subtotal, 0);
+
+    // Totales
+    const shippingPrice = Number(order.shippingPrice ?? 0);
+    const reportedTotal = Number(order.totalPrice ?? 0);
+    const grandTotal = reportedTotal || itemsTotal + shippingPrice;
+
+    // Dirección
+    const address = renderAddress(order);
+
     // Datos base
     const orderId = order.id;
     const customerEmail = nonEmpty(order.client_email || order.email);
@@ -168,47 +258,24 @@ console.log('🔥🔥ESTA ES LA ORDEN🔥🔥', order);
     const orderStatus = order.order_status || "Confirmado";
     const mpId = order.mp_payment_id ?? undefined;
 
-    const shippingPrice = Number(order.shippingPrice ?? 0);
-    const reportedTotal = Number(order.totalPrice ?? 0);
-
-    // Ítems
-    const items = mapVariants(order.variants);
-    console.log('🔥🔥ESTA ES items🔥🔥', items);
-    const itemsTotal = items.reduce((acc, it) => acc + it.subtotal, 0);
-
-    // Total final: respeta el que guardas; si viene vacío, lo calcula
-    const grandTotal = reportedTotal || itemsTotal + shippingPrice;
-
-    // Dirección
-    const address = renderAddress(order);
-
     // ======= Email Cliente =======
     const customerHTML = `
       <h2>${storeName}</h2>
       <p>¡Hola ${nonEmpty(order.firstName)}!</p>
       <p>Hemos recibido tu pedido <strong>#${orderId}</strong>.</p>
-
-      <p><strong>Estado de pago:</strong> ${paymentStatus.toUpperCase()} ${
-      mpId ? `(MP ${mpId})` : ""
-    }<br/>
+      <p><strong>Estado de pago:</strong> ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}<br/>
       <strong>Estado de orden:</strong> ${orderStatus}</p>
-
       <h3 style="margin:20px 0 8px 0;">Resumen</h3>
       ${itemsAsHTML(items)}
-
       <div style="margin-top:14px;">
         <p style="margin:4px 0;"><strong>Envío:</strong> ${CLP(shippingPrice)}</p>
         <p style="margin:4px 0;font-size:18px;"><strong>Total:</strong> ${CLP(grandTotal)}</p>
       </div>
-
       ${address ? `<h3 style="margin:20px 0 8px 0;">Dirección de entrega</h3><p>${address}</p>` : ""}
-
       <h3 style="margin:20px 0 8px 0;">Datos del cliente</h3>
       <p style="margin:0;">
         ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}<br/>
-        ${customerEmail || ""}${
-      customerEmail ? "<br/>" : ""
-    }${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
+        ${customerEmail || ""}${customerEmail ? "<br/>" : ""}${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
       </p>
     `;
 
@@ -235,31 +302,22 @@ ${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ?
     const adminHTML = `
       <h2>${storeName}</h2>
       <p><strong>Nueva orden #${orderId}</strong></p>
-
       <p><strong>Pago:</strong> ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}<br/>
       <strong>Estado:</strong> ${orderStatus}</p>
-
       <h3 style="margin:20px 0 8px 0;">Ítems</h3>
       ${itemsAsHTML(items)}
-
       <div style="margin-top:14px;">
         <p style="margin:4px 0;"><strong>Items:</strong> ${CLP(itemsTotal)}</p>
         <p style="margin:4px 0;"><strong>Envío:</strong> ${CLP(shippingPrice)}</p>
         <p style="margin:4px 0;font-size:18px;"><strong>Total:</strong> ${CLP(grandTotal)}</p>
       </div>
-
       ${address ? `<h3 style="margin:20px 0 8px 0;">Dirección</h3><p>${address}</p>` : ""}
-
       <h3 style="margin:20px 0 8px 0;">Cliente</h3>
       <p style="margin:0;">
         ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}<br/>
-        ${customerEmail || ""}${
-      customerEmail ? "<br/>" : ""
-    }${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
+        ${customerEmail || ""}${customerEmail ? "<br/>" : ""}${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
       </p>
-      <p style="margin-top: 25px;">Fecha: ${
-        order.createdAt ? new Date(order.createdAt).toLocaleString("es-CL") : ""
-      }</p>
+      <p style="margin-top: 25px;">Fecha: ${order.createdAt ? new Date(order.createdAt).toLocaleString("es-CL") : ""}</p>
     `;
 
     const adminText = `
@@ -282,7 +340,7 @@ ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" "
 ${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
     `.trim();
 
-    // 3) Envía correos
+    // 3) Envío
     const tasks: Promise<any>[] = [];
     if (customerEmail) {
       tasks.push(
