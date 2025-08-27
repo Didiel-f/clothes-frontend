@@ -6,13 +6,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /* ============================
- * Tipos alineados a tus schemas
+ * Tipos
  * ============================ */
 type PaymentStatus = "pending" | "approved" | "rejected";
 type OrderStatus = "Confirmado" | "Revisión" | "Preparación" | "Entregado a courier";
 
 type Variant = {
   id: number | string;
+  documentId?: string;            // <- usamos documentId para enriquecer
   title?: string;
   isShoe: boolean;
   shoesSize?: string | null;
@@ -49,15 +50,12 @@ type Order = {
   createdAt?: string;
 };
 
-/* =============
- * Utilidades
- * ============= */
+/* ============================
+ * Utils
+ * ============================ */
 const CLP = (n: number | string | null | undefined) =>
-  new Intl.NumberFormat("es-CL", {
-    style: "currency",
-    currency: "CLP",
-    maximumFractionDigits: 0,
-  }).format(Number(n ?? 0));
+  new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 })
+    .format(Number(n ?? 0));
 
 const nonEmpty = (s?: string | null) => (s ?? "").trim();
 
@@ -66,39 +64,34 @@ const renderAddress = (o: Order) =>
     [o.streetName, o.streetNumber].filter(Boolean).join(" "),
     nonEmpty(o.houseApartment),
     [o.county, o.region].filter(Boolean).join(", "),
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  ].filter(Boolean).join(" · ");
 
 /* ===========================================
- * Fetch a Strapi: variantes -> producto (name/price)
+ * Fetch a Strapi: variantes por documentId (solo publicadas)
  * =========================================== */
 type Enriched = { productName?: string; productPrice?: number };
 
-async function fetchVariantsWithProduct(ids: Array<number | string>): Promise<Record<string, Enriched>> {
+async function fetchVariantsByDocumentIds(docIds: string[]): Promise<Record<string, Enriched>> {
   const out: Record<string, Enriched> = {};
-  if (!ids?.length) return out;
-
   const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/$/, "");
-  if (!base) {
-    console.warn("⚠️ NEXT_PUBLIC_BACKEND_URL no definido; no se hidratarán variantes");
-    return out;
-  }
+  if (!base || !docIds?.length) return out;
 
-  // Construye QS robusto (filters $in como array indexado)
   const params = new URLSearchParams();
 
-  ids.forEach((id, i) => params.append(`filters[id][$in][${i}]`, String(id)));
+  // Filtro SOLO por documentId (publicadas por defecto; no usamos publicationState=preview)
+  docIds.forEach((d, i) => params.append(`filters[documentId][$in][${i}]`, d));
 
+  // populate product (solo name y price)
   params.append("populate[product][fields][0]", "name");
   params.append("populate[product][fields][1]", "price");
 
-  ["title", "isShoe", "shoesSize", "clotheSize"].forEach((f, i) =>
+  // opcionales: campos de la variante (no hace falta documentId, pero no estorba)
+  ["title", "isShoe", "shoesSize", "clotheSize", "documentId"].forEach((f, i) =>
     params.append(`fields[${i}]`, f)
   );
 
-  // opcional: pide suficiente pageSize para cubrir todos los IDs
-  params.append("pagination[pageSize]", String(Math.max(ids.length, 100)));
+  // page size suficiente
+  params.append("pagination[pageSize]", String(Math.max(docIds.length, 100)));
 
   const url = `${base}/api/variants?${params.toString()}`;
 console.log('url', url);
@@ -107,9 +100,7 @@ console.log('url', url);
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(process.env.STRAPI_API_TOKEN
-          ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` }
-          : {}),
+        ...(process.env.STRAPI_API_TOKEN ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` } : {}),
       },
       cache: "no-store",
       next: { revalidate: 0 },
@@ -125,25 +116,14 @@ console.log('url', url);
     const data: any[] = Array.isArray(json?.data) ? json.data : [];
 
     for (const item of data) {
-      const vId = String(item?.id ?? item?.documentId ?? "");
       const attrs = item?.attributes ?? item;
+      const docId = String(attrs?.documentId ?? item?.documentId ?? "");
+      const prodAttrs = attrs?.product?.data?.attributes ?? attrs?.product;
 
-      const prodAttrs =
-        attrs?.product?.data?.attributes   // REST v4/v5
-        ?? attrs?.product;                 // si ya viene aplanado
+      const productName = prodAttrs?.name ?? attrs?.productName ?? attrs?.title;
+      const productPrice = Number(prodAttrs?.price ?? attrs?.productPrice ?? 0);
 
-      const name =
-        prodAttrs?.name ??
-        attrs?.productName ??
-        attrs?.title;
-
-      const price = Number(
-        prodAttrs?.price ??
-        attrs?.productPrice ??
-        0
-      );
-
-      if (vId) out[vId] = { productName: name, productPrice: price };
+      if (docId) out[docId] = { productName, productPrice };
     }
   } catch (e: any) {
     console.error("✖️ Variants fetch exception:", e?.message || e);
@@ -157,21 +137,15 @@ console.log('url', url);
  * ============================ */
 function mapVariants(items: Variant[] = [], enriched: Record<string, Enriched> = {}) {
   return items.map((v) => {
-    const key = String(v.id);
+    const key = String(v.documentId ?? v.id);           // prioriza documentId
     const extra = enriched[key] || {};
-    // Nombre desde producto de Strapi (enriquecido) -> luego el del payload -> luego title
     const title = extra.productName || v.product?.name || v.title || "Producto";
 
-    // Talla desde la variante
     const size = v.isShoe ? v.shoesSize : v.clotheSize;
     const variantLabel = size ? `Talla: ${size}` : undefined;
 
-    // Cantidad (fallback 1)
     const qty = Number(v.quantity ?? v.qty ?? v.orderItem?.quantity ?? 1) || 1;
-
-    // Precio unitario: prioridad al enriquecido
     const unitPrice = Number(extra.productPrice ?? v.product?.price ?? 0);
-
     const subtotal = unitPrice * qty;
 
     return { title, variantLabel, qty, unitPrice, subtotal };
@@ -180,10 +154,7 @@ function mapVariants(items: Variant[] = [], enriched: Record<string, Enriched> =
 
 function itemsAsHTML(items: ReturnType<typeof mapVariants>) {
   if (!items.length) return `<p><em>Sin ítems asociados.</em></p>`;
-
-  const rows = items
-    .map(
-      (it) => `
+  const rows = items.map(it => `
     <tr>
       <td style="padding:8px 12px;border-bottom:1px solid #eee;">
         <div style="font-weight:600;">${it.title}</div>
@@ -192,9 +163,7 @@ function itemsAsHTML(items: ReturnType<typeof mapVariants>) {
       <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;">${it.qty}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;">${CLP(it.unitPrice)}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${CLP(it.subtotal)}</td>
-    </tr>`
-    )
-    .join("");
+    </tr>`).join("");
 
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee;border-radius:8px;overflow:hidden;">
@@ -212,27 +181,20 @@ function itemsAsHTML(items: ReturnType<typeof mapVariants>) {
 
 function itemsAsText(items: ReturnType<typeof mapVariants>) {
   if (!items.length) return "Sin ítems asociados.";
-  return items
-    .map(
-      (it) =>
-        `• ${it.title}${it.variantLabel ? ` (${it.variantLabel})` : ""}  x${it.qty}  ${CLP(
-          it.unitPrice
-        )}  ==> ${CLP(it.subtotal)}`
-    )
-    .join("\n");
+  return items.map(it =>
+    `• ${it.title}${it.variantLabel ? ` (${it.variantLabel})` : ""}  x${it.qty}  ${CLP(it.unitPrice)}  ==> ${CLP(it.subtotal)}`
+  ).join("\n");
 }
 
 /* ============================
  * Handler Webhook
  * ============================ */
 export async function POST(req: NextRequest) {
-  // Seguridad
   const token = req.headers.get("clave");
   if (token !== process.env.STRAPI_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // Evento
   const body = await req.json();
   if (body.event !== "entry.create" || (body.uid !== "api::order.order" && body.model !== "order")) {
     return NextResponse.json({ ok: true, ignored: true });
@@ -243,30 +205,30 @@ export async function POST(req: NextRequest) {
     const storeName = process.env.STORE_NAME || "Tu Tienda";
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
 
-    // ——— Enriquecer variantes con producto (name/price) ———
-    const variantIds = (order.variants ?? []).map((v) => v.id).filter((x) => x !== undefined) as (number | string)[];
-    const enriched = await fetchVariantsWithProduct(variantIds);
+    // ——— Enriquecer por documentId (solo publicadas) ———
+    const variantDocIds = (order.variants ?? [])
+      .map(v => (v as any).documentId)
+      .filter(Boolean) as string[];
 
-    // Ítems (ya con nombre y precio del producto)
+    const enriched = await fetchVariantsByDocumentIds(variantDocIds);
+
+    // Ítems ya con nombre y precio del producto
     const items = mapVariants(order.variants, enriched);
     const itemsTotal = items.reduce((acc, it) => acc + it.subtotal, 0);
 
-    // Totales
     const shippingPrice = Number(order.shippingPrice ?? 0);
     const reportedTotal = Number(order.totalPrice ?? 0);
     const grandTotal = reportedTotal || itemsTotal + shippingPrice;
 
-    // Dirección
     const address = renderAddress(order);
 
-    // Datos base
     const orderId = order.id;
     const customerEmail = nonEmpty(order.client_email || order.email);
     const paymentStatus = order.payment_status || "pending";
     const orderStatus = order.order_status || "Confirmado";
     const mpId = order.mp_payment_id ?? undefined;
 
-    // ======= Email Cliente =======
+    // ===== Cliente =====
     const customerHTML = `
       <h2>${storeName}</h2>
       <p>¡Hola ${nonEmpty(order.firstName)}!</p>
@@ -306,7 +268,7 @@ ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" "
 ${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
     `.trim();
 
-    // ======= Email Admin =======
+    // ===== Admin =====
     const adminHTML = `
       <h2>${storeName}</h2>
       <p><strong>Nueva orden #${orderId}</strong></p>
@@ -348,27 +310,13 @@ ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" "
 ${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
     `.trim();
 
-    // 3) Envío
+    // Envío
     const tasks: Promise<any>[] = [];
     if (customerEmail) {
-      tasks.push(
-        sendMail({
-          to: customerEmail,
-          subject: `¡Gracias por tu compra! Pedido #${orderId} – ${storeName}`,
-          html: customerHTML,
-          text: customerText,
-        })
-      );
+      tasks.push(sendMail({ to: customerEmail, subject: `¡Gracias por tu compra! Pedido #${orderId} – ${storeName}`, html: customerHTML, text: customerText }));
     }
     if (adminEmail) {
-      tasks.push(
-        sendMail({
-          to: adminEmail,
-          subject: `Nueva orden #${orderId} – ${storeName}`,
-          html: adminHTML,
-          text: adminText,
-        })
-      );
+      tasks.push(sendMail({ to: adminEmail, subject: `Nueva orden #${orderId} – ${storeName}`, html: adminHTML, text: adminText }));
     }
 
     const results = await Promise.allSettled(tasks);
