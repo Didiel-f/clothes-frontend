@@ -4,7 +4,6 @@ import { sendMail } from "lib/mailer";
 
 // Opcional en Next.js 14+: asegura entorno Node (no edge) para Nodemailer
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic"; // evita caching en prod
 
 /* ============================
  * Tipos alineados a tus schemas
@@ -144,44 +143,24 @@ function itemsAsText(items: ReturnType<typeof mapVariants>) {
  * Handler Webhook
  * ============================ */
 export async function POST(req: NextRequest) {
-  // ——— Autenticación: soporta 'clave' o 'Authorization: Bearer <token>' ———
-  const auth = req.headers.get("authorization") || "";
-  const bearer = auth.toLowerCase().startsWith("bearer ")
-    ? auth.slice(7).trim()
-    : "";
-  const token = req.headers.get("clave") || bearer;
+  // 1) Seguridad: secreto en header "clave"
 
+  const token = req.headers.get("clave");
   if (token !== process.env.STRAPI_WEBHOOK_SECRET) {
-    console.log("⛔ token inválido");
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // ——— Payload ———
+  // 2) Validación de evento
   const body = await req.json();
-
-  // Acepta entry.create (y si quieres también publish)
-  const isEntryEvent = body.event === "entry.create" || body.event === "entry.publish";
-  const model = body.model || body.uid;
-  const isOrderModel = model === "order" || model === "api::order.order";
-
-  if (!isEntryEvent || !isOrderModel) {
-    console.log("ℹ️ Ignorado por evento/model:", { event: body?.event, model });
+  if (body.event !== "entry.create" || body.uid !== "api::order.order") {
     return NextResponse.json({ ok: true, ignored: true });
   }
 
   try {
     const order: Order = body.entry ?? {};
-    console.log("🔥 ORDEN (entrada limpia)", {
-      id: order.id,
-      client_email: order.client_email,
-      totalPrice: order.totalPrice,
-      variantsLen: order.variants?.length ?? 0,
-    });
-
     const storeName = process.env.STORE_NAME || "Tu Tienda";
-    const adminEmail =
-      process.env.ADMIN_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER || "";
-
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
+console.log('🔥🔥ESTA ES LA ORDEN🔥🔥', order);
     // Datos base
     const orderId = order.id;
     const customerEmail = nonEmpty(order.client_email || order.email);
@@ -194,46 +173,116 @@ export async function POST(req: NextRequest) {
 
     // Ítems
     const items = mapVariants(order.variants);
-    console.log("🔥 ÍTEMS mapeados", items);
+    console.log('🔥🔥ESTA ES items🔥🔥', items);
     const itemsTotal = items.reduce((acc, it) => acc + it.subtotal, 0);
 
-    // Total final
+    // Total final: respeta el que guardas; si viene vacío, lo calcula
     const grandTotal = reportedTotal || itemsTotal + shippingPrice;
 
     // Dirección
     const address = renderAddress(order);
 
-    // ——— Emails (mismos que ya tienes) ———
-    const customerHTML = /* ... deja tu HTML ... */ `
+    // ======= Email Cliente =======
+    const customerHTML = `
       <h2>${storeName}</h2>
       <p>¡Hola ${nonEmpty(order.firstName)}!</p>
-      <!-- resto igual -->
-    `;
-    const customerText = /* ... deja tu texto ... */ `
-${storeName} – Orden #${orderId}
-...`.trim();
+      <p>Hemos recibido tu pedido <strong>#${orderId}</strong>.</p>
 
-    const adminHTML = /* ... deja tu HTML ... */ `
+      <p><strong>Estado de pago:</strong> ${paymentStatus.toUpperCase()} ${
+      mpId ? `(MP ${mpId})` : ""
+    }<br/>
+      <strong>Estado de orden:</strong> ${orderStatus}</p>
+
+      <h3 style="margin:20px 0 8px 0;">Resumen</h3>
+      ${itemsAsHTML(items)}
+
+      <div style="margin-top:14px;">
+        <p style="margin:4px 0;"><strong>Envío:</strong> ${CLP(shippingPrice)}</p>
+        <p style="margin:4px 0;font-size:18px;"><strong>Total:</strong> ${CLP(grandTotal)}</p>
+      </div>
+
+      ${address ? `<h3 style="margin:20px 0 8px 0;">Dirección de entrega</h3><p>${address}</p>` : ""}
+
+      <h3 style="margin:20px 0 8px 0;">Datos del cliente</h3>
+      <p style="margin:0;">
+        ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}<br/>
+        ${customerEmail || ""}${
+      customerEmail ? "<br/>" : ""
+    }${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
+      </p>
+    `;
+
+    const customerText = `
+${storeName} – Orden #${orderId}
+
+Estado de pago: ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}
+Estado de orden: ${orderStatus}
+
+Ítems:
+${itemsAsText(items)}
+
+Envío: ${CLP(shippingPrice)}
+Total: ${CLP(grandTotal)}
+
+${address ? `Dirección: ${address}` : ""}
+
+Datos del cliente:
+${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}
+${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
+    `.trim();
+
+    // ======= Email Admin =======
+    const adminHTML = `
       <h2>${storeName}</h2>
       <p><strong>Nueva orden #${orderId}</strong></p>
-      <!-- resto igual -->
+
+      <p><strong>Pago:</strong> ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}<br/>
+      <strong>Estado:</strong> ${orderStatus}</p>
+
+      <h3 style="margin:20px 0 8px 0;">Ítems</h3>
+      ${itemsAsHTML(items)}
+
+      <div style="margin-top:14px;">
+        <p style="margin:4px 0;"><strong>Items:</strong> ${CLP(itemsTotal)}</p>
+        <p style="margin:4px 0;"><strong>Envío:</strong> ${CLP(shippingPrice)}</p>
+        <p style="margin:4px 0;font-size:18px;"><strong>Total:</strong> ${CLP(grandTotal)}</p>
+      </div>
+
+      ${address ? `<h3 style="margin:20px 0 8px 0;">Dirección</h3><p>${address}</p>` : ""}
+
+      <h3 style="margin:20px 0 8px 0;">Cliente</h3>
+      <p style="margin:0;">
+        ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}<br/>
+        ${customerEmail || ""}${
+      customerEmail ? "<br/>" : ""
+    }${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
+      </p>
+      <p style="margin-top: 25px;">Fecha: ${
+        order.createdAt ? new Date(order.createdAt).toLocaleString("es-CL") : ""
+      }</p>
     `;
-    const adminText = /* ... deja tu texto ... */ `
+
+    const adminText = `
 ${storeName} – Nueva orden #${orderId}
-...`.trim();
 
+Pago: ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}
+Estado: ${orderStatus}
 
-console.log("ENV check", {
-  HAS_SMTP_HOST: !!process.env.SMTP_HOST,
-  SMTP_PORT: process.env.SMTP_PORT,
-  SMTP_SECURE: process.env.SMTP_SECURE,
-  HAS_SMTP_USER: !!process.env.SMTP_USER,
-  HAS_SMTP_PASS: !!process.env.SMTP_PASS,
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL,
-});
+Ítems:
+${itemsAsText(items)}
 
+Items: ${CLP(itemsTotal)}
+Envío: ${CLP(shippingPrice)}
+Total: ${CLP(grandTotal)}
 
-    // ——— Envía correos con logs detallados ———
+${address ? `Dirección: ${address}` : ""}
+
+Cliente:
+${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}
+${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
+    `.trim();
+
+    // 3) Envía correos
     const tasks: Promise<any>[] = [];
     if (customerEmail) {
       tasks.push(
@@ -244,10 +293,7 @@ console.log("ENV check", {
           text: customerText,
         })
       );
-    } else {
-      console.log("⚠️ Sin email de cliente, no se envía correo al cliente");
     }
-
     if (adminEmail) {
       tasks.push(
         sendMail({
@@ -257,29 +303,12 @@ console.log("ENV check", {
           text: adminText,
         })
       );
-    } else {
-      console.log("⚠️ Sin email de admin (ADMIN_EMAIL/SMTP_FROM/SMTP_USER), no se envía correo admin");
     }
 
     const results = await Promise.allSettled(tasks);
-
-    // —— LOG de resultados de Nodemailer —— 
-    console.log(
-      "📧 Resultados envío",
-      JSON.stringify(
-        results.map((r) =>
-          r.status === "fulfilled"
-            ? { status: "ok", accepted: r.value?.accepted, rejected: r.value?.rejected, response: r.value?.response }
-            : { status: "error", reason: String((r as any).reason?.message || (r as any).reason) }
-        ),
-        null,
-        2
-      )
-    );
-
     return NextResponse.json({ ok: true, results, orderId });
-  } catch (error: any) {
-    console.error("❌ Error enviando correos:", error?.message || error);
+  } catch (error) {
+    console.error("❌ Error enviando correos:", error);
     return NextResponse.json({ error: "Error enviando correos" }, { status: 500 });
   }
 }
