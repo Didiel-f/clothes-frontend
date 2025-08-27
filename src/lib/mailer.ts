@@ -1,11 +1,9 @@
-// lib/mailer.ts
 import { Resend } from "resend";
 
 let _resend: Resend | null = null;
 function getResend() {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
-    // solo se evalúa cuando se llama a sendMail (runtime), no en build
     throw new Error("RESEND_API_KEY missing at runtime");
   }
   if (!_resend) _resend = new Resend(key);
@@ -23,7 +21,7 @@ type MailInput = {
 };
 
 export async function sendMail(input: MailInput) {
-  const resend = getResend(); // ← se crea aquí, no al importar el módulo
+  const resend = getResend();
 
   const from =
     process.env.SMTP_FROM ||
@@ -42,8 +40,8 @@ export async function sendMail(input: MailInput) {
     cc,
     bcc,
     subject: input.subject,
-    html: input.html || input.text || "", // fallback a text o string vacío
-    text: input.text || input.html?.replace(/<[^>]+>/g, " ") || "", // fallback a html sin tags o string vacío
+    html: input.html || input.text || "",
+    text: input.text || input.html?.replace(/<[^>]+>/g, " ") || "",
     attachments,
     replyTo: from,
   });

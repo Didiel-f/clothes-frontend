@@ -96,7 +96,6 @@ export default function CheckoutForm({ deliveryAddresses }: Props) {
   const { isSubmitting } = formState;
 
   const handleSubmitForm = handleSubmit(async (values) => {
-    // Aquí tu submit real
     console.log("SUBMIT CHECKOUT", values);
   });
 
