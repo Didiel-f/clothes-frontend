@@ -85,21 +85,31 @@ async function fetchVariantsWithProduct(ids: Array<number | string>): Promise<Re
     return out;
   }
 
-  // Strapi v4/v5: filters[$in] y populate de product con solo 'name' y 'price'
-  const qs =
-    `filters[id][$in]=${encodeURIComponent(ids.join(","))}` +
-    `&populate[product][fields][0]=name` +
-    `&populate[product][fields][1]=price` +
-    `&fields[0]=title&fields[1]=isShoe&fields[2]=shoesSize&fields[3]=clotheSize`;
+  // Construye QS robusto (filters $in como array indexado)
+  const params = new URLSearchParams();
 
-  const url = `${base}/api/variants?${qs}`;
-  console.log('url', url);
+  ids.forEach((id, i) => params.append(`filters[id][$in][${i}]`, String(id)));
+
+  params.append("populate[product][fields][0]", "name");
+  params.append("populate[product][fields][1]", "price");
+
+  ["title", "isShoe", "shoesSize", "clotheSize"].forEach((f, i) =>
+    params.append(`fields[${i}]`, f)
+  );
+
+  // opcional: pide suficiente pageSize para cubrir todos los IDs
+  params.append("pagination[pageSize]", String(Math.max(ids.length, 100)));
+
+  const url = `${base}/api/variants?${params.toString()}`;
+
   try {
     const res = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(process.env.STRAPI_API_TOKEN ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` } : {}),
+        ...(process.env.STRAPI_API_TOKEN
+          ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` }
+          : {}),
       },
       cache: "no-store",
       next: { revalidate: 0 },
@@ -107,22 +117,20 @@ async function fetchVariantsWithProduct(ids: Array<number | string>): Promise<Re
 
     if (!res.ok) {
       const text = await res.text();
-      console.error("✖️ Error Strapi variants fetch:", res.status, text);
+      console.error("✖️ Error Strapi variants fetch:", res.status, text, "\nURL:", url);
       return out;
     }
 
     const json = await res.json();
-
-    // Soportar posibles formas (v4/v5 / response sanitizada vs cruda)
     const data: any[] = Array.isArray(json?.data) ? json.data : [];
 
     for (const item of data) {
       const vId = String(item?.id ?? item?.documentId ?? "");
-      // Dos posibles ubicaciones:
       const attrs = item?.attributes ?? item;
+
       const prodAttrs =
-        attrs?.product?.data?.attributes // v4/v5 REST
-        ?? attrs?.product                 // payload ya aplanado
+        attrs?.product?.data?.attributes   // REST v4/v5
+        ?? attrs?.product;                 // si ya viene aplanado
 
       const name =
         prodAttrs?.name ??
