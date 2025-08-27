@@ -1,32 +1,7 @@
 // lib/mailer.ts
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-const port = Number(process.env.SMTP_PORT || 465);
-const secure = String(process.env.SMTP_SECURE ?? "true") !== "false";
-
-export const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,            // p.ej. smtp.hostinger.com
-  port,                                   // 465 (SSL) o 587 (STARTTLS)
-  secure,                                 // true si 465, false si 587
-  auth: {
-    user: process.env.SMTP_USER,          // email completo (ventas@tudominio.cl)
-    pass: process.env.SMTP_PASS,          // contraseña del buzón
-  },
-  connectionTimeout: 10_000,
-  greetingTimeout: 10_000,
-  socketTimeout: 20_000,
-  // Si te aparece error de certificados en dev, descomenta:
-  // tls: { rejectUnauthorized: false },
-});
-
-// Verificación de conexión (se loguea 1 vez por boot del proceso)
-transporter.verify((err, success) => {
-  if (err) {
-    console.error("✖️ SMTP verify error:", err.message || err);
-  } else {
-    console.log("✅ SMTP listo para enviar (verify):", success);
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 type MailInput = {
   to: string | string[];
@@ -35,27 +10,42 @@ type MailInput = {
   text?: string;
   cc?: string | string[];
   bcc?: string | string[];
-  attachments?: any[];
+  attachments?: { filename: string; content: string | Buffer }[];
 };
 
 export async function sendMail(input: MailInput) {
+  const from =
+    process.env.SMTP_FROM ||
+    process.env.MAIL_FROM ||
+    "Tienda <no-reply@zag.cl>"; // fallback por si olvidas el FROM
+
+  const to = Array.isArray(input.to) ? input.to : [input.to];
+  const cc = input.cc ? (Array.isArray(input.cc) ? input.cc : [input.cc]) : undefined;
+  const bcc = input.bcc ? (Array.isArray(input.bcc) ? input.bcc : [input.bcc]) : undefined;
+
+  const attachments =
+    input.attachments?.map((a) => ({
+      filename: a.filename,
+      content: a.content as any, // Buffer o base64 string
+    })) || undefined;
+
   try {
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER, // mismo dominio que SMTP
-      replyTo: process.env.REPLY_TO || process.env.SMTP_USER,
-      ...input,
+    const resp = await resend.emails.send({
+      from,
+      to,
+      cc,
+      bcc,
+      subject: input.subject,
+      html: input.html || input.text || "", // fallback a text o string vacío
+      text: input.text || input.html?.replace(/<[^>]+>/g, " ") || "", // fallback a html sin tags o string vacío
+      attachments,
+      replyTo: from,
     });
 
-    console.log("✅ sendMail ok", {
-      messageId: info.messageId,
-      accepted: info.accepted,
-      rejected: info.rejected,
-      response: info.response,
-    });
-
-    return info;
+    console.log("✅ Resend ok", resp);
+    return resp;
   } catch (e: any) {
-    console.error("✖️ sendMail error:", e?.message || e);
+    console.error("✖️ Resend error:", e?.message || e);
     throw e;
   }
 }

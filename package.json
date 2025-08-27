@@ -47,6 +47,7 @@
     "react-insta-stories": "^2.8.0",
     "react-scroll": "^1.9.3",
     "react-slick": "^0.30.3",
+    "resend": "^6.0.1",
     "sharp": "^0.34.1",
     "slick-carousel": "^1.8.1",
     "stylis": "^4.3.6",
