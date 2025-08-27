@@ -30,6 +30,7 @@ type Variant = {
 
 type Order = {
   id: number | string;
+  documentId: number | string;
   client_email?: string;
   email?: string;
   payment_status?: PaymentStatus;
@@ -85,7 +86,7 @@ async function fetchVariantsByDocumentIds(docIds: string[]): Promise<Record<stri
   params.append("populate[product][fields][0]", "name");
   params.append("populate[product][fields][1]", "price");
 
-  // opcionales: campos de la variante (no hace falta documentId, pero no estorba)
+  // opcionales: campos de la variante
   ["title", "isShoe", "shoesSize", "clotheSize", "documentId"].forEach((f, i) =>
     params.append(`fields[${i}]`, f)
   );
@@ -94,7 +95,6 @@ async function fetchVariantsByDocumentIds(docIds: string[]): Promise<Record<stri
   params.append("pagination[pageSize]", String(Math.max(docIds.length, 100)));
 
   const url = `${base}/api/variants?${params.toString()}`;
-console.log('url', url);
   try {
     const res = await fetch(url, {
       method: "GET",
@@ -148,7 +148,8 @@ function mapVariants(items: Variant[] = [], enriched: Record<string, Enriched> =
     const unitPrice = Number(extra.productPrice ?? v.product?.price ?? 0);
     const subtotal = unitPrice * qty;
 
-    return { title, variantLabel, qty, unitPrice, subtotal };
+    const docId = String(v.documentId ?? v.id); // <- para mostrar en admin
+    return { docId, title, variantLabel, qty, unitPrice, subtotal };
   });
 }
 
@@ -169,6 +170,38 @@ function itemsAsHTML(items: ReturnType<typeof mapVariants>) {
   <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee;border-radius:8px;overflow:hidden;">
     <thead>
       <tr style="background:#fafafa;">
+        <th align="left" style="padding:10px 12px;border-bottom:1px solid #eee;">Producto</th>
+        <th style="padding:10px 12px;border-bottom:1px solid #eee;">Cant.</th>
+        <th align="right" style="padding:10px 12px;border-bottom:1px solid #eee;">Precio</th>
+        <th align="right" style="padding:10px 12px;border-bottom:1px solid #eee;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+/** Versión para ADMIN con columna DocID */
+function itemsAsHTMLAdmin(items: ReturnType<typeof mapVariants>) {
+  if (!items.length) return `<p><em>Sin ítems asociados.</em></p>`;
+  const rows = items.map(it => `
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:12px;color:#555;">
+        ${it.docId}
+      </td>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;">
+        <div style="font-weight:600;">${it.title}</div>
+        ${it.variantLabel ? `<div style="font-size:12px;color:#555;">${it.variantLabel}</div>` : ""}
+      </td>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;">${it.qty}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;">${CLP(it.unitPrice)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${CLP(it.subtotal)}</td>
+    </tr>`).join("");
+
+  return `
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee;border-radius:8px;overflow:hidden;">
+    <thead>
+      <tr style="background:#fafafa;">
+        <th align="left" style="padding:10px 12px;border-bottom:1px solid #eee;">DocID</th>
         <th align="left" style="padding:10px 12px;border-bottom:1px solid #eee;">Producto</th>
         <th style="padding:10px 12px;border-bottom:1px solid #eee;">Cant.</th>
         <th align="right" style="padding:10px 12px;border-bottom:1px solid #eee;">Precio</th>
@@ -202,7 +235,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const order: Order = body.entry ?? {};
-    const storeName = process.env.STORE_NAME || "Tu Tienda";
+    const storeName = "ZAG";
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
 
     // ——— Enriquecer por documentId (solo publicadas) ———
@@ -222,7 +255,7 @@ export async function POST(req: NextRequest) {
 
     const address = renderAddress(order);
 
-    const orderId = order.id;
+    const orderId = order.documentId;
     const customerEmail = nonEmpty(order.client_email || order.email);
     const paymentStatus = order.payment_status || "pending";
     const orderStatus = order.order_status || "Confirmado";
@@ -250,23 +283,23 @@ export async function POST(req: NextRequest) {
     `;
 
     const customerText = `
-${storeName} – Orden #${orderId}
+      ${storeName} – Orden #${orderId}
 
-Estado de pago: ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}
-Estado de orden: ${orderStatus}
+      Estado de pago: ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}
+      Estado de orden: ${orderStatus}
 
-Ítems:
-${itemsAsText(items)}
+      Ítems:
+      ${itemsAsText(items)}
 
-Envío: ${CLP(shippingPrice)}
-Total: ${CLP(grandTotal)}
+      Envío: ${CLP(shippingPrice)}
+      Total: ${CLP(grandTotal)}
 
-${address ? `Dirección: ${address}` : ""}
+      ${address ? `Dirección: ${address}` : ""}
 
-Datos del cliente:
-${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}
-${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
-    `.trim();
+      Datos del cliente:
+      ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}
+      ${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
+      `.trim();
 
     // ===== Admin =====
     const adminHTML = `
@@ -275,7 +308,7 @@ ${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ?
       <p><strong>Pago:</strong> ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}<br/>
       <strong>Estado:</strong> ${orderStatus}</p>
       <h3 style="margin:20px 0 8px 0;">Ítems</h3>
-      ${itemsAsHTML(items)}
+      ${itemsAsHTMLAdmin(items)}
       <div style="margin-top:14px;">
         <p style="margin:4px 0;"><strong>Items:</strong> ${CLP(itemsTotal)}</p>
         <p style="margin:4px 0;"><strong>Envío:</strong> ${CLP(shippingPrice)}</p>
@@ -287,28 +320,27 @@ ${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ?
         ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}<br/>
         ${customerEmail || ""}${customerEmail ? "<br/>" : ""}${order.phone ? `Tel: ${order.phone}` : ""}${order.rut ? `<br/>RUT: ${order.rut}` : ""}
       </p>
-      <p style="margin-top: 25px;">Fecha: ${order.createdAt ? new Date(order.createdAt).toLocaleString("es-CL") : ""}</p>
     `;
 
     const adminText = `
-${storeName} – Nueva orden #${orderId}
+      ${storeName} – Nueva orden #${orderId}
 
-Pago: ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}
-Estado: ${orderStatus}
+      Pago: ${paymentStatus.toUpperCase()} ${mpId ? `(MP ${mpId})` : ""}
+      Estado: ${orderStatus}
 
-Ítems:
-${itemsAsText(items)}
+      Ítems:
+      ${itemsAsText(items)}
 
-Items: ${CLP(itemsTotal)}
-Envío: ${CLP(shippingPrice)}
-Total: ${CLP(grandTotal)}
+      Items: ${CLP(itemsTotal)}
+      Envío: ${CLP(shippingPrice)}
+      Total: ${CLP(grandTotal)}
 
-${address ? `Dirección: ${address}` : ""}
+      ${address ? `Dirección: ${address}` : ""}
 
-Cliente:
-${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}
-${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
-    `.trim();
+      Cliente:
+      ${[nonEmpty(order.firstName), nonEmpty(order.lastName)].filter(Boolean).join(" ")}
+      ${customerEmail || ""}${order.phone ? `\nTel: ${order.phone}` : ""}${order.rut ? `\nRUT: ${order.rut}` : ""}
+      `.trim();
 
     // Envío
     const tasks: Promise<any>[] = [];
