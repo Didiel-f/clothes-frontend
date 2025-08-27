@@ -93,7 +93,7 @@ async function fetchVariantsWithProduct(ids: Array<number | string>): Promise<Re
     `&fields[0]=title&fields[1]=isShoe&fields[2]=shoesSize&fields[3]=clotheSize`;
 
   const url = `${base}/api/variants?${qs}`;
-
+  console.log('url', url);
   try {
     const res = await fetch(url, {
       method: "GET",
