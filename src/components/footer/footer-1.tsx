@@ -6,7 +6,7 @@ import Container from "@mui/material/Container";
 
 export default function Footer1({ children }: PropsWithChildren) {
   return (
-    <Box component="footer" bgcolor="#222935" mb={{ sm: 0, xs: 7 }}>
+    <Box component="footer" bgcolor="#22B2E0" mb={{ sm: 0, xs: 7 }}>
       <Container sx={{ color: "white", overflow: "hidden", py: { sm: 10, xs: 4 } }}>
         <Grid container spacing={3}>
           {children}

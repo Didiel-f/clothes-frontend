@@ -20,6 +20,9 @@ import { FlexBetween, FlexBox } from "components/flex-box";
 // TYPES
 import { useDeliveryAddressesCTX } from "contexts/delivery-addresses-context";
 import Address from "models/Address.model";
+import { getChilexpressRate } from "hooks/chilexpress/useChilexpressRates";
+import { useEffect, useMemo } from "react";
+import { useCartStore } from "contexts/CartContext";
 
 // STYLED COMPONENTS
 const AddressCard = styled(Card, {
@@ -43,7 +46,7 @@ type Props = { deliveryAddresses?: Address[] };
 
 export default function DeliveryAddresses({ deliveryAddresses }: Props) {
   const isHydrated = useHydration();
-  
+
   const {
     openModal,
     editDeliveryAddress,
@@ -54,7 +57,61 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
   } = useDeliveryAddresses();
 
   const { isLoggedIn, addresses } = useDeliveryAddressesCTX();
-  const { control, setValue } = useFormContext();
+  const { control, setValue, watch } = useFormContext(); // ⬅️ añadí watch
+
+  const countyCode: string | null = watch("countyCode") || null;
+  const cart = useCartStore((s) => s.cart);
+  const addShippingPrice = useCartStore((s) => s.addShippingPrice);
+  const originCountyCode = process.env.NEXT_PUBLIC_CHILEXPRESS_ORIGIN_COUNTY || "";
+
+  const cartKey = useMemo(() => {
+    return (cart ?? [])
+      .map((it: any) => `${it?.variant?.documentId ?? it?.variant?.id}:${Number(it?.qty ?? 0)}`)
+      .sort()
+      .join("|");
+  }, [cart]);
+
+  useEffect(() => {
+    if (!countyCode || !(cart && cart.length)) {
+      addShippingPrice(0);
+      return;
+    }
+
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const declaredWorth = Math.round(
+          cart.reduce(
+            (sum: number, it: any) => sum + Number(it?.product?.price ?? 0) * Number(it?.qty ?? 1),
+            0
+          )
+        );
+
+        const resp = await getChilexpressRate({
+          originCountyCode,
+          destinationCountyCode: countyCode,
+          cart,
+          declaredWorth,
+          paddingCm: 2,
+        });
+
+        const best = resp.raw?.data?.courierServiceOptions.find((op: any) => op.serviceDescription === "EXPRESS");
+
+        const price = Number(best?.serviceValue ?? 0);
+
+        if (!cancelled) addShippingPrice(Number.isFinite(price) ? price : 0);
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) addShippingPrice(0);
+      }
+    }, 250); // pequeño debounce para evitar spam en cambios rápidos
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+    // 🔑 Recalcula si cambia la comuna (dirección seleccionada) o el carrito
+  }, [countyCode, cartKey, originCountyCode, addShippingPrice]);
 
   // === Fuente de datos a renderizar según login ===
   // - Logueado: lista completa
@@ -64,7 +121,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
     : (addresses && addresses.length ? [addresses[0]] : []);
 
   // Solo mostrar el texto del botón después de la hidratación para evitar mismatch
-  const addBtnLabel = !isHydrated 
+  const addBtnLabel = !isHydrated
     ? "Agregar dirección" // Texto por defecto durante SSR
     : isLoggedIn
       ? "Añade nueva dirección"
@@ -79,9 +136,9 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
           color="primary"
           variant="outlined"
           onClick={handleAddNewAddress}
-          // Si NO está logueado y ya hay 1, igualmente abrimos el modal para reemplazar.
-          // Si prefieres bloquear, descomenta la línea de abajo:
-          // disabled={!isLoggedIn && !canAddAnother}
+        // Si NO está logueado y ya hay 1, igualmente abrimos el modal para reemplazar.
+        // Si prefieres bloquear, descomenta la línea de abajo:
+        // disabled={!isLoggedIn && !canAddAnother}
         >
           {addBtnLabel}
         </Button>
@@ -103,8 +160,6 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
                     active={isActive}
                     onClick={() => {
                       field.onChange(item);
-                      
-                      
                       setValue("regionName", item.regionName || "");
                       setValue("countyName", item.countyName || "");
                       setValue("countyCode", item.countyCode || null);

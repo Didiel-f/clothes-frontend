@@ -12,17 +12,13 @@ import DialogContent from "@mui/material/DialogContent";
 import { FormControl, InputLabel, Select, MenuItem, Autocomplete, TextField as MuiTextField } from "@mui/material";
 // RHF
 import { Controller } from "react-hook-form";
-// Tipos de tu API (ajústalos si difieren)
 type IStreet = { streetId: number; streetName: string };
 
-// Si tienes este modelo en tu app:
 import { useChilexpressRegions } from "hooks/chilexpress/useChilexpressRegions";
 import { useChilexpressCounties } from "hooks/chilexpress/useChilexpressCounties";
 import { useChilexpressStreets } from "hooks/chilexpress/use-chilexpress-streets";
 import { useDeliveryAddressesCTX } from "contexts/delivery-addresses-context";
 import Address from "models/Address.model";
-import { useChilexpressRates } from "hooks/chilexpress/useChilexpressRates";
-import { useCartStore } from "contexts/CartContext";
 
 // ======== VALIDACIÓN ========
 const validationSchema = yup.object({
@@ -87,15 +83,6 @@ export default function DeliveryAddressForm({
     streetName: streetQuery
   });
 
-  const countyCode = watch("countyCode")
-  const { data: rate } = useChilexpressRates(countyCode ?? null);
-  const addShippingPrice = useCartStore((s) => s.addShippingPrice);
-  useEffect(() => {
-    if (!countyCode) return;
-    const val = Number(rate?.serviceValue);
-    if (!Number.isFinite(val)) return;
-    addShippingPrice(val);
-  }, [countyCode, rate?.serviceValue, addShippingPrice]);
 
   const streetOnSelectHandler = (street: IStreet | null) => {
     setValue("streetId", street ? street.streetId : (null as any), { shouldValidate: true, shouldDirty: true });
@@ -129,7 +116,6 @@ export default function DeliveryAddressForm({
         replaceOnlyAddress(addr);
       }
 
-      console.log("Nueva dirección:", addr);
       handleCloseModal();
       reset();
     })();

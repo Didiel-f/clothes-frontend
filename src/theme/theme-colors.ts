@@ -61,34 +61,36 @@ export const grey = {
 };
 
 export const primary = {
-  100: "#FCE9EC",
-  200: "#F8C7CF",
-  300: "#F07D90",
-  400: "#EC6178",
-  500: "#D23F57",
-  600: "#E63E58",
-  700: "#E3364E",
-  800: "#DF2E44",
-  900: "#D91F33",
-  main: "#D23F57",
-  light: "#FCE9EC",
-  dark: "#E3364E"
+  100: "#E6F9FF",
+  200: "#BFF0FF",
+  300: "#99E6FF",
+  400: "#66DBFF",
+  500: "#2FCBFD", // main base
+  600: "#22B2E0",
+  700: "#1C9CC7",
+  800: "#157DA3",
+  900: "#0F5E7A",
+  main: "#2FCBFD",
+  light: "#E6F9FF",
+  dark: "#1C9CC7"
 };
 
+
 export const secondary = {
-  100: "#e8e8ee",
-  200: "#b9bacb",
-  300: "#8a8ca8",
-  400: "#5b5d85",
-  500: "#141850",
-  600: "#0F3460",
-  700: "#101340",
-  800: "#0e1138",
-  900: "#0c0e30",
-  main: "#0F3460",
-  dark: "#0c0e30",
-  light: "#141850"
+  100: "#FFEDE6",
+  200: "#FFD1BF",
+  300: "#FFB399",
+  400: "#FF8C66",
+  500: "#FD612F", // main base
+  600: "#E65320",
+  700: "#CC471C",
+  800: "#A83A16",
+  900: "#7D2B0F",
+  main: "#FD612F",
+  light: "#FFEDE6",
+  dark: "#CC471C"
 };
+
 
 export const error = {
   100: "#FFEAEA",

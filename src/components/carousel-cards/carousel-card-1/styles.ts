@@ -10,7 +10,8 @@ export const StyledRoot = styled("div")(({ theme }) => ({
     fontSize: 50,
     marginTop: 0,
     lineHeight: 1.2,
-    marginBottom: "1.35rem"
+    marginBottom: "1.35rem",
+    color: theme.palette.primary.main
   },
   ".description": {
     marginBottom: theme.spacing(2.7),

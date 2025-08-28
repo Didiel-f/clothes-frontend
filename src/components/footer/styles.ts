@@ -17,7 +17,7 @@ export const StyledLink = styled(Link, {
   position: "relative",
   padding: "0.3rem 0rem",
   ...(!isDark && {
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[900],
     "&:hover": { color: theme.palette.grey[100] }
   })
 }));
@@ -44,12 +44,13 @@ export const StyledRoot = styled("footer")(({ theme }) => ({
   [theme.breakpoints.down("md")]: { marginBottom: "5rem !important" }
 }));
 
-export const Heading = styled("h6")({
+export const Heading = styled("h6")(({ theme }) => ({
   fontSize: 18,
   lineHeight: 1,
   fontWeight: 500,
-  marginBottom: 12
-});
+  marginBottom: 12,
+  color:theme.palette.grey[900],
+}));
 
 export const StyledIconButton = styled(IconButton, {
   shouldForwardProp: (prop) => prop !== "variant"

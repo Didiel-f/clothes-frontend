@@ -12,7 +12,7 @@ interface Props {
 }
 // ==============================================================
 
-export default function FooterContact({ email, phone, address, color = "grey.500" }: Props) {
+export default function FooterContact({ email, phone, address, color = "grey.900" }: Props) {
   return (
     <Fragment>
       <Heading>Contact Us</Heading>

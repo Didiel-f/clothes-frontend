@@ -39,6 +39,22 @@ export interface IProduct {
   category: ICategory;
   images: IImage[];
   variants: IVariant[];
+  productKind: IProductKind;
+}
+
+export interface IProductKind {
+  documentId: string;
+  name: string;
+  weight: number;
+  note: string | null;
+  dimension: IDimension
+}
+
+export interface IDimension {
+  id?: number | string;
+  length: number; // cm
+  width: number;  // cm
+  height: number; // cm
 }
 
 export interface IBrand {

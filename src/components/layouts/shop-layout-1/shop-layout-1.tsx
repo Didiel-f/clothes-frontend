@@ -89,7 +89,6 @@ export default function ShopLayout1({ children, data }: Props) {
         border={1}
         elevation={0}
         navigation={<NavigationList navigation={header.navigation} />}
-        categories={<CategoryList categories={header.categoryMenus} />}
       />
 
       {/* ⬇️ Área de contenido que crece y empuja el footer */}
@@ -106,7 +105,7 @@ export default function ShopLayout1({ children, data }: Props) {
           <Link href="/">
             <Image src={footer.logo} alt="logo" width={105} height={50} />
           </Link>
-          <Typography variant="body1" sx={{ mt: 1, mb: 3, color: "grey.500", maxWidth: 370 }}>
+          <Typography variant="body1" sx={{ mt: 1, mb: 3, color: "grey.900", maxWidth: 370 }}>
             {footer.description}
           </Typography>
         </Footer1.Brand>
