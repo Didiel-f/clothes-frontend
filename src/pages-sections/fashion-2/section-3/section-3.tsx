@@ -13,7 +13,7 @@ export default async function Section3() {
     return (
       <Container className="mt-4">
         <Typography variant="h2" sx={{ mb: "2rem", textAlign: "center" }}>
-          Best selling Categories
+          Mira nuestras categorías
         </Typography>
 
         <Grid container spacing={3}>
@@ -33,7 +33,7 @@ export default async function Section3() {
     return (
       <Container className="mt-4">
         <Typography variant="h2" sx={{ mb: "2rem", textAlign: "center" }}>
-          Best selling Categories
+          Mira nuestras categorías
         </Typography>
         <Typography variant="body1" sx={{ textAlign: "center", color: "error.main" }}>
           Error al cargar las categorías

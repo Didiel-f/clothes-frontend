@@ -16,10 +16,11 @@ type SearchParams = {
   sale?: string;
   page?: string;
   sort?: string;
-  prices?: string;   
+  prices?: string;
   brand?: string;
   category?: string;
   discount?: boolean;
+  gender?: string;
 };
 
 function parseSearchParams(sp: SearchParams) {
@@ -29,7 +30,7 @@ function parseSearchParams(sp: SearchParams) {
   // Si viene ?discount>0 o ?sale=true, activamos el filtro de descuento
   const discount =
     (typeof sp.discount !== "undefined" && Number(sp.discount) > 0) ||
-    sp.sale === "true"
+      sp.sale === "true"
       ? true
       : undefined;
   return {
@@ -41,6 +42,7 @@ function parseSearchParams(sp: SearchParams) {
     brand: (sp.brand ?? "").split(",").filter(Boolean),
     category: sp.category ?? undefined,
     discount,
+    gender: sp.gender ?? undefined,
   };
 }
 

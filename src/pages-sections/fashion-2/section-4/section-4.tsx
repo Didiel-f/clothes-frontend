@@ -24,7 +24,7 @@ export default function Section4({ onOpenProduct }: Props) {
   return (
     <Container className="mt-4">
       <Typography variant="h2" sx={{ mb: "2rem", textAlign: "center" }}>
-        Best Selling Product
+        Productos destacados
       </Typography>
 
       {loading && <Typography>Loading...</Typography>}

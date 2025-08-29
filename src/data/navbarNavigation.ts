@@ -6,34 +6,37 @@ const navbarNavigation: Menu[] = [
     url: "/",
   },
   {
-    title: "Zapatillas",
-    url: "/products/search?category=zapatillas"
+    title: "Mujer",
+    url: "/products/search?gender=woman"
   },
   {
-    title: "Vestuario",
-    url: "/sales-1",
-    child: [
-      {
-        title: "Sale Page",
-        url: "/sales-1"
-      },
-    ],
+    title: "Hombre",
+    url: "/products/search?gender=man"
+  },
+  {
+    title: "Niños",
+    url: "/products/search?gender=kids"
   },
   {
     title: "Marcas",
     url: "/orders",
     child: [
       {
+        title: "Nike",
+        url: "/products/search?brand=nike"
+      },
+      {
         title: "Under Armour",
         url: "/products/search?brand=under-armour"
       },
-    ],
-  },
-  {
-    title: "Ofertas",
-    url: "/products/search?discount=1",
-    child: [
-      { title: "Zapatillas", url: "/products/search?category=zapatillas&discount=1" },
+      {
+        title: "Michael Kors",
+        url: "/products/search?brand=michael-kors"
+      },
+      {
+        title: "Osiris",
+        url: "/products/search?brand=osiris"
+      },
     ],
   },
 ];

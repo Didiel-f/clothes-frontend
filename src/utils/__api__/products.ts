@@ -33,6 +33,7 @@ type Initial = {
   brand?: string[];
   category?: string;
   discount?: boolean;
+  gender?: string;
 };
 
 interface StrapiCollectionResponse<T> {
@@ -50,9 +51,7 @@ interface StrapiCollectionResponse<T> {
 export async function getProducts(initial: Initial = {}): Promise<StrapiCollectionResponse<IProduct>> {
   const base = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (!base) throw new Error("Missing NEXT_PUBLIC_BACKEND_URL");
-
   const qs = new URLSearchParams();
-
   // populate y paginación
   qs.set("populate", "*");
   qs.set("pagination[page]", String(initial.page ?? 1));
@@ -68,6 +67,10 @@ export async function getProducts(initial: Initial = {}): Promise<StrapiCollecti
     qs.set("filters[$or][2][brand][slug][$containsi]", q);
   }
 
+  // búsqueda por gender
+  if (initial.gender) {
+    qs.set("filters[gender][$eq]", initial.gender);
+  }
 
   // categoría
   if (initial.category) qs.set("filters[category][slug][$eq]", initial.category);
@@ -98,7 +101,6 @@ export async function getProducts(initial: Initial = {}): Promise<StrapiCollecti
     qs.set("filters[$and][0][discount][$notNull]", "true");
     qs.set("filters[$and][1][discount][$gt]", "0");
   }
-
 
   const url = `${base}/api/products?${qs.toString()}`;
   const res = await fetch(url, {

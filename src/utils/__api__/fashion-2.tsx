@@ -2,7 +2,7 @@ import { cache } from "react";
 import Blog from "models/Blog.model";
 import { IProduct } from "models/Product.model";
 import Service from "models/Service.model";
-import { articles, serviceList, products, mainCarouselData, brandList } from "__server__/__db__/fashion-2/data";
+import { articles, serviceList, products, mainCarouselData } from "__server__/__db__/fashion-2/data";
 import { IMainCarousel } from "models/Carousel.model";
 import { IBrand } from "models/Filters";
 
@@ -112,10 +112,6 @@ export const getFeatureProductsData = cache(async (): Promise<IProduct[]> => {
   }
 });
 
-const getFeatureProducts = cache(async (): Promise<any[]> => {
-  return products.filter((item) => item.for.type === "featured-products");
-});
-
 const getProducts = cache(async (): Promise<any[]> => {
   return products.filter((item) => item.for.type === "best-selling-product");
 });
@@ -156,7 +152,6 @@ export default {
   getSaleProducts,
   getLatestProducts,
   getPopularProducts,
-  getFeatureProducts,
   getBestWeekProducts,
   getMainCarouselData
 };
