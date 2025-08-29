@@ -9,10 +9,10 @@ import { FavoriteButton, QuickViewButton } from "./styles";
 import { IProduct } from "models/Product.model";
 
 // ==============================================================
-type Props = { product: IProduct, onOpen: () => void; };
+type Props = { onOpen: () => void; };
 // ==============================================================
 
-export default function HoverActions({ product, onOpen }: Props) {
+export default function HoverActions({ onOpen }: Props) {
   const [isFavorite, setFavorite] = useState(false);
 
   const handleFavorite = () => {
@@ -20,7 +20,7 @@ export default function HoverActions({ product, onOpen }: Props) {
   };
 
   return (
-    <Fragment>
+    <div className="hidden md:block">
       {/* PRODUCT FAVORITE BUTTON */}
       <FavoriteButton className="product-actions" onClick={handleFavorite}>
         {isFavorite ? (
@@ -43,6 +43,6 @@ export default function HoverActions({ product, onOpen }: Props) {
         </QuickViewButton>
       </div>
 
-    </Fragment>
+    </div>
   );
 }

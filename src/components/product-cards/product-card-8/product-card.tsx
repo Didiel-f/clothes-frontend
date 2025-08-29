@@ -45,7 +45,7 @@ export default function ProductCard8({ product, onOpen }: Props) {
         </Link>
         {/* PRODUCT PRICE */}
         {isDiscountAvailable && <DiscountChip discount={discount} />}
-        <HoverActions product={product} onOpen={onOpen}/>
+        <HoverActions onOpen={onOpen} />
       </CardMedia>
 
       <CardContent>
