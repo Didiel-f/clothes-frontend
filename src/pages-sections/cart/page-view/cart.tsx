@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid";
 import { useCartStore } from "contexts/CartContext";
 // LOCAL CUSTOM COMPONENTS
 import CartItem from "../cart-item";
-import CheckoutForm from "../checkout-form";
+import CheckoutSummary from "pages-sections/checkout-alternative/checkout-summery";
 
 export default function CartPageView() {
   const { cart } = useCartStore();
@@ -21,7 +21,7 @@ export default function CartPageView() {
 
       {/* CHECKOUT FORM */}
       <Grid size={{ md: 4, xs: 12 }}>
-        <CheckoutForm />
+        <CheckoutSummary showShipping={false} />
       </Grid>
     </Grid>
   );

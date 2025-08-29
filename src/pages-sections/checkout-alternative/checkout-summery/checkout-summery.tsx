@@ -10,13 +10,13 @@ import { useCartStore, useCartSubtotal, useCartTotals } from "contexts/CartConte
 
 
 
-export default function CheckoutSummary() {
+export default function CheckoutSummary({ showShipping = true }: { showShipping?: boolean }) {
 
-  const cart         = useCartStore((s) => s.cart);
-  const shipping     = useCartStore((s) => s.shippingPrice);
-  const discount     = useCartStore((s) => s.discount);
-  const subtotal     = useCartSubtotal();
-  const total        = useCartTotals();
+  const cart = useCartStore((s) => s.cart);
+  const shipping = useCartStore((s) => s.shippingPrice);
+  const discount = useCartStore((s) => s.discount);
+  const subtotal = useCartSubtotal();
+  const total = useCartTotals();
 
   // si no hay carrito, no renderizamos
   if (!cart?.length) return null;
@@ -43,20 +43,22 @@ export default function CheckoutSummary() {
       <Box component={Divider} borderColor="grey.300" my={3} />
 
       <Row title="Subtotal" value={subtotal} />
-      <Row
-        title="Envío"
-        value={shippingNum}
-        rightSlot={
-          isShippingPending ? (
-            <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-              <CircularProgress size={16} />
-              <Typography variant="caption" color="text.secondary">
-                Ingrese dirección
-              </Typography>
-            </Box>
-          ) : undefined
-        }
-      />
+      {showShipping && (
+        <Row
+          title="Envío"
+          value={shippingNum}
+          rightSlot={
+            isShippingPending ? (
+              <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+                <CircularProgress size={16} />
+                <Typography variant="caption" color="text.secondary">
+                  Ingrese dirección
+                </Typography>
+              </Box>
+            ) : null
+          }
+        />
+      )}
       {discountNum ? <Row title="Discount" value={discountNum} mb={3} /> : null}
 
       <Box component={Divider} borderColor="grey.300" mb={1} />
