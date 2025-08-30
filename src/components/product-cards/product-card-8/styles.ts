@@ -53,8 +53,20 @@ export const FavoriteButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: "white",
   transition: "right 0.3s .1s",
   color: theme.palette.text.primary,
-  ".icon": { fontSize: 16 }
+  ".icon": { fontSize: 16 },
+
+  [theme.breakpoints.down("sm")]: {
+    right: 15,
+    transition: "none",
+  },
+
+  [theme.breakpoints.up("sm")]: {
+    ".MuiCardMedia-root:hover &": {
+      right: 15,
+    },
+  },
 }));
+
 
 export const AddToCartButton = styled(IconButton)(({ theme }) => ({
   top: 55,
@@ -72,5 +84,9 @@ export const QuickViewButton = styled(Button)({
   opacity: 0,
   borderRadius: 12,
   position: "absolute",
-  transition: "opacity 0.5s"
+  transition: "opacity 0.5s",
+  display: "none",
+  "@media (min-width: 768px)": {
+    display: "block"
+  }
 });

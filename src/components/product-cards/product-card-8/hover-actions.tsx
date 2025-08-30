@@ -20,7 +20,7 @@ export default function HoverActions({ onOpen }: Props) {
   };
 
   return (
-    <div className="hidden md:block">
+    <div>
       {/* PRODUCT FAVORITE BUTTON */}
       <FavoriteButton className="product-actions" onClick={handleFavorite}>
         {isFavorite ? (
