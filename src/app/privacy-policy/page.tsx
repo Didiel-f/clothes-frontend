@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
           incluida información sobre tu navegador web, dirección IP, zona horaria y algunas de las cookies 
           instaladas en tu dispositivo. Además, a medida que navegas, recopilamos información sobre las páginas 
           web individuales o los productos que ves, qué sitios web o términos de búsqueda te remitieron a la web 
-          y cómo interactúas. Nos referimos a esta información recopilada automáticamente como "Información del dispositivo". 
+          y cómo interactúas. Nos referimos a esta información recopilada automáticamente como &quot;Información del dispositivo&quot;. 
           Además, podemos recopilar los datos personales que nos proporcionas (incluidos, entre otros, nombre, apellido, 
           dirección, información de pago, etc.) durante el registro para poder cumplir con el acuerdo.
         </Typography>
