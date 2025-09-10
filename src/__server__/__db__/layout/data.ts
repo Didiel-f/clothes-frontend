@@ -47,16 +47,17 @@ export const footerLinks = [
 ];
 
 export const footerAboutLinks = [
-  { title: "Acerca de nosotros", url: "#" },
-  { title: "Terminos y condiciones", url: "#" },
-  { title: "Política de privacidad", url: "#" }
+  { title: "Términos y condiciones", url: "#" },
+  { title: "Política de privacidad", url: "/privacy-policy" },
+  { title: "Política de devoluciones", url: "/returns-policy" },
+  { title: "Política de envío", url: "/shipping-policy" }
 ];
 
 export const footerCustomerCareLinks = [
   { title: "Help Center", url: "#" },
   { title: "Track Your Order", url: "#" },
   { title: "Corporate & Bulk Purchasing", url: "#" },
-  { title: "Returns & Refunds", url: "#" }
+  { title: "Returns & Refunds", url: "/returns-policy" }
 ];
 
 export const footerSocialLinks = {
