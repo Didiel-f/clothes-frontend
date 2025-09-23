@@ -1,6 +1,6 @@
 "use client";
 
-import { styled } from "@mui/material/styles";
+import { styled, alpha } from "@mui/material/styles";
 
 export const StyledRoot = styled("div")(({ theme }) => ({
   borderRadius: 12,
@@ -21,16 +21,26 @@ export const StyledRoot = styled("div")(({ theme }) => ({
   }
 }));
 
+
 export const PriceText = styled("p")(({ theme }) => ({
-  fontSize: 17,
-  lineHeight: 1,
-  fontWeight: 600,
+  display: "inline-flex",
+  alignItems: "baseline",
+  gap: 8,
   marginTop: ".75rem",
-  color: theme.palette.primary.main,
+  padding: "6px 10px",
+  borderRadius: 999,
+  backgroundColor: alpha(theme.palette.primary.main, 0.10),
+  color: theme.palette.primary.dark,
+  fontWeight: 700,
+  fontSize: 18,
+  lineHeight: 1,
+  fontVariantNumeric: "tabular-nums",
+  ".currency": { fontSize: 14, opacity: 0.8, marginRight: 2 },
   ".base-price": {
     fontSize: 13,
     marginLeft: 8,
     textDecoration: "line-through",
-    color: theme.palette.grey[600]
-  }
+    color: theme.palette.grey[600],
+  },
 }));
+

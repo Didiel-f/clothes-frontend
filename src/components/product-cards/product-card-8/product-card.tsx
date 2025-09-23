@@ -12,6 +12,7 @@ import { Card, CardMedia, CardContent } from "./styles";
 import { IProduct } from "models/Product.model";
 import { getDiscount } from "components/utils/getDiscount";
 import DiscountChip from "../discount-chip";
+import { Box, Typography, alpha, Chip } from "@mui/material";
 
 // ==============================================================
 type Props = { product: IProduct, onOpen: () => void; };
@@ -20,7 +21,7 @@ type Props = { product: IProduct, onOpen: () => void; };
 export default function ProductCard8({ product, onOpen }: Props) {
   const { slug, name, price, images, category, brand } = product;
   const { isDiscountAvailable, discount } = getDiscount(product);
-  
+
   function getFirstImageUrl(images: unknown): string {
     if (Array.isArray(images) && images.length > 0) {
       const url = (images[0] as any)?.url;
@@ -28,9 +29,9 @@ export default function ProductCard8({ product, onOpen }: Props) {
     }
     return "/assets/images/faces/7.png"; // fallback
   }
-  
+
   const imgSrc = getFirstImageUrl(images);
-  
+
   return (
     <Card>
       <CardMedia>
@@ -55,28 +56,63 @@ export default function ProductCard8({ product, onOpen }: Props) {
         {/* PRODUCT TITLE / NAME */}
         <p className="title">{brand.name} {name}</p>
 
-
         {isDiscountAvailable ? (
-          <div
-            style={{
+          <Box
+            sx={{
               display: "flex",
-              gap: "8px",
+              gap: 1,
               alignItems: "center",
-              justifyContent: "center", // 👈 esta es la clave
+              justifyContent: "center",
             }}
           >
-            <h4
-              className="price"
-              style={{ textDecoration: "line-through", color: "#999", margin: 0 }}
+            <Typography
+              variant="body2"
+              sx={{ textDecoration: "line-through", color: "text.disabled", m: 0 }}
             >
               {currency(price)}
-            </h4>
-            <h4 className="price" style={{ color: "#e53935", margin: 0 }}>
+            </Typography>
+
+            {/* Precio con pill */}
+            <Typography
+              component="strong"
+              sx={(theme) => ({
+                m: 0,
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                fontWeight: 800,
+                fontSize: 20,
+                lineHeight: 1,
+                color: theme.palette.error.main,
+                backgroundColor: alpha(theme.palette.error.main, 0.12),
+                fontVariantNumeric: "tabular-nums",
+              })}
+            >
               {calculateDiscount(price, discount)}
-            </h4>
-          </div>
+            </Typography>
+
+            {/* Badge con el % off */}
+            <Chip
+              label={`-${discount}%`}
+              color="error"
+              size="small"
+              sx={{ fontWeight: 700 }}
+            />
+          </Box>
         ) : (
-          <h4 className="price">{currency(price)}</h4>
+          <Typography
+            component="strong"
+            sx={{
+              display: "inline-block",
+              mt: 0.5,
+              fontWeight: 800,
+              fontSize: 20,
+              color: "primary.main",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {currency(price)}
+          </Typography>
         )}
 
       </CardContent>
