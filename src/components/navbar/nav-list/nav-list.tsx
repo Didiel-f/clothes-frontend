@@ -27,47 +27,69 @@ export default function NavigationList({ navigation }: Props) {
         );
       }
 
-      return (
-        <NavLink href={nav.url!} key={nav.title}>
+      // hojas SIEMPRE deben tener url
+      return nav.url ? (
+        <NavLink href={nav.url} key={nav.title}>
           <MenuItem>{nav.title}</MenuItem>
         </NavLink>
+      ) : (
+        <MenuItem key={nav.title}>{nav.title}</MenuItem>
       );
     });
   };
 
   const renderRootLevel = (list: Menu[]) => {
     return list.map((nav) => {
-      if (nav.child && nav.child.length > 0) {
+      const hasChildren = !!nav.child && nav.child.length > 0;
+
+      if (hasChildren) {
         return (
           <FlexBox
             key={nav.title}
             alignItems="center"
             position="relative"
             flexDirection="column"
-            sx={{ "&:hover": { "& > .child-nav-item": { display: "block" } } }}>
-            <NavLink href={nav.url!}>
-              <FlexBox alignItems="center" gap={0.3} sx={NAV_LINK_STYLES}>
+            sx={{ "&:hover": { "& > .child-nav-item": { display: "block" } } }}
+          >
+            {/* Si NO hay url: solo texto + ícono, no clickable */}
+            {nav.url ? (
+              <NavLink href={nav.url}>
+                <FlexBox alignItems="center" gap={0.3} sx={NAV_LINK_STYLES}>
+                  {nav.title}
+                  <KeyboardArrowDown sx={{ color: "grey.500", fontSize: "1.1rem" }} />
+                </FlexBox>
+              </NavLink>
+            ) : (
+              <FlexBox
+                alignItems="center"
+                gap={0.3}
+                sx={{ ...NAV_LINK_STYLES, cursor: "default", userSelect: "none" }}
+              >
                 {nav.title}
                 <KeyboardArrowDown sx={{ color: "grey.500", fontSize: "1.1rem" }} />
               </FlexBox>
-            </NavLink>
+            )}
 
             <ChildNavListWrapper className="child-nav-item">
               <Card elevation={5} sx={{ mt: 2.5, py: 1, minWidth: 100, overflow: "unset" }}>
-                {renderNestLevel(nav.child)}
+                {renderNestLevel(nav.child!)}
               </Card>
             </ChildNavListWrapper>
           </FlexBox>
         );
       }
 
-      // SIN HIJOS → solo muestra el link directo
-      return (
-        <NavLink href={nav.url!} key={nav.title}>
+      // SIN HIJOS → solo muestra el link directo si hay url
+      return nav.url ? (
+        <NavLink href={nav.url} key={nav.title}>
           <FlexBox alignItems="center" sx={NAV_LINK_STYLES}>
             {nav.title}
           </FlexBox>
         </NavLink>
+      ) : (
+        <FlexBox key={nav.title} alignItems="center" sx={{ ...NAV_LINK_STYLES, cursor: "default" }}>
+          {nav.title}
+        </FlexBox>
       );
     });
   };

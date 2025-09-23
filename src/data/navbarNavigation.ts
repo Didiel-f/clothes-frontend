@@ -15,7 +15,6 @@ const navbarNavigation: Menu[] = [
   },
   {
     title: "Marcas",
-    url: "/orders",
     child: [
       {
         title: "Nike",

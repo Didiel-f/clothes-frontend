@@ -15,7 +15,7 @@ interface Props {
 export default function FooterContact({ email, phone, address, color = "grey.900" }: Props) {
   return (
     <Fragment>
-      <Heading>Contact Us</Heading>
+      <Heading>Contacto</Heading>
 
       <Typography variant="body1" sx={{ color, py: 0.6 }}>
         {address}

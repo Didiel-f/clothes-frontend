@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Fragment, PropsWithChildren, useCallback, useState } from "react";
+import { PropsWithChildren, useCallback, useState } from "react";
 import Typography from "@mui/material/Typography";
 // GLOBAL CUSTOM COMPONENTS
 import {
@@ -111,12 +111,8 @@ export default function ShopLayout1({ children, data }: Props) {
         </Footer1.Brand>
 
         <Footer1.Widget1>
-          <FooterLinksWidget title="About Us" links={footer.about} />
+          <FooterLinksWidget title="Acerca de nosotros" links={footer.about} />
         </Footer1.Widget1>
-
-        <Footer1.Widget2>
-          <FooterLinksWidget title="Customer Care" links={footer.customers} />
-        </Footer1.Widget2>
 
         <Footer1.Contact>
           <FooterContact
