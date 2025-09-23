@@ -10,17 +10,31 @@ export default async function Section1() {
 
   return (
     <Box bgcolor="grey.100" mb={7.5}>
-        <Carousel dots spaceBetween={0} slidesToShow={1} arrows={false}>
-          {carouselData?.map((item, ind) => (
-            <CarouselCard1
-              key={ind}
-              title={item.title!}
-              imgUrl={item?.image?.url!}
-              buttonLink={item.buttonLink!}
-              description={item.description!}
-            />
-          ))}
-        </Carousel>
+      <Carousel
+        dots
+        spaceBetween={0}
+        slidesToShow={1}
+        arrows={false}
+        infinite={true}
+        autoplay={true}
+        autoplaySpeed={3000}
+        pauseOnHover={true}
+        pauseOnFocus={true}
+        draggable={true}
+        swipe={true}
+        swipeToSlide={true}
+        touchMove={true}
+      >
+        {carouselData?.map((item, ind) => (
+          <CarouselCard1
+            key={ind}
+            title={item.title!}
+            imgUrl={item?.image?.url!}
+            buttonLink={item.buttonLink!}
+            description={item.description!}
+          />
+        ))}
+      </Carousel>
     </Box>
   );
 }

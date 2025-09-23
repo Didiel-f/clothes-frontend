@@ -1,15 +1,16 @@
+"use client";
 import Grid from "@mui/material/Grid";
 // GLOBAL CUSTOM COMPONENTS
 import LazyImage from "components/LazyImage";
 // STYLED COMPONENT
 import { StyledRoot } from "./styles";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // ==================================================
 interface Props {
   title: string;
   imgUrl: string;
-  buttonLink: string;   // ahora es el link de la imagen completa
+  buttonLink: string;
   description: string;
 }
 // ==================================================
@@ -20,17 +21,23 @@ export default function CarouselCard1({
   buttonLink,
   description,
 }: Props) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(buttonLink);
+  };
+
   return (
-    <Link href={buttonLink} style={{ display: "block" }}>
-      <StyledRoot
-        sx={{
-          position: "relative",
-          width: "100%",
-          height: { xs: 400, md: 600 },
-          overflow: "hidden",
-          cursor: "pointer",
-        }}
-      >
+    <StyledRoot
+      onClick={handleClick}
+      sx={{
+        position: "relative",
+        width: "100%",
+        height: { xs: 400, md: 600 },
+        overflow: "hidden",
+        cursor: "pointer",
+      }}
+    >
         {/* Imagen de fondo */}
         <LazyImage
           fill
@@ -57,8 +64,7 @@ export default function CarouselCard1({
             <h1 className="title">{title}</h1>
             <p className="description">{description}</p>
           </Grid>
-        </Grid>
-      </StyledRoot>
-    </Link>
+         </Grid>
+       </StyledRoot>
   );
 }
