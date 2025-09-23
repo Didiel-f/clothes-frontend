@@ -9,7 +9,7 @@ export default function Section5() {
     <Container className="mt-4">
       <Grid container spacing={3}>
         {/* FOR MEN'S BANNER CARD */}
-        <Grid size={{ md: 4, xs: 12 }}>
+        <Grid size={{ md: 6, xs: 12 }}>
           <BannerCard2
             url="#"
             title="For Men's"
@@ -19,7 +19,7 @@ export default function Section5() {
           />
         </Grid>
 
-        {/* SALES BANNER CARD */}
+        {/* SALES BANNER CARD 
         <Grid size={{ md: 4, xs: 12 }}>
           <BannerCard1
             url="#"
@@ -29,9 +29,10 @@ export default function Section5() {
             img="/assets/images/banners/banner2.jpg"
           />
         </Grid>
+        */}
 
         {/* FOR WOMEN'S BANNER CARD */}
-        <Grid size={{ md: 4, xs: 12 }}>
+        <Grid size={{ md: 6, xs: 12 }}>
           <BannerCard2
             url="#"
             subTitle="25% Off"

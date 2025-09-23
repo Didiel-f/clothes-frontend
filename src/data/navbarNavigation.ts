@@ -2,10 +2,6 @@ import { Menu } from "models/Navigation.model";
 
 const navbarNavigation: Menu[] = [
   {
-    title: "Inicio",
-    url: "/",
-  },
-  {
     title: "Mujer",
     url: "/products/search?gender=woman"
   },

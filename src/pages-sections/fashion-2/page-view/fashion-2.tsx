@@ -21,9 +21,9 @@ export default function FashionTwoPageView() {
         {/* SERVICE CARDS */}
         <Section2 />
 
-        {/* BEST SELLING CATEGORIES */}
+        {/* BEST SELLING CATEGORIES 
         <Section3 />
-
+*/}
         {/* BEST SELLING PRODUCTS */}
         <Section4 />
 
@@ -33,18 +33,18 @@ export default function FashionTwoPageView() {
         {/* FEATURED PRODUCTS */}
         <Section6 />
 
-        {/* SUMMER SALE OFFER AREA */}
+        {/* SUMMER SALE OFFER AREA 
         <Section7 />
-
+*/}
         {/* BLOG LIST AREA
         <Section8 />
 
         {/* BRAND LIST CAROUSEL AREA */}
         <Section9 /> 
 
-        {/* PRODUCT LIST COLUMN */}
+        {/* PRODUCT LIST COLUMN 
         <Section10 />
-
+*/}
         {/* POPUP NEWSLETTER FORM */}
         <Newsletter />
 
