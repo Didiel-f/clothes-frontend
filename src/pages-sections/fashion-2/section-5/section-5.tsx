@@ -19,18 +19,6 @@ export default function Section5() {
           />
         </Grid>
 
-        {/* SALES BANNER CARD 
-        <Grid size={{ md: 4, xs: 12 }}>
-          <BannerCard1
-            url="#"
-            text3="Sale"
-            text2="Black Friday"
-            text1="Up to 20% Off"
-            img="/assets/images/banners/banner2.jpg"
-          />
-        </Grid>
-        */}
-
         {/* FOR WOMEN'S BANNER CARD */}
         <Grid size={{ md: 6, xs: 12 }}>
           <BannerCard2
@@ -38,7 +26,7 @@ export default function Section5() {
             subTitle="25% Off"
             title="For Women's"
             contentPosition="right"
-            img="/assets/images/banners/womens-fashion.jpg"
+            img="/assets/images/banners/bannercard.jpeg"
           />
         </Grid>
       </Grid>

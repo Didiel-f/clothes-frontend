@@ -26,7 +26,7 @@ export default function BannerCard2({
 }: Props) {
   return (
     <CardWrapper {...props}>
-      <Image fill alt="category" src={img} sizes="(100vw, 240px)" />
+      <Image fill alt="category" src={img} sizes="(100vw, 240px)" style={{ objectFit: "cover", objectPosition: "100% 50%" }}/>
 
       <CardContent contentAlign={contentPosition} className="content">
         <h2 className="title">{title}</h2>
