@@ -29,7 +29,7 @@ const validationSchema = yup.object({
   streetId: yup.mixed<number>().required("Calle es requerida"),
   streetName: yup.string().required(),
   streetNumber: yup.string().required("Número es requerido"),
-  houseApartment: yup.string().required()
+  houseApartment: yup.string()
 });
 
 type FormValues = yup.InferType<typeof validationSchema>;
