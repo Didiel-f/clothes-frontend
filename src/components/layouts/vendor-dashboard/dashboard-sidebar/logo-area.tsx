@@ -16,7 +16,7 @@ export default function LogoArea() {
       justifyContent={COMPACT ? "center" : "space-between"}>
       <Avatar
         alt="Bazaar Logo"
-        src={COMPACT ? "/assets/images/bazaar-white-sm.svg" : "/assets/images/logo.svg"}
+        src={COMPACT ? "/assets/images/bazaar-white-sm.svg" : "/assets/images/logo.png"}
         sx={{ borderRadius: 0, width: "auto", marginLeft: COMPACT ? 0 : 1 }}
       />
 

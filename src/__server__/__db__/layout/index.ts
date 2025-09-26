@@ -14,7 +14,7 @@ export const LayoutEndpoints = (Mock: MockAdapter) => {
         200,
         {
           footer: {
-            logo: "/assets/images/logo.svg",
+            logo: "/assets/images/logo-black.png",
             contact: db.footerContact,
             about: db.footerAboutLinks,
             socials: db.footerSocialLinks,
@@ -24,7 +24,7 @@ export const LayoutEndpoints = (Mock: MockAdapter) => {
           mobileNavigation: {
             version1: db.mobileNavigation,
             version2: db.mobileNavigationTwo,
-            logo: "/assets/images/bazaar-black-sm.svg"
+            logo: "/assets/images/z-logo.png"
           },
           topbar: {
             label: "GRATIS",
@@ -36,7 +36,7 @@ export const LayoutEndpoints = (Mock: MockAdapter) => {
             categories: db.categories,
             categoryMenus: categoryMenus,
             navigation: navbarNavigation,
-            logo: "/assets/images/logo2.svg"
+            logo: "/assets/images/logo.png"
           }
         }
       ];

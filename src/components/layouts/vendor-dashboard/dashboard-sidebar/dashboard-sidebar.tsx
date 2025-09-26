@@ -30,7 +30,7 @@ export default function DashboardSidebar() {
             alt="Logo"
             width={105}
             height={50}
-            src="/assets/images/logo.svg"
+            src="/assets/images/logo.png"
             style={{ marginLeft: 8 }}
           />
         </Box>

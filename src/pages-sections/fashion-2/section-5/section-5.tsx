@@ -15,7 +15,7 @@ export default function Section5() {
             title="For Men's"
             contentPosition="left"
             subTitle="Starting At $29"
-            img="/assets/images/banners/men's-fashion.jpg"
+            img="/assets/images/banners/man.png"
           />
         </Grid>
 
@@ -26,7 +26,7 @@ export default function Section5() {
             subTitle="25% Off"
             title="For Women's"
             contentPosition="right"
-            img="/assets/images/banners/bannercard.jpeg"
+            img="/assets/images/banners/woman.png"
           />
         </Grid>
       </Grid>
