@@ -10,9 +10,6 @@ export default function Heading({ title }: Props) {
   return (
     <StyledHeadingRoot>
       <h2 className="title">{title}</h2>
-      <StyledButton disableFocusRipple endIcon={<ArrowRightAlt fontSize="inherit" />}>
-        View All
-      </StyledButton>
     </StyledHeadingRoot>
   );
 }
