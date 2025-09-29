@@ -42,7 +42,7 @@ export default function ProductCard16({ product }: Props) {
       <div className="content">
         <Link href={`/products/${slug}`}>
           <Typography variant="h6" sx={{ mb: 1 }}>
-          {category.name} - {brand.name} - {name}
+          {category.name} {brand.name} {name}
           </Typography>
         </Link>
 

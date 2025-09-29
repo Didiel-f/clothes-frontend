@@ -11,7 +11,7 @@ export default function Section5() {
         {/* FOR MEN'S BANNER CARD */}
         <Grid size={{ md: 6, xs: 12 }}>
           <BannerCard2
-            url="#"
+            url="/products/search?gender=man"
             title="For Men's"
             contentPosition="left"
             subTitle="Starting At $29"
@@ -22,7 +22,7 @@ export default function Section5() {
         {/* FOR WOMEN'S BANNER CARD */}
         <Grid size={{ md: 6, xs: 12 }}>
           <BannerCard2
-            url="#"
+            url="/products/search?gender=woman"
             subTitle="25% Off"
             title="For Women's"
             contentPosition="right"

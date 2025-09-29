@@ -1,7 +1,6 @@
 // TOP BAR SOCIAL LINKS
 export const topbarSocialLinks = {
   facebook: "https://www.facebook.com/",
-  twitter: "https://twitter.com/",
   instagram: "https://www.instagram.com/"
 };
 
@@ -62,14 +61,13 @@ export const footerSocialLinks = {
   facebook: "https://www.facebook.com/",
   instagram: "https://www.instagram.com/",
   youtube: "https://www.instagram.com/",
-  google: "https://www.instagram.com/"
 };
 
 export const footerDescription =
   "Explora nuestra tienda online y descubre estilos únicos, precios accesibles y envíos a todo Chile. Viste con confianza y marca tu propio estilo.";
 
 export const footerContact = {
-  phone: "+1 1123 456 780",
-  email: "uilib.help@gmail.com",
+  phone: "+56 9 9999 9999",
+  email: "contacto@zag.cl",
   address: ""
 };

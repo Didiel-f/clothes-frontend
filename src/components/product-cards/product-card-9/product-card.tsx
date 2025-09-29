@@ -32,7 +32,7 @@ export default function ProductCard9({ product }: Props) {
           <LazyImage src={img} alt={alt} width={500} height={500} />
         </div>
         <div className="content">
-          <ProductTags tags={["Bike", "Motor", "Ducati"]} />
+          <ProductTags tags={[product.brand.name, product.category.name]} />
           <Link href={`/products/${product.slug}`}>
             <Typography variant="h5" sx={{ mt: 1, mb: 2 }}>
               {name}

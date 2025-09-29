@@ -49,7 +49,7 @@ export default function ShopLayout1({ children, data }: Props) {
           <SearchInput />
         </HeaderSearch>
 
-        <HeaderLogin />
+        {/* <HeaderLogin /> */}
         <HeaderCart />
       </MobileHeader.Right>
     </MobileHeader>
@@ -69,16 +69,11 @@ export default function ShopLayout1({ children, data }: Props) {
       <Sticky fixedOn={0} onSticky={toggleIsFixed} scrollDistance={300}>
         <Header mobileHeader={MOBILE_VERSION_HEADER}>
           <Header.Logo url={header.logo} />
-          {isFixed ? (
-            <Header.CategoryDropdown>
-              <CategoryList categories={header.categoryMenus} />
-            </Header.CategoryDropdown>
-          ) : null}
           <Header.Mid>
             <SearchInputWithCategory categories={categories} />
           </Header.Mid>
           <Header.Right>
-            <HeaderLogin />
+            {/* <HeaderLogin /> */}
             <HeaderCart />
           </Header.Right>
         </Header>

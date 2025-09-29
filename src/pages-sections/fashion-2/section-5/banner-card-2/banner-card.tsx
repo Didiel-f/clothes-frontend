@@ -26,17 +26,15 @@ export default function BannerCard2({
 }: Props) {
   return (
     <CardWrapper {...props}>
-      <Image fill alt="category" src={img} sizes="(100vw, 240px)" style={{ objectFit: "cover", objectPosition: "100% 50%" }}/>
-
-      <CardContent contentAlign={contentPosition} className="content">
-        <h2 className="title">{title}</h2>
-        <p>{subTitle}</p>
-        <Divider className="divider" />
-
-        <Link href={url}>
-          <CardLink>Shop Now</CardLink>
-        </Link>
-      </CardContent>
+      <Link href={url}>
+        <Image fill alt="category" src={img} sizes="(100vw, 240px)" style={{ objectFit: "cover", objectPosition: "100% 50%" }} />
+        <CardContent contentAlign={contentPosition} className="content">
+          {/* <h2 className="title">{title}</h2>
+          <p>{subTitle}</p>
+          <Divider className="divider" />
+          <CardLink>Shop Now</CardLink> */}
+        </CardContent>
+      </Link>
     </CardWrapper>
   );
 }
