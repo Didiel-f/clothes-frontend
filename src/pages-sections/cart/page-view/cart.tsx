@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid";
 import { useCartStore } from "contexts/CartContext";
 // LOCAL CUSTOM COMPONENTS
 import CartItem from "../cart-item";
-import CheckoutSummary from "pages-sections/checkout-alternative/checkout-summery";
+import CheckoutSummary from "pages-sections/checkout/checkout-summery";
 
 export default function CartPageView() {
   const { cart } = useCartStore();

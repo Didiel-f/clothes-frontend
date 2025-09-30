@@ -14,8 +14,8 @@ export const MERCADO_PAGO_CONFIG = {
   
   // URLs de retorno
   SUCCESS_URL: '/order-confirmation',
-  FAILURE_URL: '/checkout-alternative',
-  PENDING_URL: '/checkout-alternative',
+  FAILURE_URL: '/checkout',
+  PENDING_URL: '/checkout',
 };
 
 // Validar configuración

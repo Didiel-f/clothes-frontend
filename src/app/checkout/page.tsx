@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import CheckoutAlternativePageView from "pages-sections/checkout-alternative/page-view";
+import CheckoutPageView from "pages-sections/checkout/page-view/checkout";
 
 export const metadata: Metadata = {
   title: "Finalizar Compra | ZAG",
@@ -8,6 +8,6 @@ export const metadata: Metadata = {
   keywords: ["checkout", "finalizar compra", "pago", "envío", "ZAG", "tienda online", "calzado", "ropa"]
 };
 
-export default async function CheckoutAlternative() {
-  return <CheckoutAlternativePageView />;
+export default async function Checkout() {
+  return <CheckoutPageView />;
 }

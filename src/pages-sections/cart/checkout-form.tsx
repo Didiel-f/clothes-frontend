@@ -14,9 +14,9 @@ import Address from "models/Address.model";
 import { makeKey } from "utils/ns";
 import { ls } from "utils/form-persist";
 import { usePersistRHF } from "hooks/usePersistRHF";
-import DeliveryAddresses from "pages-sections/checkout-alternative/checkout-form/delivery-addresses";
-import ClientInfoForm from "pages-sections/checkout-alternative/checkout-form/delivery-addresses/client-info-form";
-import Voucher from "pages-sections/checkout-alternative/checkout-form/payments/voucher";
+import DeliveryAddresses from "pages-sections/checkout/checkout-form/delivery-addresses";
+import ClientInfoForm from "pages-sections/checkout/checkout-form/delivery-addresses/client-info-form";
+import Voucher from "pages-sections/checkout/checkout-form/payments/voucher";
 
 type Props = {
   isLoggedIn?: boolean;

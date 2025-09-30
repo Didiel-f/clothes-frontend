@@ -42,9 +42,9 @@ export default [
     page: "shop"
   },
   {
-    imgUrl: "/assets/images/landing/shop/checkout-alternative.jpg",
-    previewUrl: "/checkout-alternative",
-    title: "Checkout Alternative",
+    imgUrl: "/assets/images/landing/shop/checkout.jpg",
+    previewUrl: "/checkout",
+    title: "Checkout",
     page: "shop"
   },
   {

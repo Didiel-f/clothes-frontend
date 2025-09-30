@@ -78,7 +78,7 @@ export default function MiniCart() {
             variant="contained"
             sx={{ mb: "0.75rem", height: 40 }}
             LinkComponent={Link}
-            href="/checkout-alternative">
+            href="/checkout">
             Comprar ahora ({currency(getTotalPrice())})
           </Button>
 
