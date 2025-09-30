@@ -84,6 +84,7 @@ export default function Voucher({ customerEmail = "" }: VoucherProps) {
         cartSubtotal, 
         customerEmail?.trim() || undefined
       );
+      console.log('result', result);
       
       if (result.valid) {
         setDiscountInfo(result);
@@ -95,22 +96,31 @@ export default function Voucher({ customerEmail = "" }: VoucherProps) {
         switch (result.reason) {
           case "not_found":
             errorMessage = "Cupón no encontrado";
+            break;
           case "inactive":
             errorMessage = "Cupón inactivo";
+            break;
           case "expired":
             errorMessage = "Cupón expirado";
+            break;
           case "max_usage_reached":
             errorMessage = "Cupón agotado";
+            break;
           case "below_min_amount":
             errorMessage = `Monto mínimo requerido: $${result.minAmount?.toLocaleString()}`;
+            break;
           case "invalid_params":
             errorMessage = "Parámetros inválidos";
+            break;
           case "customer_email_required":
             errorMessage = "Este cupón requiere un email de cliente";
+            break;
           case "already_used_by_customer":
             errorMessage = "Ya has usado este cupón anteriormente";
+            break;
           case "not_first_purchase":
             errorMessage = "Este cupón es solo para primera compra";
+            break;
         }
         setError(errorMessage);
         setDiscountInfo(null);
