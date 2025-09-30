@@ -166,7 +166,7 @@ export default function ProductSearchPageView({
 
             <FlexBetween flexWrap="wrap" mt={6}>
               <Typography variant="body1" sx={{ color: "grey.600" }}>
-                Showing {firstIndex}-{lastIndex} of {totalProducts} Products
+                Mostrando {firstIndex}-{lastIndex} de {totalProducts} Productos
               </Typography>
 
               <Pagination

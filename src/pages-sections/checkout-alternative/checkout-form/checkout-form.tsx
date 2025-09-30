@@ -103,7 +103,7 @@ export default function CheckoutForm({ deliveryAddresses }: Props) {
     <FormProvider methods={methods} onSubmit={handleSubmitForm}>
       <ClientInfoForm />
       <DeliveryAddresses deliveryAddresses={deliveryAddresses} />
-      <Voucher />
+      <Voucher customerEmail={methods.watch("email") || ""} />
       <MercadoPagoButton 
         formValues={{
           regionName: methods.watch("regionName") || "",

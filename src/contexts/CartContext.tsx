@@ -20,6 +20,8 @@ type Actions = {
   clearCart: () => void;
   addShippingPrice: (price: number | string | null | undefined) => void;
   removePrice: () => void;
+  addDiscount: (amount: number) => void;
+  removeDiscount: () => void;
   _setHasHydrated: (v: boolean) => void;
 };
 
@@ -87,6 +89,8 @@ export const useCartStore = create<State & Actions>()(
 
       addShippingPrice: (price) => set({ shippingPrice: toNumber(price) }),
       removePrice: () => set({ shippingPrice: 0 }),
+      addDiscount: (amount) => set({ discount: toNumber(amount) }),
+      removeDiscount: () => set({ discount: 0 }),
     }),
     {
       name: "cart:v1",

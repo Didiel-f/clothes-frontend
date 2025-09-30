@@ -19,6 +19,10 @@ export default function ProductCard16({ product }: Props) {
   const discount = getEffectiveDiscount(product);
   const hasDiscount = discount > 0;
 
+  // Validaciones para marca y categoría
+  const hasBrand = brand && brand.name;
+  const hasCategory = category && category.name;
+
   return (
     <StyledRoot>
       <Link href={`/products/${slug}`}>
@@ -42,7 +46,9 @@ export default function ProductCard16({ product }: Props) {
       <div className="content">
         <Link href={`/products/${slug}`}>
           <Typography variant="h6" sx={{ mb: 1 }}>
-          {category.name} {brand.name} {name}
+            {hasCategory && `${category.name} `}
+            {hasBrand && `${brand.name} `}
+            {name}
           </Typography>
         </Link>
 

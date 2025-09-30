@@ -60,7 +60,7 @@ export default function ProductFilters({
   return (
     <div>
       {/* CATEGORY VARIANT FILTER */}
-      <Typography variant="h6" sx={{ mb: 1.25 }}>Categories</Typography>
+      <Typography variant="h6" sx={{ mb: 1.25 }}>Categorías</Typography>
 
       {CATEGORIES.map((item) =>
         item.children?.length ? (
