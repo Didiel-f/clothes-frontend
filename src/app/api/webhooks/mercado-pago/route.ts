@@ -173,17 +173,15 @@ export async function POST(req: NextRequest) {
   console.log("🔑 Product documentIds extraídos:", productDocIds);
   console.log("🔑 QtyMap completo:", JSON.stringify(Array.from(qtyMap.entries()), null, 2));
 
-  // Construye payload de order_items (sin la conexión variant aquí)
-  const order_items_data = Array.from(qtyMap, ([variantDocumentId, info]) => ({
+  // ⬇️ Construye payload de order_items.create (anidado)
+  const order_items_create = Array.from(qtyMap, ([variantDocumentId, info]) => ({
     quantity: info.qty,
-    unitPrice: info.unitPrice || 0,
-    variantDocumentId, // guardamos esto para crear después
+    ...(info.unitPrice != null ? { unitPrice: info.unitPrice } : {}),
+    // Conectar la variant por documentId dentro del create anidado
+    variant: { connect: [variantDocumentId] },
   }));
 
-  console.log("📦 Order items data preparada:", JSON.stringify(order_items_data, null, 2));
-  console.log("📦 Cantidad de items a crear:", order_items_data.length);
-
-  // Datos de la orden
+  // Datos base de la orden
   const orderDataBase = {
     mp_payment_id,
     client_email,
@@ -225,8 +223,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (existingId) {
-    // === UPDATE: Solo actualizamos estado/valores; NO recreamos order_items ===
-    // El lifecycle en Strapi se encargará de descontar stock si pasa a approved (y stock_adjusted = false)
+    // === UPDATE: Solo actualizamos estado/valores; NO tocamos order_items ===
     try {
       const updateRes = await fetch(`${STRAPI_URL}/api/orders/${existingId}`, {
         method: "PUT",
@@ -237,9 +234,8 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           data: {
             ...orderDataBase,
+            ...connectVariants, // opcional reconectar variants
             // no tocar order_items aquí para evitar duplicados
-            // mantener variants conectadas si ya estaban; opcional reconectar:
-            ...connectVariants,
           },
         }),
       });
@@ -257,15 +253,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Strapi update exception" }, { status: 500 });
     }
   } else {
-    // === CREATE: Primero creamos la orden, luego los order_items ===
+    // === CREATE: Orden + order_items anidados en un solo POST ===
     const orderData = {
       ...orderDataBase,
       ...connectVariants,
-      stock_adjusted: false,
+      stock_adjusted: false, // para idempotencia del lifecycle
+      ...(order_items_create.length ? { order_items: { create: order_items_create } } : {}),
     };
 
     try {
-      // 1. Crear la orden
       const createRes = await fetch(`${STRAPI_URL}/api/orders`, {
         method: "POST",
         headers: {
@@ -282,68 +278,14 @@ export async function POST(req: NextRequest) {
       }
 
       const created = await createRes.json();
-      const createdOrderId = created?.data?.documentId;
+      const createdOrderId = created?.data?.documentId || created?.data?.id;
 
       if (!createdOrderId) {
-        console.error("❌ No se obtuvo documentId de la orden creada");
+        console.error("❌ No se obtuvo id/documentId de la orden creada");
         return NextResponse.json({ error: "No order ID returned" }, { status: 500 });
       }
 
       console.log(`✅ Orden creada con ID: ${createdOrderId}`);
-      console.log(`📦 Datos completos de la orden creada:`, JSON.stringify(created, null, 2));
-
-      // 2. Crear los order_items y conectarlos a la orden
-      console.log(`🔄 Iniciando creación de ${order_items_data.length} order_items...`);
-      
-      if (order_items_data.length > 0) {
-        let itemIndex = 0;
-        for (const itemData of order_items_data) {
-          itemIndex++;
-          console.log(`\n📝 Procesando item ${itemIndex}/${order_items_data.length}:`, itemData);
-          
-          try {
-            const orderItemPayload = {
-              quantity: itemData.quantity,
-              unitPrice: itemData.unitPrice,
-              order: { connect: [createdOrderId] }, // conectar a la orden creada
-              variant: { connect: [itemData.variantDocumentId] }, // conectar a la variante
-            };
-
-            console.log(`📤 Payload del order_item ${itemIndex}:`, JSON.stringify(orderItemPayload, null, 2));
-            console.log(`🌐 URL del endpoint: ${STRAPI_URL}/api/order-items`);
-
-            const itemRes = await fetch(`${STRAPI_URL}/api/order-items`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${STRAPI_TOKEN}`,
-              },
-              body: JSON.stringify({ data: orderItemPayload }),
-            });
-
-            console.log(`📡 Status de respuesta item ${itemIndex}:`, itemRes.status);
-
-            if (!itemRes.ok) {
-              const itemErr = await itemRes.text();
-              console.error(`❌ Error creando order_item ${itemIndex}:`, itemErr);
-              console.error(`❌ Status code:`, itemRes.status);
-              console.error(`❌ Status text:`, itemRes.statusText);
-              // Continuar con los demás items aunque uno falle
-            } else {
-              const itemCreated = await itemRes.json();
-              console.log(`✅ Order item ${itemIndex} creado exitosamente!`);
-              console.log(`✅ Datos del item creado:`, JSON.stringify(itemCreated, null, 2));
-            }
-          } catch (itemE) {
-            console.error(`❌ Excepción creando order_item ${itemIndex}:`, itemE);
-            console.error(`❌ Stack trace:`, (itemE as Error).stack);
-          }
-        }
-        console.log(`\n✅ Proceso de creación de order_items completado`);
-      } else {
-        console.warn(`⚠️ No hay order_items para crear (array vacío)`);
-      }
-
       return NextResponse.json({ received: true, created: createdOrderId });
     } catch (e) {
       console.error("❌ Excepción creando order en Strapi:", e);
