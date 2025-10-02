@@ -17,6 +17,33 @@ import { usePersistRHF } from "hooks/usePersistRHF";
 // COMPONENTS
 import { MercadoPagoButton } from "./delivery-addresses/MercadoPagoButton";
 
+// ================== VALIDACIONES ==================
+function validateRut(value: string | undefined): boolean {
+  if (!value) return false;
+  // Limpia puntos y guión, separa cuerpo y dígito verificador
+  const rut = value.replace(/\./g, "").replace(/-/g, "").toUpperCase();
+  const dv = rut.slice(-1);
+  const number = rut.slice(0, -1);
+  let sum = 0;
+  let mul = 2;
+
+  for (let i = number.length - 1; i >= 0; i--) {
+    sum += parseInt(number.charAt(i), 10) * mul;
+    mul = mul === 7 ? 2 : mul + 1;
+  }
+
+  const expectedDv = 11 - (sum % 11) === 11
+    ? "0"
+    : 11 - (sum % 11) === 10
+      ? "K"
+      : String(11 - (sum % 11));
+
+  return dv === expectedDv;
+}
+
+// Expresión regular para celular chileno
+const phoneRegExp = /^(\+?56)?9\d{8}$/;
+
 // ================== CONFIG BÁSICA ==================
 type Props = {
   deliveryAddresses?: Address[];
@@ -26,8 +53,8 @@ type Props = {
 type FormValues = {
   // cliente
   name: string;
-  lastname?: string;
-  rut?: string;
+  lastname: string;
+  rut: string;
   phone: string;
   email: string;
   // dirección seleccionada
@@ -42,11 +69,23 @@ type FormValues = {
 };
 
 const validationSchema = yup.object().shape({
-  name: yup.string().required("Name is required"),
-  lastname: yup.string().optional(),
-  rut: yup.string().optional(),
-  phone: yup.string().required("Phone is required"),
-  email: yup.string().email("Correo inválido").required("Correo es requerido"),
+  name: yup.string().required("Nombre es requerido"),
+  lastname: yup.string().required("Apellido es requerido"),
+  email: yup.string()
+    .email("Debe ser un correo válido")
+    .required("Correo es requerido"),
+  phone: yup.string()
+    // Normalizamos: quitamos todos los espacios
+    .transform((value) => (value || "").replace(/\s+/g, ""))
+    // Validamos contra la regex sobre el string ya sin espacios
+    .matches(
+      phoneRegExp,
+      "Debe ser un número chileno válido (ej: +56 9 1234 5678 ó 912345678)"
+    )
+    .required("Celular es requerido"),
+  rut: yup.string()
+    .test("valid-rut", "RUT inválido", validateRut)
+    .required("RUT es requerido"),
 }) as yup.ObjectSchema<any>;
 
 // ================== PERSISTENCIA CON HOOK ==================
