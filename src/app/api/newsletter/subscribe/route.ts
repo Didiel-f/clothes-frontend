@@ -254,7 +254,7 @@ function getWelcomeEmailTemplate(email: string): string {
         </div>
 
         <div class="cta">
-          <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}" class="button">
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zag.cl/'}" class="button">
             Explorar ZAG
           </a>
         </div>
@@ -270,7 +270,7 @@ function getWelcomeEmailTemplate(email: string): string {
           </p>
           <p style="font-size: 12px; color: #aaa;">
             Si no deseas recibir más emails, puedes 
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/unsubscribe?email=${encodeURIComponent(email)}" style="color: #D23F57;">darte de baja aquí</a>
+            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.zag.cl/'}/unsubscribe?email=${encodeURIComponent(email)}" style="color: #D23F57;">darte de baja aquí</a>
           </p>
         </div>
       </div>
