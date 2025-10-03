@@ -9,6 +9,7 @@ type State = {
   cart: CartItem[];
   shippingPrice: number;
   discount: number;
+  discountCode: string; // código del cupón aplicado
   tax: number;
   _hasHydrated: boolean; // para evitar hydration mismatch
 };
@@ -20,7 +21,7 @@ type Actions = {
   clearCart: () => void;
   addShippingPrice: (price: number | string | null | undefined) => void;
   removePrice: () => void;
-  addDiscount: (amount: number) => void;
+  addDiscount: (amount: number, code?: string) => void;
   removeDiscount: () => void;
   _setHasHydrated: (v: boolean) => void;
 };
@@ -36,6 +37,7 @@ export const useCartStore = create<State & Actions>()(
       cart: [],
       shippingPrice: 0,
       discount: 0,
+      discountCode: "",
       tax: 0,
       _hasHydrated: false,
       _setHasHydrated: (v) => set({ _hasHydrated: v }),
@@ -89,8 +91,8 @@ export const useCartStore = create<State & Actions>()(
 
       addShippingPrice: (price) => set({ shippingPrice: toNumber(price) }),
       removePrice: () => set({ shippingPrice: 0 }),
-      addDiscount: (amount) => set({ discount: toNumber(amount) }),
-      removeDiscount: () => set({ discount: 0 }),
+      addDiscount: (amount, code) => set({ discount: toNumber(amount), discountCode: code || "" }),
+      removeDiscount: () => set({ discount: 0, discountCode: "" }),
     }),
     {
       name: "cart:v1",
@@ -100,6 +102,7 @@ export const useCartStore = create<State & Actions>()(
         cart: s.cart,
         shippingPrice: s.shippingPrice,
         discount: s.discount,
+        discountCode: s.discountCode,
         tax: s.tax,
       }),
       onRehydrateStorage: () => (state) => state?._setHasHydrated(true),

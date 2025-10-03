@@ -33,7 +33,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ id: result.id });
+    return NextResponse.json({
+      success: true,
+      init_point: result.init_point,
+      id: result.id,
+    });
   } catch (err) {
     console.error("Error al crear preferencia:", err);
     return NextResponse.json(

@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
-import { useCartStore, useCartSubtotal, useCartTotals } from '../../../../contexts/CartContext';
+"use client";
+
+import React, { useState } from 'react'
+import { UseFormReturn } from 'react-hook-form';
 import Button from '@mui/material/Button';
-import { MERCADO_PAGO_CONFIG, validateMercadoPagoConfig } from '../../../../config/mercado-pago';
+import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useCartStore, useCartSubtotal, useCartTotals } from '../../../../contexts/CartContext';
 
 type MercadoPagoButtonProps = { 
+    methods: UseFormReturn<any>;
     formValues: {
         regionName: string;
         countyName: string;
@@ -19,39 +23,85 @@ type MercadoPagoButtonProps = {
     }
 }
 
-export const MercadoPagoButton = ({ formValues }: MercadoPagoButtonProps) => {
-    const { cart, shippingPrice } = useCartStore();
+export const MercadoPagoButton = ({ methods, formValues }: MercadoPagoButtonProps) => {
+    const { cart, shippingPrice, discount, discountCode } = useCartStore();
     const subtotal = useCartSubtotal();
     const total = useCartTotals();
+    
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string>("");
+    const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-    useEffect(() => {
-        // Validar configuración antes de inicializar
-        if (validateMercadoPagoConfig()) {
-            initMercadoPago(MERCADO_PAGO_CONFIG.PUBLIC_KEY, {
-                locale: MERCADO_PAGO_CONFIG.LOCALE,
-            });
-        } else {
-            console.error('Configuración de MercadoPago incompleta');
+    // Validar formulario completo
+    const validateForm = async (): Promise<{ isValid: boolean; errors: string[] }> => {
+        const errors: string[] = [];
+
+        // 1. Validar campos del cliente con React Hook Form
+        const isFormValid = await methods.trigger();
+        if (!isFormValid) {
+            const formErrors = methods.formState.errors;
+            if (formErrors.name) errors.push("Nombre es requerido");
+            if (formErrors.lastname) errors.push("Apellido es requerido");
+            if (formErrors.email) errors.push("Email válido es requerido");
+            if (formErrors.phone) errors.push("Teléfono chileno válido es requerido");
+            if (formErrors.rut) errors.push("RUT válido es requerido");
         }
-    }, []);
 
-    // Verificar si el formulario está completo
-    const isFormComplete = () => {
-        return (
-            formValues.regionName &&
-            formValues.countyName &&
-            formValues.streetName &&
-            formValues.streetNumber &&
-            formValues.houseApartment &&
-            formValues.firstName &&
-            formValues.lastName &&
-            formValues.phone &&
-            formValues.email &&
-            formValues.rut
-        );
+        // 2. Validar dirección seleccionada
+        const hasAddress = formValues.regionName && 
+                          formValues.countyName && 
+                          formValues.streetName && 
+                          formValues.streetNumber;
+        
+        if (!hasAddress) {
+            errors.push("Debes seleccionar o ingresar una dirección de envío completa");
+        }
+
+        // 3. Validar carrito no vacío
+        if (cart.length === 0) {
+            errors.push("El carrito está vacío");
+        }
+
+        // 4. Verificar si el cupón sigue siendo aplicable (si hay descuento)
+        if (discount > 0) {
+            const discountValid = await validateDiscount();
+            if (!discountValid) {
+                errors.push("El cupón de descuento ya no es válido. Por favor, remuévelo y vuelve a intentar");
+            }
+        }
+
+        return {
+            isValid: errors.length === 0,
+            errors
+        };
     };
 
-    // Crear items para MercadoPago basado en tu estructura de carrito
+    // Validar cupón de descuento
+    const validateDiscount = async (): Promise<boolean> => {
+        // Si no hay descuento aplicado, es válido
+        if (discount === 0 || !discountCode) return true;
+
+        try {
+            const email = formValues.email;
+            
+            // Validar el cupón con el código guardado
+            const params = new URLSearchParams({
+                code: discountCode,
+                total: subtotal.toString(),
+                ...(email && { email })
+            });
+            
+            const response = await fetch(`/api/discounts/validate?${params}`);
+            const data = await response.json();
+            
+            return data.valid;
+        } catch (error) {
+            console.error("Error validando cupón:", error);
+            return false;
+        }
+    };
+
+    // Crear items para MercadoPago
     const itemsForMP = cart.map((item: any) => ({
         id: item.variant.documentId,
         title: item.product.name,
@@ -69,13 +119,28 @@ export const MercadoPagoButton = ({ formValues }: MercadoPagoButtonProps) => {
         });
     }
 
-    const [preferenceId, setPreferenceId] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const handleMercadoPagoPayment = async () => {
+        setError("");
+        setValidationErrors([]);
+        
+        // Validar todo antes de proceder
+        const validation = await validateForm();
+        
+        if (!validation.isValid) {
+            setValidationErrors(validation.errors);
+            // Scroll to top para mostrar errores
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        
+        // Si todo está válido, crear preferencia
+        await crearPreferencia();
+    };
 
     const crearPreferencia = async () => {
-        if (!isFormComplete()) return;
-        
         setIsLoading(true);
+        setError("");
+        
         try {
             const res = await fetch("/api/mercado-pago", {
                 method: "POST",
@@ -84,17 +149,19 @@ export const MercadoPagoButton = ({ formValues }: MercadoPagoButtonProps) => {
                     payer: { email: formValues.email },
                     items: itemsForMP,
                     metadata: {
-                        regionName: formValues.regionName,
-                        countyName: formValues.countyName,
-                        streetName: formValues.streetName,
-                        streetNumber: formValues.streetNumber,
-                        houseApartment: formValues.houseApartment,
-                        firstName: formValues.firstName,
-                        lastName: formValues.lastName,
+                        region_name: formValues.regionName,
+                        county_name: formValues.countyName,
+                        street_name: formValues.streetName,
+                        street_number: formValues.streetNumber,
+                        house_apartment: formValues.houseApartment,
+                        first_name: formValues.firstName,
+                        last_name: formValues.lastName,
                         phone: formValues.phone,
                         email: formValues.email,
                         rut: formValues.rut,
-                        shippingPrice: shippingPrice.toString(),
+                        shipping_price: shippingPrice.toString(),
+                        discount: discount.toString(),
+                        discount_code: discountCode, // código del cupón
                         subtotal: subtotal.toString(),
                         total: total.toString(),
                     }
@@ -102,62 +169,59 @@ export const MercadoPagoButton = ({ formValues }: MercadoPagoButtonProps) => {
             });
 
             const data = await res.json();
-            if (data.id) {
-                setPreferenceId(data.id);
+            console.log("dataasd", data);
+            if (data.init_point) {
+                // Redirigir directamente a Mercado Pago
+                window.location.href = data.init_point;
             } else {
+                setError(data.error || "Error al crear preferencia de pago");
                 console.error("Error al crear preferencia", data.error);
+                setIsLoading(false);
             }
         } catch (error) {
+            setError("Error al conectar con Mercado Pago");
             console.error("Error al crear preferencia:", error);
-        } finally {
             setIsLoading(false);
         }
     };
 
-    // Crear preferencia cuando el formulario esté completo y no haya preferencia
-    useEffect(() => {
-        if (isFormComplete() && !preferenceId && !isLoading) {
-            crearPreferencia();
-        }
-    }, [formValues, cart, shippingPrice]);
-
-    // Si el formulario no está completo, mostrar botón deshabilitado
-    if (!isFormComplete()) {
-        return (
-            <Button className='w-full' variant="outlined" disabled={true}>
-                Complete el formulario para habilitar el pago
-            </Button>
-        );
-    }
-
-    // Si está cargando, mostrar botón de carga
-    if (isLoading) {
-        return (
-            <Button className='w-full' variant="outlined" disabled={true}>
-                Configurando pago...
-            </Button>
-        );
-    }
-
-    // Si hay preferencia, mostrar el wallet de MercadoPago
-    if (preferenceId) {
-        return (
-            <div className="mt-4">
-                <Wallet
-                    initialization={{ preferenceId }}
-                />
-            </div>
-        );
-    }
-
-    // Fallback: botón para crear preferencia
     return (
-        <Button 
-            className='w-full' 
-            onClick={crearPreferencia}
-            disabled={isLoading}
-        >
-            {isLoading ? 'Configurando...' : 'Configurar Pago'}
-        </Button>
+        <div className="mt-4">
+            {validationErrors.length > 0 && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    <strong>Por favor corrige los siguientes errores:</strong>
+                    <ul style={{ marginTop: 8, marginBottom: 0 }}>
+                        {validationErrors.map((err, idx) => (
+                            <li key={idx}>{err}</li>
+                        ))}
+                    </ul>
+                </Alert>
+            )}
+
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
+
+            <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleMercadoPagoPayment}
+                disabled={isLoading}
+                sx={{ p: 1.5 }}
+            >
+                {isLoading ? (
+                    <>
+                        <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                        Procesando...
+                    </>
+                ) : (
+                    "Pagar con Mercado Pago"
+                )}
+            </Button>
+        </div>
     );
 }

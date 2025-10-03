@@ -144,6 +144,7 @@ export default function CheckoutForm({ deliveryAddresses }: Props) {
       <DeliveryAddresses deliveryAddresses={deliveryAddresses} />
       <Voucher customerEmail={methods.watch("email") || ""} />
       <MercadoPagoButton 
+        methods={methods}
         formValues={{
           regionName: methods.watch("regionName") || "",
           countyName: methods.watch("countyName") || "",

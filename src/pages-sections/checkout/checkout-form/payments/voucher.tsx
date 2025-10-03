@@ -89,8 +89,8 @@ export default function Voucher({ customerEmail = "" }: VoucherProps) {
       if (result.valid) {
         setDiscountInfo(result);
         setError(null);
-        // Aplicar el descuento al carrito
-        addDiscount(result.discountAmount || 0);
+        // Aplicar el descuento al carrito con el código
+        addDiscount(result.discountAmount || 0, voucherCode.trim().toUpperCase());
       } else {
         let errorMessage = "Cupón no válido";
         switch (result.reason) {
