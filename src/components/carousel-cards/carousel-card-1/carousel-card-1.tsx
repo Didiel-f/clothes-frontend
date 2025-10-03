@@ -42,7 +42,7 @@ export default function CarouselCard1({
         <LazyImage
           fill
           src={imgUrl || "/assets/images/products/product-1.png"}
-          alt={title}
+          alt={title || "Banner promocional"}
           sizes="100vw"
           style={{ objectFit: "cover" }}
         />

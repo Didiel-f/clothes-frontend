@@ -38,7 +38,7 @@ export default function HeaderSearch({ children }: PropsWithChildren) {
       <Drawer open={open} anchor="top" onClose={handleClose} sx={{ zIndex: 9999 }}>
         <Box width="auto" padding={2} height="100vh">
           <FlexBetween mb={1}>
-            <p>Search to Bazaar</p>
+            <p>Buscar en Zag</p>
 
             <IconButton onClick={handleClose}>
               <Clear />

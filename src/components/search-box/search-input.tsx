@@ -39,7 +39,7 @@ export default function SearchInput() {
         variant="contained"
         onClick={handleSearch}
         sx={{ px: "3rem", height: "100%", borderRadius: "0 4px 4px 0" }}>
-        Search
+        Buscar
       </Button>
     ),
     startAdornment: <SearchOutlinedIcon fontSize="small" />

@@ -19,18 +19,20 @@ export default async function Section9() {
           <Grid size={{ sm: 3, xs: 6 }} key={id}>
             <Link href={url} style={{ textDecoration: "none" }}>
               <FlexBox>
-              <LazyImage 
-                src={image} 
-                alt={name} 
-                width={278} 
-                height={278} 
-                sx={{ 
-                  width: { xs: 150, sm: 300 }, 
-                  height: { xs: 150, sm: 300 }, 
-                  borderRadius: 10,
-                  overflow: "hidden"
-                }}
-              />
+                <LazyImage 
+                  src={image} 
+                  alt={name} 
+                  width={278} 
+                  height={278} 
+                  sx={{ 
+                    width: "100%", 
+                    height: "auto", 
+                    aspectRatio: "1/1",
+                    objectFit: "cover",
+                    borderRadius: 10,
+                    overflow: "hidden"
+                  }}
+                />
               </FlexBox>
             </Link>
           </Grid>
