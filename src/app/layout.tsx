@@ -21,25 +21,25 @@ export default function RootLayout({ children, modal }: { children: ReactNode; m
     <html lang="en" suppressHydrationWarning>
       {/* ⬇️ Columna flex de alto completo */}
       <body
-  id="body"
-  className={publicSans.className}
-  style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}
->
-  <SettingsProvider>
-    <ThemeProvider>
-      <ProgressBar />
-      <RTL>
-        {modal}
-        {/* ⬅️ main crece y empuja el footer */}
-        <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {children}
-        </main>
-      </RTL>
-    </ThemeProvider>
-  </SettingsProvider>
+        id="body"
+        className={publicSans.className}
+        style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}
+      >
+        <SettingsProvider>
+          <ThemeProvider>
+            <ProgressBar />
+            <RTL>
+              {modal}
+              {/* ⬅️ main crece y empuja el footer */}
+              <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                {children}
+              </main>
+            </RTL>
+          </ThemeProvider>
+        </SettingsProvider>
 
-  <GoogleAnalytics gaId="G-XKPD36JXY0" />
-</body>
+        <GoogleAnalytics gaId="G-XKPD36JXY0" />
+      </body>
 
     </html>
   );
