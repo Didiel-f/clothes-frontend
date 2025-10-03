@@ -17,17 +17,15 @@ export default function SocialIcons() {
         <Facebook sx={STYLE} />
       </IconButton>
 
-      <IconButton>
-        <Twitter sx={STYLE} />
-      </IconButton>
-
-      <IconButton>
+      <IconButton 
+        component="a" 
+        href="https://www.instagram.com/zag.cl?igsh=MWdscGNlaDZ3OGYxYg==" 
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <Instagram sx={STYLE} />
       </IconButton>
 
-      <IconButton>
-        <Google sx={STYLE} />
-      </IconButton>
     </FlexRowCenter>
   );
 }

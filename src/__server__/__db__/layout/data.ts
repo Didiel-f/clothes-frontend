@@ -1,7 +1,7 @@
 // TOP BAR SOCIAL LINKS
 export const topbarSocialLinks = {
   facebook: "https://www.facebook.com/",
-  instagram: "https://www.instagram.com/"
+  instagram: "https://www.instagram.com/zag.cl?igsh=MWdscGNlaDZ3OGYxYg=="
 };
 
 // TOP BAR LANGUAGE OPTIONS
@@ -59,7 +59,7 @@ export const footerCustomerCareLinks = [
 
 export const footerSocialLinks = {
   facebook: "https://www.facebook.com/",
-  instagram: "https://www.instagram.com/",
+  instagram: "https://www.instagram.com/zag.cl?igsh=MWdscGNlaDZ3OGYxYg==",
   youtube: "https://www.instagram.com/",
 };
 
