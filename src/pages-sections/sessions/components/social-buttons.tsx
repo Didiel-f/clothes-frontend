@@ -15,7 +15,7 @@ export default function SocialButtons() {
       <Box my={3}>
         <Divider>
           <Box lineHeight={1} px={1}>
-            or
+            ó
           </Box>
         </Divider>
       </Box>
@@ -27,7 +27,7 @@ export default function SocialButtons() {
         className="facebookButton"
         sx={{ fontSize: 12 }}
         startIcon={<Image alt="facebook" src={facebookLogo} />}>
-        Continue with Facebook
+        Continuar con Facebook
       </Button>
 
       {/* GOOGLE BUTTON */}
@@ -37,7 +37,7 @@ export default function SocialButtons() {
         className="googleButton"
         sx={{ fontSize: 12 }}
         startIcon={<Image alt="google" src={googleLogo} />}>
-        Continue with Google
+        Continuar con Google
       </Button>
     </Fragment>
   );

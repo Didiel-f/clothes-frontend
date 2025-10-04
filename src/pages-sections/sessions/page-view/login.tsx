@@ -42,12 +42,12 @@ export default function LoginPageView() {
   return (
     <FormProvider methods={methods} onSubmit={handleSubmitForm}>
       <div className="mb-1">
-        <Label>Email or Phone Number</Label>
+        <Label>Correo electrónico</Label>
         <TextField fullWidth name="email" size="small" type="email" placeholder="exmple@mail.com" />
       </div>
 
       <div className="mb-2">
-        <Label>Password</Label>
+        <Label>Contraseña</Label>
         <TextField
           fullWidth
           size="small"
@@ -70,7 +70,7 @@ export default function LoginPageView() {
         color="primary"
         variant="contained"
         loading={isSubmitting}>
-        Login
+        Iniciar sesión
       </Button>
     </FormProvider>
   );
