@@ -12,6 +12,7 @@ type Props = { orders: Order[]; totalPages: number };
 // ====================================================
 
 export default function OrdersPageView({ orders, totalPages }: Props) {
+  console.log("orders", orders);
   return (
     <Fragment>
       {/* TITLE HEADER AREA */}

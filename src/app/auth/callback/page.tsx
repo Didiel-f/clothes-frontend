@@ -19,7 +19,7 @@ export default function AuthCallback() {
       fetch('/api/auth/social', {
         method: 'POST',
         body: JSON.stringify({ token }),
-      }).then(() => router.replace('/mi-cuenta'));
+      }).then(() => router.replace('/orders'));
     }
   }, [sp, router]);
 
