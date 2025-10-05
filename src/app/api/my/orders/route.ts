@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL!;
+const STRAPI = process.env.NEXT_PUBLIC_BACKEND_URL!;
 
 export async function GET(req: NextRequest) {
   const jwt = req.cookies.get("strapi_jwt")?.value;
