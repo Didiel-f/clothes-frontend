@@ -30,7 +30,7 @@ export default function OrderRow({ order }: Props) {
     <Link href={`/orders/${order.id}`}>
       <TableRow sx={{ gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr" }}>
         <Typography noWrap variant="h5">
-          #{order.id.substring(0, 18)}
+          #{String(order.id).substring(0, 18)}
         </Typography>
 
         <Box textAlign="center">

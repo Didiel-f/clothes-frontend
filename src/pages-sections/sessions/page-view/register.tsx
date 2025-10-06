@@ -63,8 +63,34 @@ export default function RegisterPageView() {
   } = methods;
 
   // FORM SUBMIT HANDLER
-  const handleSubmitForm = handleSubmit((values) => {
-    alert(JSON.stringify(values, null, 2));
+  const handleSubmitForm = handleSubmit(async (values) => {
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Registro exitoso - redirigir al dashboard
+        alert('¡Cuenta creada exitosamente!');
+        window.location.href = '/orders';
+      } else {
+        // Mostrar error
+        alert(data.error || 'Error al crear la cuenta');
+      }
+    } catch (error) {
+      console.error('Error en registro:', error);
+      alert('Error de conexión. Intenta nuevamente.');
+    }
   });
 
   return (

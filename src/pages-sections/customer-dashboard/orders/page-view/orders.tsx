@@ -16,7 +16,7 @@ export default function OrdersPageView({ orders, totalPages }: Props) {
   return (
     <Fragment>
       {/* TITLE HEADER AREA */}
-      <DashboardHeader Icon={ShoppingBag} title="My Orders" />
+      <DashboardHeader Icon={ShoppingBag} title="Mis ordenes" />
 
       {/* ORDER LIST AREA */}
       {orders.map((order) => (

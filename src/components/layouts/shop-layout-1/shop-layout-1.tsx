@@ -49,7 +49,7 @@ export default function ShopLayout1({ children, data }: Props) {
           <SearchInput />
         </HeaderSearch>
 
-        {/* <HeaderLogin /> */}
+        <HeaderLogin />
         <HeaderCart />
       </MobileHeader.Right>
     </MobileHeader>
@@ -73,7 +73,7 @@ export default function ShopLayout1({ children, data }: Props) {
             <SearchInputWithCategory categories={categories} />
           </Header.Mid>
           <Header.Right>
-            {/* <HeaderLogin /> */}
+            <HeaderLogin />
             <HeaderCart />
           </Header.Right>
         </Header>

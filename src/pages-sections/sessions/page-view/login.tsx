@@ -3,6 +3,7 @@
 import Button from "@mui/material/Button";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useSearchParams } from "next/navigation";
 import * as yup from "yup";
 // GLOBAL CUSTOM COMPONENTS
 import { TextField, FormProvider } from "components/form-hook";
@@ -20,6 +21,8 @@ const validationSchema = yup.object().shape({
 
 export default function LoginPageView() {
   const { visiblePassword, togglePasswordVisible } = usePasswordVisible();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/orders';
 
   // LOGIN FORM FIELDS INITIAL VALUES
   const initialValues = { email: "", password: "" };
@@ -35,8 +38,29 @@ export default function LoginPageView() {
   } = methods;
 
   // FORM SUBMIT HANDLER
-  const handleSubmitForm = handleSubmit((values) => {
-    alert(JSON.stringify(values, null, 2));
+  const handleSubmitForm = handleSubmit(async (values) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Login exitoso - redirigir a la página original o al dashboard
+        window.location.href = redirectTo;
+      } else {
+        // Mostrar error
+        alert(data.error || 'Error al iniciar sesión');
+      }
+    } catch (error) {
+      console.error('Error en login:', error);
+      alert('Error de conexión. Intenta nuevamente.');
+    }
   });
 
   return (
