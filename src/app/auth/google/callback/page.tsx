@@ -25,14 +25,17 @@ export default function GoogleAuthCallback() {
       return;
     }
 
-    const processToken = async (tokenToUse: string) => {
+    const processTokens = async () => {
       try {
         const response = await fetch('/api/auth/social', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ token: tokenToUse }),
+          body: JSON.stringify({ 
+            access_token: token,
+            id_token: idToken 
+          }),
         });
 
         const result = await response.json();
@@ -50,12 +53,9 @@ export default function GoogleAuthCallback() {
       }
     };
 
-    if (token) {
-      // Procesar el token de acceso
-      processToken(token);
-    } else if (idToken) {
-      // Si solo tenemos id_token, intentar usarlo como token
-      processToken(idToken);
+    if (token || idToken) {
+      // Procesar los tokens
+      processTokens();
     } else {
       console.error('No token found in callback');
       router.replace('/login?error=no_token');
