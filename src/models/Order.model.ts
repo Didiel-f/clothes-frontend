@@ -13,6 +13,7 @@ export type OrderStatus = "Pending" | "Processing" | "Delivered" | "Cancelled";
 interface Order {
   user: User;
   id: string;
+  documentId?: string; // ID del documento en Strapi
   tax: number;
   items: Item[];
   createdAt: Date;

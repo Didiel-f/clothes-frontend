@@ -1,9 +1,10 @@
 import { cache } from "react";
+import { createFullUrl } from "utils/createFullUrl";
 
 // Función para obtener el número total de órdenes del cliente (lado del cliente)
 export async function getOrdersCount(): Promise<number> {
   try {
-    const response = await fetch('/api/my/orders?page=1&pageSize=1', {
+    const response = await fetch(createFullUrl('/api/my/orders?page=1&pageSize=1'), {
       credentials: 'include',
     });
     

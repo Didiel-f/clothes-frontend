@@ -10,7 +10,6 @@ export default function Orders() {
   const page = parseInt(searchParams.get("page") || "1");
   
   const { orders, pagination, isLoading } = useMyOrders(page, 10);
-console.log("orders", orders);
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">

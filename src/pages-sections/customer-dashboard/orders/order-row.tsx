@@ -27,10 +27,10 @@ export default function OrderRow({ order }: Props) {
   };
 
   return (
-    <Link href={`/orders/${order.id}`}>
+    // <Link href={`/orders/${(order as any).documentId || order.id}`}>
       <TableRow sx={{ gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr" }}>
         <Typography noWrap variant="h5">
-          #{String(order.id).substring(0, 18)}
+          #{(order as any).documentId ? String((order as any).documentId).substring(0, 18) : String(order.id).substring(0, 18)}
         </Typography>
 
         <Box textAlign="center">
@@ -51,6 +51,6 @@ export default function OrderRow({ order }: Props) {
           </IconButton>
         </Box>
       </TableRow>
-    </Link>
+    // </Link>
   );
 }

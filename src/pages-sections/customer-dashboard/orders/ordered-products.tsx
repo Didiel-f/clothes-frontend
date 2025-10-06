@@ -30,7 +30,7 @@ export default function OrderedProducts({ order }: Props) {
         />
       </FlexBetween>
 
-      {items.map((item, ind) => (
+      {items?.map((item, ind) => (
         <FlexBetween px={2} py={1} flexWrap="wrap" key={ind}>
           <FlexBox gap={2.5} alignItems="center">
             <Avatar variant="rounded" sx={{ height: 64, width: 64, backgroundColor: "grey.100" }}>
