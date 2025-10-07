@@ -2,6 +2,7 @@
 // MUI
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
 // LOCAL CUSTOM COMPONENTS
 import AddToCart from "./add-to-cart";
 import ProductGallery from "./product-gallery";
@@ -70,8 +71,22 @@ export default function ProductIntro({ product }: Props) {
             </Typography>
 
             {hasStock
-              ? (<p>Stock Disponible</p>)
-              : (<p>Agotado</p>)
+              ? (
+                <Chip 
+                  label="Stock Disponible" 
+                  color="success" 
+                  size="small" 
+                  variant="outlined"
+                />
+              )
+              : (
+                <Chip 
+                  label="Agotado" 
+                  color="error" 
+                  size="small" 
+                  variant="filled"
+                />
+              )
             }
           </div>
 

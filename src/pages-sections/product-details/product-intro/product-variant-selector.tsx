@@ -10,13 +10,21 @@ type Props = {
 };
 
 export default function ProductVariantSelector({ variants, selectedVariant, setSelectedVariant }: Props) {
+  // Filtrar solo las variantes que tienen stock
+  const availableVariants = variants.filter(variant => variant.stock > 0);
+  
+  // Si no hay variantes disponibles, no mostrar el selector
+  if (availableVariants.length === 0) {
+    return null;
+  }
+
   return (
     <div className="mb-1">
       <Typography variant="h6" sx={{ mb: 1 }}>
         Tamaño
       </Typography>
       <div className="variant-group">
-        {variants.map((variant) => {
+        {availableVariants.map((variant) => {
           const { documentId, shoesSize, clotheSize, isShoe } = variant
           const variantNameLowerCase = isShoe ? shoesSize?.toUpperCase() : clotheSize?.toUpperCase();
           const isActive = selectedVariant?.documentId === documentId
@@ -28,7 +36,6 @@ export default function ProductVariantSelector({ variants, selectedVariant, setS
               size="small"
               variant="outlined"
               onClick={() => setSelectedVariant(variant)}
-              disabled={variant.stock < 1}
               color={isActive ? "primary" : "default"}
             />
           );

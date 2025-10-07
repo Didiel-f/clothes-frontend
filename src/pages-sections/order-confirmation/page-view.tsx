@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 // MUI
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import { styled } from "@mui/material/styles";
+// CONTEXTO DEL CARRITO
+import { useCartStore } from "contexts/CartContext";
 
 // STYLED COMPONENT
 const Wrapper = styled(Card)(({ theme }) => ({
@@ -24,6 +27,19 @@ const StyledButton = styled(Button)({
 });
 
 export default function OrderConfirmationPageView() {
+  const clearCart = useCartStore((state) => state.clearCart);
+  const [hasClearedCart, setHasClearedCart] = useState(false);
+
+  // Limpiar el carrito cuando se carga la página de confirmación
+  useEffect(() => {
+    // Solo limpiar el carrito una vez cuando se carga la página
+    // Esto evita que se limpie múltiples veces si el usuario recarga la página
+    if (!hasClearedCart) {
+      clearCart();
+      setHasClearedCart(true);
+    }
+  }, [clearCart, hasClearedCart]);
+
   return (
     <Container className="mt-2 mb-5">
       <Wrapper>
