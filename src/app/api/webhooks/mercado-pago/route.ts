@@ -208,17 +208,40 @@ export async function POST(req: NextRequest) {
   // 3) Idempotencia por mp_payment_id
   let existingId: number | string | undefined;
   try {
-    const existRes = await fetch(
-      `${STRAPI_URL}/api/orders?filters[mp_payment_id][$eq]=${mp_payment_id}&pagination[pageSize]=1`,
-      { headers: { Authorization: `Bearer ${STRAPI_TOKEN}` }, cache: "no-store" }
-    );
+    const queryUrl = `${STRAPI_URL}/api/orders?filters[mp_payment_id][$eq]=${mp_payment_id}&pagination[pageSize]=1`;
+    console.log("🔍 Consultando orden existente en URL:", queryUrl);
+    console.log("🔑 Usando token:", STRAPI_TOKEN ? `${STRAPI_TOKEN.substring(0, 10)}...` : "NO TOKEN");
+    
+    const existRes = await fetch(queryUrl, {
+      headers: { Authorization: `Bearer ${STRAPI_TOKEN}` }, 
+      cache: "no-store" 
+    });
+    
+    console.log("📡 Status de respuesta:", existRes.status);
+    console.log("📡 Headers de respuesta:", Object.fromEntries(existRes.headers.entries()));
+    
     if (!existRes.ok) {
       const t = await existRes.text();
       console.error("❌ Error consultando orden existente:", existRes.status, t);
-      return NextResponse.json({ error: "Strapi lookup failed" }, { status: 502 });
+      console.error("❌ URL consultada:", queryUrl);
+      console.error("❌ Headers enviados:", { Authorization: `Bearer ${STRAPI_TOKEN ? 'TOKEN_PRESENT' : 'NO_TOKEN'}` });
+      
+      // Si es un 404, asumimos que no existe la orden y continuamos con la creación
+      if (existRes.status === 404) {
+        console.warn("⚠️ Orden no encontrada (404), procediendo a crear nueva orden");
+        existingId = undefined;
+      } else {
+        // Para otros errores, fallar
+        return NextResponse.json({ error: "Strapi lookup failed" }, { status: 502 });
+      }
     }
-    const existing = await existRes.json();
-    existingId = existing?.data?.[0]?.id;
+    
+    // Solo procesar la respuesta si la consulta fue exitosa
+    if (existRes.ok) {
+      const existing = await existRes.json();
+      console.log("✅ Respuesta de Strapi:", JSON.stringify(existing, null, 2));
+      existingId = existing?.data?.[0]?.id;
+    }
   } catch (e) {
     console.error("❌ Excepción consultando orden existente:", e);
     return NextResponse.json({ error: "Strapi lookup exception" }, { status: 502 });
