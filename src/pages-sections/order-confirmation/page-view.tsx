@@ -42,7 +42,7 @@ export default function OrderConfirmationPageView() {
           variant="contained"
           className="button-link"
           LinkComponent={Link}
-          href="/market-1">
+          href="/">
           Seguir comprando
         </StyledButton>
       </Wrapper>
