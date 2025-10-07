@@ -1,6 +1,6 @@
 // TOP BAR SOCIAL LINKS
 export const topbarSocialLinks = {
-  facebook: "https://www.facebook.com/",
+  facebook: "https://www.instagram.com/zag.cl?igsh=MWdscGNlaDZ3OGYxYg==",
   instagram: "https://www.instagram.com/zag.cl?igsh=MWdscGNlaDZ3OGYxYg=="
 };
 
@@ -58,9 +58,9 @@ export const footerCustomerCareLinks = [
 ];
 
 export const footerSocialLinks = {
-  facebook: "https://www.facebook.com/",
+  facebook: "https://www.instagram.com/zag.cl?igsh=MWdscGNlaDZ3OGYxYg==",
   instagram: "https://www.instagram.com/zag.cl?igsh=MWdscGNlaDZ3OGYxYg==",
-  youtube: "https://www.instagram.com/",
+  youtube: "https://www.instagram.com/zag.cl?igsh=MWdscGNlaDZ3OGYxYg==",
 };
 
 export const footerDescription =
