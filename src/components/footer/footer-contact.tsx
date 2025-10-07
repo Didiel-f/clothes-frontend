@@ -25,9 +25,9 @@ export default function FooterContact({ email, phone, address, color = "grey.900
         Email: {email}
       </Typography>
 
-      <Typography variant="body1" sx={{ color, py: 0.6, mb: 2 }}>
+      {/* <Typography variant="body1" sx={{ color, py: 0.6, mb: 2 }}>
         Phone: {phone}
-      </Typography>
+      </Typography> */}
     </Fragment>
   );
 }
