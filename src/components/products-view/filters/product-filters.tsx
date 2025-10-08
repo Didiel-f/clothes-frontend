@@ -30,13 +30,14 @@ type InitialFilters = {
   prices: { min?: number; max?: number };
   brand: string[];
   category?: string;
+  sizes?: string[]; // Tallas disponibles
 };
 
 export default function ProductFilters({
   filters,
   initial,
 }: { filters: Filters; initial: InitialFilters }) {
-  const { brands: BRANDS, categories: CATEGORIES } = filters;
+  const { brands: BRANDS, categories: CATEGORIES, sizes: AVAILABLE_SIZES = [] } = filters;
 
   const router = useRouter();
   const pathname = usePathname();
@@ -48,11 +49,13 @@ export default function ProductFilters({
     collapsed,
     category,
     discount,
+    sizes,
     setCollapsed,
     handleChangeBrand,
     handleChangePrice,
     handleChangeCategory,
     handleToggleDiscount,
+    handleChangeSize,
   } = useProductFilterCard({ initial });
 
   const handleClearFilters = () => router.push(pathname);
@@ -194,6 +197,26 @@ export default function ProductFilters({
         label="Descuento"
       />
       <Box component={Divider} my={3} />
+
+      {/* SIZE FILTER */}
+      {AVAILABLE_SIZES.length > 0 && (
+        <>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Tallas
+          </Typography>
+          <FormGroup>
+            {AVAILABLE_SIZES.map((size) => (
+              <CheckboxLabel
+                key={size}
+                label={size}
+                checked={sizes.includes(size)}
+                onChange={() => handleChangeSize(size)}
+              />
+            ))}
+          </FormGroup>
+          <Box component={Divider} my={3} />
+        </>
+      )}
 
       {searchParams.size > 0 && (
         <Button

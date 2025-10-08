@@ -63,4 +63,5 @@ export interface IImageFormat {
 export default interface Filters {
   brands: IBrand[];
   categories: ICategory[];
+  sizes?: string[]; // Tallas disponibles
 }

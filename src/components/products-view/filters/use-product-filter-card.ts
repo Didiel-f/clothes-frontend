@@ -10,6 +10,7 @@ type InitialFilters = {
   prices: { min?: number; max?: number };
   brand: string[];
   category?: string;
+  sizes?: string[]; // Tallas disponibles
 };
 
 type Options = { initial?: InitialFilters };
@@ -39,6 +40,13 @@ export default function useProductFilterCard({ initial }: Options = {}) {
   const sales = useMemo(
     () => (searchParams.get("sales") || "").split(",").filter(Boolean),
     [searchParams]
+  );
+
+  // ✅ SIZES (tallas)
+  const sizes = useMemo(
+    () => (searchParams.get("sizes") || (initial?.sizes ?? [])?.join(","))
+            .split(",").filter(Boolean),
+    [searchParams, initial]
   );
 
   // ✅ DISCOUNT (solo productos con descuento)
@@ -84,6 +92,11 @@ export default function useProductFilterCard({ initial }: Options = {}) {
     setParam("sales", next.join(","));
   }, [sales, setParam]);
 
+  const handleChangeSize = useCallback((val: string) => {
+    const next = sizes.includes(val) ? sizes.filter(v => v !== val) : [...sizes, val];
+    setParam("sizes", next.join(","));
+  }, [sizes, setParam]);
+
   const handleChangeSearchParams = useCallback((k: string, v: string) => {
     if (!k) return;
     setParam(k, v);
@@ -100,7 +113,7 @@ export default function useProductFilterCard({ initial }: Options = {}) {
     // estado
     collapsed, setCollapsed,
     prices, brand, sales, category,
-    discount,
+    discount, sizes,
     // handlers
     handleChangePrice,
     handleChangeBrand,
@@ -108,5 +121,6 @@ export default function useProductFilterCard({ initial }: Options = {}) {
     handleChangeSearchParams,
     handleChangeCategory,
     handleToggleDiscount,
+    handleChangeSize,
   };
 }

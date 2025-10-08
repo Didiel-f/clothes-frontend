@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { ProductSearchPageView } from "pages-sections/product-details/page-view";
 import { getBrands, getCategories } from "utils/__api__/fashion-2";
 import { getFilters } from "utils/__api__/product-search";
-import { getProducts } from "utils/__api__/products";
+import { getProducts, getAvailableSizes } from "utils/__api__/products";
 
 export const metadata: Metadata = {
   title: "Buscar Productos | ZAG",
@@ -21,6 +21,7 @@ type SearchParams = {
   category?: string;
   discount?: boolean;
   gender?: string;
+  sizes?: string; // Tallas seleccionadas
 };
 
 function parseSearchParams(sp: SearchParams) {
@@ -43,6 +44,7 @@ function parseSearchParams(sp: SearchParams) {
     category: sp.category ?? undefined,
     discount,
     gender: sp.gender ?? undefined,
+    sizes: (sp.sizes ?? "").split(",").filter(Boolean),
   };
 }
 
@@ -54,10 +56,11 @@ export default async function ProductSearch({ searchParams }: Props) {
   const sp = await searchParams;
   const initial = parseSearchParams(sp);
 
-  const [productsRes, categories, brands] = await Promise.all([
+  const [productsRes, categories, brands, availableSizes] = await Promise.all([
     getProducts(initial),
     getCategories(),
     getBrands(),
+    getAvailableSizes(),
   ]);
   const pageCount = productsRes.meta?.pagination?.pageCount ?? 1;
   const totalProducts = productsRes.meta?.pagination?.total ?? 0;
@@ -69,7 +72,7 @@ export default async function ProductSearch({ searchParams }: Props) {
 
   return (
     <ProductSearchPageView
-      filters={{ categories, brands }}
+      filters={{ categories, brands, sizes: availableSizes }}
       products={productsRes.data}
       initial={initial}
       pageCount={pageCount}

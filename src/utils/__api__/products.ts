@@ -34,6 +34,7 @@ type Initial = {
   category?: string;
   discount?: boolean;
   gender?: string;
+  sizes?: string[]; // Tallas disponibles (zapatos y ropa)
 };
 
 interface StrapiCollectionResponse<T> {
@@ -102,6 +103,23 @@ export async function getProducts(initial: Initial = {}): Promise<StrapiCollecti
     qs.set("filters[$and][1][discount][$gt]", "0");
   }
 
+  // ✅ filtro por tallas (zapatos o ropa)
+  if (initial.sizes && initial.sizes.length > 0) {
+    // Para cada talla, buscamos productos que tengan variantes con esa talla
+    // en shoesSize O clotheSize
+    if (initial.sizes.length === 1) {
+      const size = initial.sizes[0];
+      qs.set("filters[$or][0][variants][shoesSize][$eq]", size);
+      qs.set("filters[$or][1][variants][clotheSize][$eq]", size);
+    } else {
+      // Para múltiples tallas, usamos $in
+      initial.sizes.forEach((size) => {
+        qs.append("filters[$or][0][variants][shoesSize][$in]", size);
+        qs.append("filters[$or][1][variants][clotheSize][$in]", size);
+      });
+    }
+  }
+
   const url = `${base}/api/products?${qs.toString()}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN ?? ""}` },
@@ -116,7 +134,41 @@ export async function getProducts(initial: Initial = {}): Promise<StrapiCollecti
   return res.json();
 }
 
+// Obtener todas las tallas disponibles de los productos
+export async function getAvailableSizes(): Promise<string[]> {
+  const base = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (!base) throw new Error("Missing NEXT_PUBLIC_BACKEND_URL");
 
+  const url = `${base}/api/variants?populate=*&pagination[pageSize]=1000`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN ?? ""}` },
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    console.error("Error fetching variants for sizes");
+    return [];
+  }
+
+  const data = await res.json();
+  const variants = data.data || [];
+  
+  const sizes = new Set<string>();
+  variants.forEach((variant: any) => {
+    if (variant.shoesSize) sizes.add(variant.shoesSize);
+    if (variant.clotheSize) sizes.add(variant.clotheSize);
+  });
+
+  // Ordenar tallas: primero numéricas, luego alfabéticas
+  return Array.from(sizes).sort((a, b) => {
+    const aNum = parseFloat(a);
+    const bNum = parseFloat(b);
+    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+    if (!isNaN(aNum)) return -1;
+    if (!isNaN(bNum)) return 1;
+    return a.localeCompare(b);
+  });
+}
 
 // get all product slug
 const getSlugs = cache(async () => {

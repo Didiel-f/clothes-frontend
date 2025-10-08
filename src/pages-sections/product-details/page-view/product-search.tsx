@@ -35,6 +35,7 @@ interface InitialFilters {
   prices: { min?: number; max?: number };
   brand: string[];
   category?: string;
+  sizes?: string[]; // Tallas seleccionadas
 }
 
 // ==============================================================
