@@ -62,6 +62,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
   const countyCode: string | null = watch("countyCode") || null;
   const cart = useCartStore((s) => s.cart);
   const addShippingPrice = useCartStore((s) => s.addShippingPrice);
+  const removePrice = useCartStore((s) => s.removePrice);
   const originCountyCode = process.env.NEXT_PUBLIC_CHILEXPRESS_ORIGIN_COUNTY || "";
 
   const cartKey = useMemo(() => {
@@ -73,7 +74,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
 
   useEffect(() => {
     if (!countyCode || !(cart && cart.length)) {
-      addShippingPrice(0);
+      removePrice(); // Resetea precio y marca como no calculado
       return;
     }
 
@@ -105,7 +106,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
         if (!cancelled) addShippingPrice(Number.isFinite(finalPrice) ? finalPrice : 0);
       } catch (err) {
         console.error(err);
-        if (!cancelled) addShippingPrice(0);
+        if (!cancelled) removePrice(); // Error = no calculado
       }
     }, 250); // pequeño debounce para evitar spam en cambios rápidos
 
@@ -114,7 +115,7 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
       clearTimeout(t);
     };
     // 🔑 Recalcula si cambia la comuna (dirección seleccionada) o el carrito
-  }, [countyCode, cartKey, originCountyCode, addShippingPrice]);
+  }, [countyCode, cartKey, originCountyCode, addShippingPrice, removePrice]);
 
   // === Fuente de datos a renderizar según login ===
   // - Logueado: lista completa

@@ -14,6 +14,7 @@ export default function CheckoutSummary({ showShipping = true }: { showShipping?
 
   const cart = useCartStore((s) => s.cart);
   const shipping = useCartStore((s) => s.shippingPrice);
+  const shippingCalculated = useCartStore((s) => s.shippingCalculated);
   const discount = useCartStore((s) => s.discount);
   const subtotal = useCartSubtotal();
   const total = useCartTotals();
@@ -24,8 +25,8 @@ export default function CheckoutSummary({ showShipping = true }: { showShipping?
   const shippingNum = Number(shipping ?? 0);
   const discountNum = Number(discount ?? 0);
 
-  // Si tu "envío gratis" también es 0, ajusta esta condición a lo que corresponda
-  const isShippingPending = shippingNum === 0 && cart.length > 0;
+  // Pendiente solo si NO está calculado (no importa si es 0)
+  const isShippingPending = !shippingCalculated && cart.length > 0;
 
   // Lógica de envío gratis
   const freeShippingThreshold = 100000;

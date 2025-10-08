@@ -24,7 +24,7 @@ type MercadoPagoButtonProps = {
 }
 
 export const MercadoPagoButton = ({ methods, formValues }: MercadoPagoButtonProps) => {
-    const { cart, shippingPrice, discount, discountCode } = useCartStore();
+    const { cart, shippingPrice, shippingCalculated, discount, discountCode } = useCartStore();
     const subtotal = useCartSubtotal();
     const total = useCartTotals();
     
@@ -63,8 +63,8 @@ export const MercadoPagoButton = ({ methods, formValues }: MercadoPagoButtonProp
         }
 
         // 4. Validar que el precio de envío se haya calculado
-        // Si hay dirección y hay productos en el carrito, el precio de envío debe estar calculado
-        if (hasAddress && cart.length > 0 && shippingPrice === 0) {
+        // Si hay dirección y hay productos en el carrito, el precio de envío debe estar calculado (aunque sea 0/gratis)
+        if (hasAddress && cart.length > 0 && !shippingCalculated) {
             errors.push("Por favor espera mientras calculamos el precio de envío");
         }
 

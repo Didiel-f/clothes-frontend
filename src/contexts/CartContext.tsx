@@ -8,6 +8,7 @@ export interface CartItem { product: IProduct; variant: IVariant; qty: number; }
 type State = {
   cart: CartItem[];
   shippingPrice: number;
+  shippingCalculated: boolean; // indica si el envío ya fue calculado (aunque sea 0/gratis)
   discount: number;
   discountCode: string; // código del cupón aplicado
   tax: number;
@@ -36,6 +37,7 @@ export const useCartStore = create<State & Actions>()(
     (set, get) => ({
       cart: [],
       shippingPrice: 0,
+      shippingCalculated: false,
       discount: 0,
       discountCode: "",
       tax: 0,
@@ -87,10 +89,10 @@ export const useCartStore = create<State & Actions>()(
         });
       },
 
-      clearCart: () => set({ cart: [] }),
+      clearCart: () => set({ cart: [], shippingCalculated: false }),
 
-      addShippingPrice: (price) => set({ shippingPrice: toNumber(price) }),
-      removePrice: () => set({ shippingPrice: 0 }),
+      addShippingPrice: (price) => set({ shippingPrice: toNumber(price), shippingCalculated: true }),
+      removePrice: () => set({ shippingPrice: 0, shippingCalculated: false }),
       addDiscount: (amount, code) => set({ discount: toNumber(amount), discountCode: code || "" }),
       removeDiscount: () => set({ discount: 0, discountCode: "" }),
     }),
@@ -101,6 +103,7 @@ export const useCartStore = create<State & Actions>()(
       partialize: (s) => ({
         cart: s.cart,
         shippingPrice: s.shippingPrice,
+        shippingCalculated: s.shippingCalculated,
         discount: s.discount,
         discountCode: s.discountCode,
         tax: s.tax,
