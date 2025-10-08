@@ -155,18 +155,41 @@ export async function getAvailableSizes(): Promise<string[]> {
   
   const sizes = new Set<string>();
   variants.forEach((variant: any) => {
-    if (variant.shoesSize) sizes.add(variant.shoesSize);
-    if (variant.clotheSize) sizes.add(variant.clotheSize);
+    if (variant.shoesSize) sizes.add(String(variant.shoesSize).trim());
+    if (variant.clotheSize) sizes.add(String(variant.clotheSize).trim());
   });
 
-  // Ordenar tallas: primero numéricas, luego alfabéticas
+  // Ordenar tallas: primero numéricas (correctamente), luego alfabéticas
   return Array.from(sizes).sort((a, b) => {
-    const aNum = parseFloat(a);
-    const bNum = parseFloat(b);
-    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-    if (!isNaN(aNum)) return -1;
-    if (!isNaN(bNum)) return 1;
-    return a.localeCompare(b);
+    // Limpiar y extraer la parte numérica
+    const aClean = a.trim();
+    const bClean = b.trim();
+    
+    // Extraer número de strings como "US 1.5" -> "1.5"
+    const extractNumber = (str: string) => {
+      const match = str.match(/(\d+(?:\.\d+)?)/);
+      return match ? parseFloat(match[1]) : NaN;
+    };
+    
+    const aNum = extractNumber(aClean);
+    const bNum = extractNumber(bClean);
+    
+    const aIsNum = !isNaN(aNum) && isFinite(aNum);
+    const bIsNum = !isNaN(bNum) && isFinite(bNum);
+    
+    // Ambos tienen números válidos
+    if (aIsNum && bIsNum) {
+      return aNum - bNum;
+    }
+    
+    // Solo 'a' tiene número (números van primero)
+    if (aIsNum) return -1;
+    
+    // Solo 'b' tiene número (números van primero)
+    if (bIsNum) return 1;
+    
+    // Ninguno tiene número, ordenar alfabéticamente
+    return aClean.localeCompare(bClean);
   });
 }
 
