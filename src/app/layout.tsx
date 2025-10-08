@@ -38,7 +38,7 @@ export default function RootLayout({ children, modal }: { children: ReactNode; m
           </ThemeProvider>
         </SettingsProvider>
 
-        <GoogleAnalytics gaId="G-XKPD36JXY0" />
+        <GoogleAnalytics gaId="G-TD9KC0GFNK" />
       </body>
 
     </html>
