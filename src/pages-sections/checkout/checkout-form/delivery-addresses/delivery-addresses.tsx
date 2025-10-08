@@ -99,7 +99,10 @@ export default function DeliveryAddresses({ deliveryAddresses }: Props) {
 
         const price = Number(best?.serviceValue ?? 0);
 
-        if (!cancelled) addShippingPrice(Number.isFinite(price) ? price : 0);
+        // 🎁 Envío gratis si el subtotal es mayor o igual a 100,000
+        const finalPrice = declaredWorth >= 100000 ? 0 : price;
+
+        if (!cancelled) addShippingPrice(Number.isFinite(finalPrice) ? finalPrice : 0);
       } catch (err) {
         console.error(err);
         if (!cancelled) addShippingPrice(0);

@@ -24,14 +24,36 @@ export default function CheckoutSummary({ showShipping = true }: { showShipping?
   const shippingNum = Number(shipping ?? 0);
   const discountNum = Number(discount ?? 0);
 
-  // Si tu “envío gratis” también es 0, ajusta esta condición a lo que corresponda
+  // Si tu "envío gratis" también es 0, ajusta esta condición a lo que corresponda
   const isShippingPending = shippingNum === 0 && cart.length > 0;
+
+  // Lógica de envío gratis
+  const freeShippingThreshold = 100000;
+  const amountToFreeShipping = freeShippingThreshold - subtotal;
+  const hasFreeShipping = subtotal >= freeShippingThreshold;
 
   return (
     <div>
       <Typography variant="h6" sx={{ mb: 2, color: "secondary.900" }}>
         Tu orden
       </Typography>
+
+      {/* Mensaje de envío gratis */}
+      {subtotal > 0 && subtotal < freeShippingThreshold && (
+        <Box sx={{ mb: 2, p: 1.5, bgcolor: 'info.lighter', borderRadius: 1 }}>
+          <Typography variant="body2" color="info.main">
+            ¡Te faltan {currency(amountToFreeShipping)} para envío gratis!
+          </Typography>
+        </Box>
+      )}
+
+      {hasFreeShipping && (
+        <Box sx={{ mb: 2, p: 1.5, bgcolor: 'success.lighter', borderRadius: 1 }}>
+          <Typography variant="body2" color="success.main">
+            🎉 ¡Felicitaciones! Tienes envío gratis
+          </Typography>
+        </Box>
+      )}
 
       {cart.map(({ product: { name, price, documentId }, qty }) => (
         <FlexBetween mb={1.5} key={documentId ?? name}>
@@ -55,6 +77,10 @@ export default function CheckoutSummary({ showShipping = true }: { showShipping?
                   Ingrese dirección
                 </Typography>
               </Box>
+            ) : hasFreeShipping && shippingNum === 0 ? (
+              <Typography variant="caption" color="success.main" sx={{ fontWeight: 600 }}>
+                ¡Gratis!
+              </Typography>
             ) : null
           }
         />
