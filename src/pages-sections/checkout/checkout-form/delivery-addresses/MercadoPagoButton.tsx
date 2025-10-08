@@ -62,7 +62,13 @@ export const MercadoPagoButton = ({ methods, formValues }: MercadoPagoButtonProp
             errors.push("El carrito está vacío");
         }
 
-        // 4. Verificar si el cupón sigue siendo aplicable (si hay descuento)
+        // 4. Validar que el precio de envío se haya calculado
+        // Si hay dirección y hay productos en el carrito, el precio de envío debe estar calculado
+        if (hasAddress && cart.length > 0 && shippingPrice === 0) {
+            errors.push("Por favor espera mientras calculamos el precio de envío");
+        }
+
+        // 5. Verificar si el cupón sigue siendo aplicable (si hay descuento)
         if (discount > 0) {
             const discountValid = await validateDiscount();
             if (!discountValid) {
@@ -169,7 +175,6 @@ export const MercadoPagoButton = ({ methods, formValues }: MercadoPagoButtonProp
             });
 
             const data = await res.json();
-            console.log("dataasd", data);
             if (data.init_point) {
                 // Redirigir directamente a Mercado Pago
                 window.location.href = data.init_point;
