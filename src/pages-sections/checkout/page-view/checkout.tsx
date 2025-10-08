@@ -4,6 +4,8 @@ import CheckoutForm from "../checkout-form";
 import CheckoutSummery from "../checkout-summery";
 import { getAddresses, getDeliveryTimes, getCards } from "utils/__api__/checkout";
 import { DeliveryAddressesProvider } from "contexts/delivery-addresses-context";
+// GOOGLE ANALYTICS
+import CheckoutAnalytics from "../checkout-analytics";
 
 async function getSessionUser() {
   // TODO: reemplazar por tu auth real
@@ -19,6 +21,9 @@ export default async function CheckoutPageView() {
 
   return (
     <Container sx={{ my: 4 }}>
+      {/* 📊 Google Analytics: Trackear inicio de checkout */}
+      <CheckoutAnalytics />
+      
       <DeliveryAddressesProvider
         isLoggedIn={isLoggedIn}
         userId={userId}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 // MUI
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
@@ -10,6 +11,8 @@ import Container from "@mui/material/Container";
 import { styled } from "@mui/material/styles";
 // CONTEXTO DEL CARRITO
 import { useCartStore } from "contexts/CartContext";
+// GOOGLE ANALYTICS
+import { trackPurchase } from "utils/analytics";
 
 // STYLED COMPONENT
 const Wrapper = styled(Card)(({ theme }) => ({
@@ -27,18 +30,56 @@ const StyledButton = styled(Button)({
 });
 
 export default function OrderConfirmationPageView() {
-  const clearCart = useCartStore((state) => state.clearCart);
-  const [hasClearedCart, setHasClearedCart] = useState(false);
+  const searchParams = useSearchParams();
+  const { cart, clearCart, shippingPrice, discount, discountCode, tax } = useCartStore();
+  const [hasTrackedPurchase, setHasTrackedPurchase] = useState(false);
 
-  // Limpiar el carrito cuando se carga la página de confirmación
   useEffect(() => {
-    // Solo limpiar el carrito una vez cuando se carga la página
-    // Esto evita que se limpie múltiples veces si el usuario recarga la página
-    if (!hasClearedCart) {
+    // Obtener parámetros de Mercado Pago
+    const paymentId = searchParams.get("payment_id");
+    const status = searchParams.get("status");
+    const merchantOrderId = searchParams.get("merchant_order_id");
+    
+    // Solo trackear si:
+    // 1. Hay un payment_id (viene de Mercado Pago)
+    // 2. El pago fue aprobado
+    // 3. Hay productos en el carrito
+    // 4. No se ha trackeado antes
+    const shouldTrack = paymentId && 
+                       status === "approved" && 
+                       cart.length > 0 && 
+                       !hasTrackedPurchase;
+    
+    if (shouldTrack) {
+      // Calcular el total
+      const subtotal = cart.reduce(
+        (sum, item) => sum + item.product.price * item.qty,
+        0
+      );
+      const total = subtotal + shippingPrice - discount + tax;
+      
+      // 📊 Google Analytics: Trackear la compra
+      trackPurchase(
+        merchantOrderId || paymentId,  // ID de la transacción
+        cart,                          // Productos comprados
+        total,                         // Total pagado
+        shippingPrice,                 // Costo de envío
+        tax,                           // Impuestos
+        discountCode || undefined      // Cupón usado
+      );
+      
+      // Marcar como trackeado para evitar duplicados
+      setHasTrackedPurchase(true);
+      
+      // Limpiar el carrito DESPUÉS de trackear
       clearCart();
-      setHasClearedCart(true);
+    } else if (!paymentId && cart.length > 0 && !hasTrackedPurchase) {
+      // Si no hay payment_id pero hay carrito, es una visita directa o recarga
+      // Limpiar el carrito sin trackear
+      clearCart();
+      setHasTrackedPurchase(true);
     }
-  }, [clearCart, hasClearedCart]);
+  }, [searchParams, cart, clearCart, shippingPrice, discount, discountCode, tax, hasTrackedPurchase]);
 
   return (
     <Container className="mt-2 mb-5">

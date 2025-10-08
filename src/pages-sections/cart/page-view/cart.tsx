@@ -1,14 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import Grid from "@mui/material/Grid";
 // GLOBAL CUSTOM HOOK
 import { useCartStore } from "contexts/CartContext";
 // LOCAL CUSTOM COMPONENTS
 import CartItem from "../cart-item";
 import CheckoutSummary from "pages-sections/checkout/checkout-summery";
+// GOOGLE ANALYTICS
+import { trackViewCart } from "utils/analytics";
 
 export default function CartPageView() {
   const { cart } = useCartStore();
+
+  // 📊 Google Analytics: Trackear vista del carrito
+  useEffect(() => {
+    if (cart.length > 0) {
+      trackViewCart(cart);
+    }
+  }, []); // Solo cuando se monta el componente
 
   return (
     <Grid container spacing={3}>

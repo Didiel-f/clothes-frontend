@@ -13,9 +13,11 @@ import { currency } from "lib";
 import { StyledRoot } from "./styles";
 // CUSTOM DATA MODEL
 import { IProduct, IVariant } from "models/Product.model";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import ProductDescription from "../product-description";
+// GOOGLE ANALYTICS
+import { trackViewItem } from "utils/analytics";
 
 // ================================================================
 type Props = { product: IProduct };
@@ -24,6 +26,11 @@ type Props = { product: IProduct };
 export default function ProductIntro({ product }: Props) {
   const [selectedVariant, setSelectedVariant] = useState<IVariant | undefined>(undefined)
   const hasStock = product.variants.some(variant => variant.stock > 0);
+
+  // 📊 Google Analytics: Trackear vista del producto
+  useEffect(() => {
+    trackViewItem(product, selectedVariant);
+  }, [product, selectedVariant]);
 
   return (
     <StyledRoot>

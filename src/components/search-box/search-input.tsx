@@ -8,6 +8,8 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 // STYLED COMPONENT
 import { SearchOutlinedIcon } from "./styles";
+// GOOGLE ANALYTICS
+import { trackSearch } from "utils/analytics";
 
 export default function SearchInput() {
   const router = useRouter();
@@ -16,6 +18,9 @@ export default function SearchInput() {
 
   const handleSearch = () => {
     if (search) {
+      // 📊 Google Analytics: Trackear búsqueda
+      trackSearch(search);
+      
       const params = new URLSearchParams(searchParams);
       params.set("q", search);
       router.push(`/products/search?${params.toString()}`);

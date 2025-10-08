@@ -11,6 +11,8 @@ import CategoryDropdown from "./category-dropdown";
 import Search from "icons/Search";
 // CUSTOM DATA MODEL
 import { ICategory } from "models/Product.model";
+// GOOGLE ANALYTICS
+import { trackSearch } from "utils/analytics";
 
 // ==============================================================
 type Props = { categories: ICategory[] };
@@ -25,6 +27,9 @@ export default function SearchInputWithCategory({ categories }: Props) {
 
   const handleEnter = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter" && search) {
+      // 📊 Google Analytics: Trackear búsqueda
+      trackSearch(search);
+      
       const params = new URLSearchParams(searchParams);
       params.set("q", search);
       router.push(`/products/search?${params.toString()}`);

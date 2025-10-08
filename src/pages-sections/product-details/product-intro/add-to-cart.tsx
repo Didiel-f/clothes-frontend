@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Button from "@mui/material/Button";
 import { IProduct, IVariant } from "models/Product.model";
 import { useCartStore } from "contexts/CartContext";
+// GOOGLE ANALYTICS
+import { trackAddToCart } from "utils/analytics";
 
 type Props = {
   hasStock: boolean;
@@ -19,11 +21,17 @@ export default function AddToCart({ hasStock, product, selectedVariant }: Props)
   const handleAddToCart = () => {
     if (!selectedVariant) return;
   
+    const qty = 1;
+    
+    // Agregar al carrito
     addItem({
       product,               // el precio viene aquí, como dijiste
       variant: selectedVariant, // la variante tiene su propio documentId
-      qty: 1,
+      qty,
     });
+
+    // 📊 Google Analytics: Trackear agregar al carrito
+    trackAddToCart(product, selectedVariant, qty);
   
     router.push("/mini-cart", { scroll: false });
   };
