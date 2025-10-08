@@ -28,7 +28,7 @@ export const LayoutEndpoints = (Mock: MockAdapter) => {
           },
           topbar: {
             label: "GRATIS",
-            title: "Envío Express",
+            title: "Envío gratis a partir de $100.000",
             socials: db.topbarSocialLinks,
             languageOptions: db.languageOptions
           },
